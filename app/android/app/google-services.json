@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "152572385213",
+    "firebase_url": "https://cloudfire-fae67-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "cloudfire-fae67",
+    "storage_bucket": "cloudfire-fae67.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152572385213:android:29222d3d82e9014ce964d4",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "152572385213-ni9kr7hfgih08nv57s4tps7t7om75ko8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtgL5ghENMcfj4jS0kYGgnvutIQ_Ioy_g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "152572385213-ni9kr7hfgih08nv57s4tps7t7om75ko8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "152572385213-qikfkcqc5og1rjhbqq8l7vj2b7s31loc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
