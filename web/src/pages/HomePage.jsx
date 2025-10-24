@@ -3,6 +3,7 @@ import app from "../firebase/firebase";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useAppStore } from "../context/store";
 import Sidebar from "../components/Sidebar";
+import { getQuestionList, issueQuestion } from "../firebase/db";
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -10,6 +11,27 @@ const provider = new GoogleAuthProvider();
 const App = () => {
   const user = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => s.setUser);
+
+  // ✅ 리스트는 로컬 변수 말고 state에 둡니다. (리렌더 간 유지 + 화면 갱신)
+  const [questions, setQuestions] = useState([]);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        if (!user) { // 로그인 전이면 빈 배열로 초기화
+          setQuestions([]);
+          return;
+        }
+        // 필요에 따라 getQuestionList(user.uid)로 변경하세요.
+        const list = await getQuestionList(user);
+        setQuestions(Array.isArray(list) ? list : []);
+      } catch (e) {
+        console.error("[questions] fetch error:", e);
+        setQuestions([]);
+      }
+    };
+    fetchQuestions();
+  }, [user]);
 
   const handleLogin = () => {
     signInWithPopup(auth, provider)
@@ -19,6 +41,7 @@ const App = () => {
       })
       .catch((error) => console.log(error));
   };
+
   const handleLogout = () => {
     setUser(null);
     auth.signOut();
