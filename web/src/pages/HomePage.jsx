@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import app from "../firebase/firebase"
 import {getAuth, GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import {useAppStore} from '../context/store'
+import {Sidebar} from "../components/Sidebar"
 
 const auth = getAuth(app)
 const provider = new GoogleAuthProvider();
