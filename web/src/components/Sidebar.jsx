@@ -1,11 +1,13 @@
-import { NavLink } from 'react-router-dom'
-import { useAppStore } from '../context/store'
+import { NavLink } from "react-router-dom";
+import { useAppStore } from "../context/store";
 
 const Sidebar = () => {
-  const user = useAppStore((s) => s.user)
+  const user = useAppStore((s) => s.user);
 
-  const initials = (user?.displayName || user?.email || 'U')
-    ?.trim()?.charAt(0)?.toUpperCase()
+  const initials = (user?.displayName || user?.email || "U")
+    ?.trim()
+    ?.charAt(0)
+    ?.toUpperCase();
 
   return (
     <aside className="sb" aria-label="Primary Navigation">
@@ -14,10 +16,30 @@ const Sidebar = () => {
       </header>
 
       <nav className="sb__nav">
-        <NavLink to="/" className={({ isActive }) => `sb__link${isActive ? ' is-active' : ''}`}>Home</NavLink>
-        <NavLink to="/profile" className={({ isActive }) => `sb__link${isActive ? ' is-active' : ''}`}>Profile</NavLink>
-        <NavLink to="/questions" className={({ isActive }) => `sb__link${isActive ? ' is-active' : ''}`}>Question</NavLink>
-        <NavLink to="/playground" className={({ isActive }) => `sb__link${isActive ? ' is-active' : ''}`}>Playground</NavLink>
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            `sb__link${isActive ? " is-active" : ""}`
+          }
+        >
+          Home
+        </NavLink>
+        <NavLink
+          to="/questions"
+          className={({ isActive }) =>
+            `sb__link${isActive ? " is-active" : ""}`
+          }
+        >
+          Question
+        </NavLink>
+        <NavLink
+          to="/playground"
+          className={({ isActive }) =>
+            `sb__link${isActive ? " is-active" : ""}`
+          }
+        >
+          Playground
+        </NavLink>
       </nav>
 
       <footer className="sb__footer">
@@ -30,8 +52,12 @@ const Sidebar = () => {
             </div>
           )}
           <div className="sb__meta">
-            <div className="sb__name">{user?.displayName || user?.email?.split('@')[0] || 'Guest'}</div>
-            <div className="sb__email">{user?.email || '로그인이 필요합니다'}</div>
+            <div className="sb__name">
+              {user?.displayName || user?.email?.split("@")[0] || "Guest"}
+            </div>
+            <div className="sb__email">
+              {user?.email || "로그인이 필요합니다"}
+            </div>
           </div>
         </div>
       </footer>
@@ -89,7 +115,7 @@ const Sidebar = () => {
         }
       `}</style>
     </aside>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
