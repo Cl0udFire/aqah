@@ -1,0 +1,15 @@
+product: android/app
+
+dependencies:
+  - $compose.foundation
+  - $compose.material3
+  # Compose integration with Android activities
+  - androidx.activity:activity-compose:1.7.2
+  - com.google.gms:google-services:4.4.4
+
+settings:
+  android:
+    namespace: "com.cloudfire.project1"
+    signing: enabled
+  compose: enabled
+  junit: junit-4
