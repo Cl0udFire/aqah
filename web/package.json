@@ -14,7 +14,11 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.4",
+<<<<<<< HEAD
     "styled-components": "^6.1.19",
+=======
+    "uuid": "^13.0.0",
+>>>>>>> e750c84 (web: DB Initialization)
     "zustand": "^5.0.8"
   },
   "devDependencies": {
