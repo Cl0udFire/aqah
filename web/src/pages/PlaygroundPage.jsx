@@ -3,6 +3,7 @@ import SortingPlayground from "../components/playground/SortingPlayground";
 import DiskSchedulingPlayground from "../components/playground/DiskSchedulingPlayground";
 import PointerPlayground from "../components/playground/PointerPlayground";
 import RecursionPlayground from "../components/playground/RecursionPlayground";
+import OSIPlayground from "../components/playground/OSIPlayground";
 import { useState } from "react";
 
 const sections = [
@@ -15,6 +16,11 @@ const sections = [
     id: "pointer",
     label: "포인터",
     description: "C 포인터의 주소와 역참조, 배열 포인터 산술을 눈으로 확인합니다.",
+  },
+  {
+    id: "osi",
+    label: "네트워크",
+    description: "OSI 7계층을 따라 요청이 캡슐화되는 과정을 단계별로 따라가요.",
   },
   {
     id: "disk",
@@ -43,10 +49,10 @@ const PlaygroundPage = () => {
             어려운 알고리즘을 더 쉽게 실험해보세요
           </h1>
           <p className="max-w-3xl text-base leading-relaxed text-slate-600">
-            실제 코드를 작성하지 않고도 알고리즘의 동작 원리를 직관적으로
-            이해할 수 있도록 인터랙티브한 실험 환경을 제공해요. 정렬과 디스크
-            스케줄링 시뮬레이터에서 입력을 자유롭게 바꿔보며 결과를 비교해
-            보세요.
+            실제 코드를 작성하지 않고도 알고리즘과 시스템 동작 원리를
+            직관적으로 이해할 수 있도록 인터랙티브한 실험 환경을 제공해요.
+            정렬, 포인터, 네트워크, 디스크, 재귀 학습 도구를 살펴보며 입력을
+            자유롭게 바꿔보세요.
           </p>
           <nav className="mt-2 flex flex-wrap gap-2">
             {sections.map((section) => (
@@ -71,6 +77,7 @@ const PlaygroundPage = () => {
         <div className="flex flex-col gap-8">
           {activeSection === "sorting" && <SortingPlayground />}
           {activeSection === "pointer" && <PointerPlayground />}
+          {activeSection === "osi" && <OSIPlayground />}
           {activeSection === "disk" && <DiskSchedulingPlayground />}
           {activeSection === "recursion" && <RecursionPlayground />}
         </div>
