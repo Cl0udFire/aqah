@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: "bun"
+    directory: "/web"
+    schedule:
+      interval: "daily"
+    groups:
+      web:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pub"
+    directory: "/app"
+    schedule:
+      interval: "daily"
+    groups:
+      app:
+        patterns:
+          - "*"
