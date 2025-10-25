@@ -239,6 +239,11 @@ const App = () => {
             onChange={(e) => {
               setQuery(e.target.value);
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                window.location.href = `/search?q=${query}`;
+              }
+            }}
             value={query}
           />
           <NavLink to={`/search?q=${query}`}>
