@@ -321,7 +321,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                               ),
                             ),
                             const Spacer(),
-                            if (question.answer != null)
+                            if (question.answers.isNotEmpty)
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -331,12 +331,25 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                   color: colorScheme.tertiaryContainer,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Text(
-                                  '답변 완료',
-                                  style: textTheme.labelSmall?.copyWith(
-                                    color: colorScheme.onTertiaryContainer,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '${question.answers.length}',
+                                      style: textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.onTertiaryContainer,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '답변',
+                                      style: textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.onTertiaryContainer,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                           ],

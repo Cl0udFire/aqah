@@ -58,31 +58,30 @@ class FirestoreService {
     await _firestore.collection('questions').doc(questionId).update({
       'title': title,
       'content': content,
-      'updatedAt': FieldValue.serverTimestamp(),
+      'updatedAt': DateTime.timestamp(),
     });
   }
 
-  Future<void> updateAnswer({
+  Future<void> addAnswer({
     required String questionId,
-    required String answer,
+    required String content,
+    required String sender,
   }) async {
+    if (currentUserId == null) throw Exception('User not authenticated');
+
     await _firestore.collection('questions').doc(questionId).update({
-      'answer': answer,
-      'updatedAt': FieldValue.serverTimestamp(),
+      'answers': FieldValue.arrayUnion([
+        {
+          'content': content,
+          'sender': sender,
+          'timestamp': DateTime.timestamp(),
+        },
+      ]),
+      'updatedAt': DateTime.timestamp(),
     });
   }
 
   Future<void> deleteQuestion(String questionId) async {
     await _firestore.collection('questions').doc(questionId).delete();
-  }
-
-  Future<void> assignAnswerer({
-    required String questionId,
-    required String assigneeId,
-  }) async {
-    await _firestore.collection('questions').doc(questionId).update({
-      'assignee': assigneeId,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
   }
 }
