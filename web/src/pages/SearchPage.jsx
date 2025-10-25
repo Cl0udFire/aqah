@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import type Topbar from "../components/Topbar";
+import Topbar from "../components/Topbar";
 
 const SearchPage = () => {
   const location = useLocation();
