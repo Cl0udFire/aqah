@@ -718,7 +718,6 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                             question.id,
                             isQuestioner ? 'questioner' : 'answerer',
                           ),
-                    ),
                     style: FilledButton.styleFrom(
                       shape: const CircleBorder(),
                       padding: const EdgeInsets.all(12),
