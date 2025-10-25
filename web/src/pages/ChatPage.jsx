@@ -429,9 +429,13 @@ const ChatPage = () => {
         .cp__composer { display:flex; align-items: flex-end; gap: 12px; padding: 16px; border-radius: 16px; border: 1px solid rgba(15,23,42,.08); background: #ffffff; box-shadow: 0 12px 24px rgba(15,23,42,.04); }
         .cp__editor { flex:1; }
         .cp__editorBox { border-radius: 12px; overflow: hidden; }
-        .cp__editorBox .md-editor-rt { background: transparent; box-shadow: none; border: none; }
-        .cp__editorBox .md-editor-rt .md-editor-rt__main { background: transparent; }
-        .cp__editorBox .md-editor-rt .md-editor-rt__input, .cp__editorBox .md-editor-rt textarea { background: transparent; }
+        .cp__editorBox .md-editor-rt { background: transparent !important; box-shadow: none !important; border: none !important; }
+        .cp__editorBox .md-editor-rt .md-editor-rt__main,
+        .cp__editorBox .md-editor-rt .md-editor-rt__content,
+        .cp__editorBox .md-editor-rt .md-editor-rt__editor { background: transparent !important; }
+        .cp__editorBox .md-editor-rt .md-editor-rt__input,
+        .cp__editorBox .md-editor-rt textarea,
+        .cp__editorBox .md-editor-rt .md-editor-rt__textarea { background: transparent !important; }
         .cp__send { align-self: stretch; min-width: 96px; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background:#111; color:#fff; font-weight:600; cursor:pointer; transition: background .2s ease, transform .2s ease; }
         .cp__send:disabled { cursor: not-allowed; opacity: .6; transform: none; background: #9ca3af; border-color: transparent; }
         .cp__send:not(:disabled):active { transform: translateY(1px); }
