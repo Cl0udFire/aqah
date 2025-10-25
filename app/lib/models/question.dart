@@ -38,6 +38,8 @@ class Question {
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool completed;
+  final List<String> declinedBy;
+  final bool? acceptedByAssignee;
 
   Question({
     required this.id,
@@ -49,7 +51,10 @@ class Question {
     required this.createdAt,
     required this.updatedAt,
     this.completed = false,
-  }) : answers = answers ?? [];
+    List<String>? declinedBy,
+    this.acceptedByAssignee,
+  }) : answers = answers ?? [],
+       declinedBy = declinedBy ?? [];
 
   factory Question.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
@@ -59,6 +64,11 @@ class Question {
       answersList = (data['answers'] as List)
           .map((item) => Answer.fromMap(item as Map<String, dynamic>))
           .toList();
+    }
+    
+    List<String> declinedByList = [];
+    if (data['declinedBy'] != null) {
+      declinedByList = List<String>.from(data['declinedBy'] as List);
     }
     
     return Question(
@@ -71,6 +81,8 @@ class Question {
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
       completed: data['completed'] ?? false,
+      declinedBy: declinedByList,
+      acceptedByAssignee: data['acceptedByAssignee'],
     );
   }
 
@@ -84,6 +96,8 @@ class Question {
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
       'completed': completed,
+      'declinedBy': declinedBy,
+      if (acceptedByAssignee != null) 'acceptedByAssignee': acceptedByAssignee,
     };
   }
 
@@ -97,6 +111,8 @@ class Question {
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? completed,
+    List<String>? declinedBy,
+    bool? acceptedByAssignee,
   }) {
     return Question(
       id: id ?? this.id,
@@ -108,6 +124,8 @@ class Question {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       completed: completed ?? this.completed,
+      declinedBy: declinedBy ?? this.declinedBy,
+      acceptedByAssignee: acceptedByAssignee ?? this.acceptedByAssignee,
     );
   }
 }

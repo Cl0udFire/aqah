@@ -51,14 +51,20 @@ def send_notification(
         logger.error(f"Failed to send notification to user {user_id}: {e}")
 
 
-def get_available_users(exclude_user_id: str = None) -> list[str]:
+def get_available_users(exclude_user_id: str = None, exclude_users: list[str] = None) -> list[str]:
     db = firestore.client()
     users_ref = db.collection('users')
     users = users_ref.stream()
 
-    user_ids = [user.id for user in users if user.id != exclude_user_id]
+    excluded = set()
+    if exclude_user_id:
+        excluded.add(exclude_user_id)
+    if exclude_users:
+        excluded.update(exclude_users)
 
-    logger.info(f"Found {len(user_ids)} available users")
+    user_ids = [user.id for user in users if user.id not in excluded]
+
+    logger.info(f"Found {len(user_ids)} available users (excluded {len(excluded)} users)")
     return user_ids
 
 
@@ -78,8 +84,12 @@ def assign_question_on_create(
 
     questioner_id = question_data.get('questioner')
     question_title = question_data.get('title', 'Untitled Question')
+    declined_by = question_data.get('declinedBy', [])
 
-    available_users = get_available_users(exclude_user_id=questioner_id)
+    available_users = get_available_users(
+        exclude_user_id=questioner_id,
+        exclude_users=declined_by
+    )
 
     if not available_users:
         logger.warning(f"No available users to assign question {question_id}")
@@ -117,6 +127,50 @@ def notify_on_answer_added(
     before_data = event.data.before.to_dict() if event.data.before else {}
     after_data = event.data.after.to_dict() if event.data.after else {}
     question_id = event.params["questionId"]
+
+    # Handle question decline and reassignment
+    before_assignee = before_data.get('assignee')
+    after_assignee = after_data.get('assignee')
+    before_declined_by = before_data.get('declinedBy', [])
+    after_declined_by = after_data.get('declinedBy', [])
+
+    # Check if assignee was removed and declinedBy was updated
+    if before_assignee and not after_assignee and len(after_declined_by) > len(before_declined_by):
+        logger.info(f"Question {question_id} was declined, triggering reassignment")
+        
+        questioner_id = after_data.get('questioner')
+        question_title = after_data.get('title', 'Untitled Question')
+        
+        available_users = get_available_users(
+            exclude_user_id=questioner_id,
+            exclude_users=after_declined_by
+        )
+        
+        if not available_users:
+            logger.warning(f"No available users to reassign question {question_id}")
+            return
+        
+        new_assignee_id = random.choice(available_users)
+        
+        db = firestore.client()
+        question_ref = db.collection('questions').document(question_id)
+        question_ref.update({
+            'assignee': new_assignee_id,
+            'updatedAt': firestore.SERVER_TIMESTAMP
+        })
+        
+        logger.info(f"Question {question_id} reassigned to user {new_assignee_id}")
+        
+        send_notification(
+            user_id=new_assignee_id,
+            title='질문이 배정되었습니다!',
+            body=f'{question_title}',
+            data={
+                'questionId': question_id,
+                'type': 'question_assigned',
+            }
+        )
+        return
 
     before_answers = before_data.get('answers', [])
     after_answers = after_data.get('answers', [])
