@@ -329,14 +329,19 @@ const buildReturnSteps = (forwardSteps) =>
       description: `${step.layer.name.replace(/^[0-9]. /, "")}에서 상위 계층으로 올리며 캡슐을 제거합니다.`,
     }));
 
-const StepCard = ({ step, index, active }) => (
-  <article
-    className={`rounded-xl border p-4 transition-colors ${
-      active
-        ? "border-sky-400 bg-sky-50 shadow-sm"
-        : "border-slate-200 bg-white"
-    }`}
-  >
+const StepCard = ({ step, index, active }) => {
+  if (!step) {
+    return null;
+  }
+
+  return (
+    <article
+      className={`rounded-xl border p-4 transition-colors ${
+        active
+          ? "border-sky-400 bg-sky-50 shadow-sm"
+          : "border-slate-200 bg-white"
+      }`}
+    >
     <header className="flex items-center justify-between">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -375,7 +380,25 @@ const StepCard = ({ step, index, active }) => (
         </dd>
       </div>
     </dl>
-  </article>
+    </article>
+  );
+};
+
+const StepTimeline = ({ steps, activeIndex }) => (
+  <ol className="flex flex-wrap gap-2 text-xs text-slate-500">
+    {steps.map((step, index) => (
+      <li
+        key={`${step.layer.id}-${step.action}-timeline`}
+        className={`rounded-full border px-3 py-1 ${
+          index === activeIndex
+            ? "border-sky-400 bg-sky-50 text-sky-600"
+            : "border-slate-200 bg-white"
+        }`}
+      >
+        {index + 1}. {step.layer.name.replace(/^[0-9]. /, "")}
+      </li>
+    ))}
+  </ol>
 );
 
 const OSIPlayground = () => {
@@ -397,6 +420,7 @@ const OSIPlayground = () => {
   );
   const [direction, setDirection] = useState("forward");
   const [stepIndex, setStepIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const nextScenario = OSI_SCENARIOS[scenarioId];
@@ -407,6 +431,7 @@ const OSIPlayground = () => {
     setMaintainSession(nextScenario.defaults.maintainSession);
     setStepIndex(0);
     setDirection("forward");
+    setIsPlaying(false);
   }, [scenarioId]);
 
   const forwardSteps = useMemo(
@@ -429,6 +454,7 @@ const OSIPlayground = () => {
 
   useEffect(() => {
     setStepIndex(0);
+    setIsPlaying(false);
   }, [direction, forwardSteps.length]);
 
   const finalPayload = forwardSteps[forwardSteps.length - 1]?.payloadAfter;
@@ -436,9 +462,38 @@ const OSIPlayground = () => {
   const handleToggleDirection = (nextDirection) => {
     setDirection(nextDirection);
     setStepIndex(0);
+    setIsPlaying(false);
   };
 
   const activeStep = activeSteps[stepIndex] ?? activeSteps[0];
+
+  useEffect(() => {
+    if (!isPlaying) {
+      return undefined;
+    }
+
+    if (activeSteps.length <= 1) {
+      setIsPlaying(false);
+      return undefined;
+    }
+
+    const timer = setInterval(() => {
+      setStepIndex((prev) => {
+        if (prev >= activeSteps.length - 1) {
+          setIsPlaying(false);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 1200);
+
+    return () => clearInterval(timer);
+  }, [isPlaying, activeSteps]);
+
+  const handleStepChange = (value) => {
+    setIsPlaying(false);
+    setStepIndex(value);
+  };
 
   return (
     <section className="rounded-2xl bg-white p-6 shadow-sm">
@@ -578,13 +633,23 @@ const OSIPlayground = () => {
               </button>
             </div>
             <div className="flex items-center gap-3 text-xs text-slate-600">
+              <button
+                type="button"
+                className={`rounded-full px-3 py-1 text-xs font-semibold text-white transition ${
+                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-sky-500 hover:bg-sky-600"
+                }`}
+                onClick={() => setIsPlaying((prev) => !prev)}
+                disabled={activeSteps.length <= 1}
+              >
+                {isPlaying ? "일시정지" : "자동 재생"}
+              </button>
               <span className="font-medium text-slate-700">단계</span>
               <input
                 type="range"
                 min={0}
                 max={Math.max(activeSteps.length - 1, 0)}
                 value={stepIndex}
-                onChange={(event) => setStepIndex(Number(event.target.value))}
+                onChange={(event) => handleStepChange(Number(event.target.value))}
                 className="w-40 accent-sky-500"
               />
               <span className="font-medium text-slate-700">
@@ -594,9 +659,10 @@ const OSIPlayground = () => {
           </div>
 
           <div className="grid gap-4">
-            {activeSteps.map((step, index) => (
-              <StepCard key={`${step.layer.id}-${step.action}`} step={step} index={index} active={index === stepIndex} />
-            ))}
+            <div className="max-h-[420px] overflow-y-auto pr-1">
+              {activeStep && <StepCard step={activeStep} index={stepIndex} active />}
+            </div>
+            <StepTimeline steps={activeSteps} activeIndex={stepIndex} />
           </div>
         </div>
       </div>
