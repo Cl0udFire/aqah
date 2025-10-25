@@ -4,6 +4,7 @@ import QuestionSelector from "../components/QuestionSelector";
 import QuestionList from "../components/QuestionList";
 import { getReceivedQuestionList, getSentQuestionList } from "../firebase/db";
 import { useAppStore } from "../context/store";
+import Loading from "../components/Loading";
 
 const QuestionsPage = () => {
   const [currentFilter, setCurrentFilter] = useState("received");
@@ -96,7 +97,7 @@ const QuestionsPage = () => {
   }, [user]);
 
   if (isLoading) {
-    return <div>Loading...</div>; // 또는 스피너 컴포넌트
+    return <Loading />;
   }
 
   
