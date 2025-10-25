@@ -26,10 +26,9 @@ transition: all 0.3s ease;
 `
 
 const QuestionList = ({ questions, type }) => {
-  console.log(questions);
-  if (!questions?.current?.received?.length) {
-    console.log("!!!!");
-    console.log(questions.current);
+  const questionItems = questions?.[type] ?? [];
+
+  if (!questionItems.length) {
     return (
       <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white">
         <div className="text-center text-sm">
@@ -47,8 +46,7 @@ const QuestionList = ({ questions, type }) => {
   return (
     <div className="container">
       <div className="y-scroll flex flex-col gap-4 max-h-[600px] overflow-y-auto">
-        {questions.current[`${type}`].map((question) => {
-          console.log(question);
+        {questionItems.map((question) => {
           // const statusClass = STATUS_STYLES[question.status] ?? STATUS_STYLES.pending;
           return (
             <div key={question.id} className="p-6 rounded-2xl border border-gray-200 bg-white shadow-sm h-[10rem] flex justify-start items-start">
