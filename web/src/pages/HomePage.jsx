@@ -69,7 +69,6 @@ const SearchBox = styled.div`
 const SearchButton = styled.button`
   margin-left: 16px;
   border: none;
-  color: #ff8800;
   border-radius: 9999px;
   font-size: 18px;
   cursor: pointer;
@@ -226,7 +225,7 @@ const App = () => {
               setQuery(e.target.value);
             }}
           />
-          <SearchButton>
+          <SearchButton className="bg-blue-500 text-white flex items-center justify-center">
             <FontAwesomeIcon icon={faMagnifyingGlass} />
           </SearchButton>
         </SearchBox>
