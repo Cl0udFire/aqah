@@ -318,6 +318,7 @@ const STRUCTURES = {
 const DataStructuresPlayground = () => {
   const [structureId, setStructureId] = useState("queue");
   const [stepIndex, setStepIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const structure = STRUCTURES[structureId];
 
@@ -325,9 +326,38 @@ const DataStructuresPlayground = () => {
 
   useEffect(() => {
     setStepIndex(0);
+    setIsPlaying(false);
   }, [structureId]);
 
   const activeStep = steps[stepIndex];
+
+  useEffect(() => {
+    if (!isPlaying) {
+      return undefined;
+    }
+
+    if (steps.length <= 1) {
+      setIsPlaying(false);
+      return undefined;
+    }
+
+    const timer = setInterval(() => {
+      setStepIndex((prev) => {
+        if (prev >= steps.length - 1) {
+          setIsPlaying(false);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 1100);
+
+    return () => clearInterval(timer);
+  }, [isPlaying, steps.length]);
+
+  const handleStepChange = (value) => {
+    setIsPlaying(false);
+    setStepIndex(value);
+  };
 
   return (
     <section className="rounded-2xl bg-white p-6 shadow-sm">
@@ -363,13 +393,23 @@ const DataStructuresPlayground = () => {
 
           <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
             <p className="font-semibold text-slate-700">단계 제어</p>
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                className={`rounded-full px-3 py-1 text-xs font-semibold text-white transition ${
+                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-sky-500 hover:bg-sky-600"
+                }`}
+                onClick={() => setIsPlaying((prev) => !prev)}
+                disabled={steps.length <= 1}
+              >
+                {isPlaying ? "일시정지" : "자동 재생"}
+              </button>
               <input
                 type="range"
                 min={0}
                 max={Math.max(steps.length - 1, 0)}
                 value={stepIndex}
-                onChange={(event) => setStepIndex(Number(event.target.value))}
+                onChange={(event) => handleStepChange(Number(event.target.value))}
                 className="w-full accent-sky-500"
               />
               <span className="whitespace-nowrap font-semibold text-slate-700">

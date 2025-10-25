@@ -28,6 +28,7 @@ const RecursionPlayground = () => {
   const [algorithmKey, setAlgorithmKey] = useState("factorial");
   const [inputValue, setInputValue] = useState(4);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const algorithm = RECURSION_ALGORITHMS[algorithmKey];
   const clampedInput = clamp(inputValue, algorithm.minInput, algorithm.maxInput);
@@ -43,10 +44,12 @@ const RecursionPlayground = () => {
   const goToStep = (next) => {
     const safe = clamp(next, 0, steps.length - 1);
     setCurrentStep(safe);
+    setIsPlaying(false);
   };
 
   useEffect(() => {
     setCurrentStep((previous) => clamp(previous, 0, steps.length - 1));
+    setIsPlaying(false);
   }, [steps.length]);
 
   const handleAlgorithmChange = (key) => {
@@ -54,12 +57,37 @@ const RecursionPlayground = () => {
     const config = RECURSION_ALGORITHMS[key];
     setInputValue(config.minInput);
     setCurrentStep(0);
+    setIsPlaying(false);
   };
 
   const handleInputChange = (value) => {
     setInputValue(value);
     setCurrentStep(0);
+    setIsPlaying(false);
   };
+
+  useEffect(() => {
+    if (!isPlaying) {
+      return undefined;
+    }
+
+    if (steps.length <= 1) {
+      setIsPlaying(false);
+      return undefined;
+    }
+
+    const timer = setInterval(() => {
+      setCurrentStep((prev) => {
+        if (prev >= steps.length - 1) {
+          setIsPlaying(false);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isPlaying, steps.length]);
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -108,7 +136,7 @@ const RecursionPlayground = () => {
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600">
               호출 스택 프레임
             </h3>
-            <div className="mt-4">
+            <div className="mt-4 max-h-80 overflow-y-auto pr-1">
               <StackFrameTree frames={frame.stack} />
             </div>
           </div>
@@ -120,7 +148,7 @@ const RecursionPlayground = () => {
               </span>
               <span className="text-slate-500">{frame.message}</span>
             </div>
-            <div className="mt-3 flex items-center gap-2">
+            <div className="mt-3 flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
@@ -128,6 +156,16 @@ const RecursionPlayground = () => {
                 disabled={currentStep === 0}
               >
                 이전 단계
+              </button>
+              <button
+                type="button"
+                className={`rounded-lg px-3 py-2 text-xs font-semibold text-white transition ${
+                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-sky-500 hover:bg-sky-600"
+                }`}
+                onClick={() => setIsPlaying((prev) => !prev)}
+                disabled={steps.length <= 1}
+              >
+                {isPlaying ? "일시정지" : "자동 재생"}
               </button>
               <input
                 type="range"
