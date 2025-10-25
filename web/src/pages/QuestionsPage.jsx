@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Topbar from "../components/Topbar";
 import QuestionSelector from "../components/QuestionSelector";
 import QuestionList from "../components/QuestionList";
-import { getReceivedQuestionList, getSentQuestionList, issueQuestion } from "../firebase/db";
+import { subscribeToReceivedQuestions, subscribeToSentQuestions, issueQuestion } from "../firebase/db";
 import { useAppStore } from "../context/store";
 import Loading from "../components/Loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,32 +11,58 @@ import { faQuestion, faQuestionCircle, faPlus } from "@fortawesome/free-solid-sv
 const QuestionsPage = () => {
   const [currentFilter, setCurrentFilter] = useState("received");
   const user = useAppStore((state) => state.user);
-  let questions = useRef({ received: [], sent: [] });
+  const [questions, setQuestions] = useState({ received: [], sent: [] });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
+      setQuestions({ received: [], sent: [] });
       setIsLoading(false);
       return;
     }
 
-    getReceivedQuestionList(user)
-      .then((data) => {
-        console.log(data);
-        questions.current.received = data;
-      })
-      .catch((error) => {
-        console.error("Error fetching questions:", error);
-      });
+    setIsLoading(true);
+    const unsubscribers = [];
+    const initialLoad = { received: false, sent: false };
 
-    getSentQuestionList(user)
-      .then((data) => {
-        console.log(data);
-        questions.current.sent = data;
-      })
-      .finally(() => {
+    const handleInitialLoad = () => {
+      if (initialLoad.received && initialLoad.sent) {
         setIsLoading(false);
-      });
+      }
+    };
+
+    const handleError = (error) => {
+      console.error("Error subscribing to questions:", error);
+      setIsLoading(false);
+    };
+
+    unsubscribers.push(
+      subscribeToReceivedQuestions(
+        user,
+        (data) => {
+          initialLoad.received = true;
+          setQuestions((prev) => ({ ...prev, received: data }));
+          handleInitialLoad();
+        },
+        handleError
+      )
+    );
+
+    unsubscribers.push(
+      subscribeToSentQuestions(
+        user,
+        (data) => {
+          initialLoad.sent = true;
+          setQuestions((prev) => ({ ...prev, sent: data }));
+          handleInitialLoad();
+        },
+        handleError
+      )
+    );
+
+    return () => {
+      unsubscribers.forEach((unsubscribe) => unsubscribe && unsubscribe());
+    };
   }, [user]);
 
   if (isLoading) {
