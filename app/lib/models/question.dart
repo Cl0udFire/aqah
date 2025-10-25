@@ -59,18 +59,18 @@ class Question {
   factory Question.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     List<Answer> answersList = [];
-    
+
     if (data['answers'] != null) {
       answersList = (data['answers'] as List)
           .map((item) => Answer.fromMap(item as Map<String, dynamic>))
           .toList();
     }
-    
+
     List<String> declinedByList = [];
     if (data['declinedBy'] != null) {
       declinedByList = List<String>.from(data['declinedBy'] as List);
     }
-    
+
     return Question(
       id: doc.id,
       title: data['title'] ?? '',

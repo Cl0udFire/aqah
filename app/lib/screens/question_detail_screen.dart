@@ -615,8 +615,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     // Show accept/decline UI if assignee hasn't accepted yet and no answers
-    if (isAssignee && 
-        question.acceptedByAssignee != true && 
+    if (isAssignee &&
+        question.acceptedByAssignee != true &&
         question.answers.isEmpty) {
       return _buildAcceptDeclineView(question);
     }

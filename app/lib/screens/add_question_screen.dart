@@ -72,9 +72,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('질문 추가'),
-      ),
+      appBar: AppBar(title: const Text('질문 추가')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(

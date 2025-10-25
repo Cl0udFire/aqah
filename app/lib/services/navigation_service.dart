@@ -5,7 +5,10 @@ class NavigationService {
       GlobalKey<NavigatorState>();
 
   static Future<dynamic>? navigateTo(String routeName, {Object? arguments}) {
-    return navigatorKey.currentState?.pushNamed(routeName, arguments: arguments);
+    return navigatorKey.currentState?.pushNamed(
+      routeName,
+      arguments: arguments,
+    );
   }
 
   static void goBack() {

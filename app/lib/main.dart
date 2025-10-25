@@ -11,10 +11,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await GoogleSignIn.instance.initialize();
-  
+
   // Set up background message handler
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  
+
   runApp(const MyApp());
 }
 
@@ -39,10 +39,7 @@ class MyApp extends StatelessWidget {
           shadowColor: Colors.black26,
           surfaceTintColor: Colors.transparent,
         ),
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-        ),
+        appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -69,10 +66,7 @@ class MyApp extends StatelessWidget {
           shadowColor: Colors.black45,
           surfaceTintColor: Colors.transparent,
         ),
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          elevation: 0,
-        ),
+        appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
