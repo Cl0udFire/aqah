@@ -18,6 +18,7 @@ const Container = styled.div`
   grid-template-rows: auto 1fr;
   gap: 25px;
   padding: 20px;
+  margin-top: 15px;
   height: calc(100vh - 84px);
 `;
 
@@ -27,8 +28,10 @@ const WriteButton = styled.button`
   border-radius: 99999px;
   background-color: #3b82f6;
   color: white;
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 1;
+  justify-self: right;
+  align-self: end;
 `;
 
 const StyledQuestionList = styled.div`
@@ -116,13 +119,18 @@ const SearchPage = () => {
     <div className="flex flex-col min-h-screen">
       <Topbar />
       <Container>
+        <header className="space-y-2">
+          <h1 className="text-[2rem] font-bold text-gray-900">검색 결과</h1>
+          <p className="text-sm text-gray-500">
+            이미 궁금한 점을 해결하신 분들의 답변을 확인해보세요!
+          </p>
+        </header>
         <WriteButton>
           <NavLink to="/questions">
-            새로 작성
-            <FontAwesomeIcon icon={faPlus} />
+            <FontAwesomeIcon icon={faPlus} /> 새로 작성
           </NavLink>
         </WriteButton>
-        <StyledQuestionList className="y-scroll flex flex-col gap-4 max-h-[100%] overflow-y-auto">
+        <StyledQuestionList className="y-scroll flex flex-col gap-4 h-[600px] overflow-y-auto">
           {questions.map((question) => {
             console.log(question);
             return (
@@ -156,10 +164,17 @@ const SearchPage = () => {
           })}
         </StyledQuestionList>
 
-        <GPTSummaryBox>
-          아 너무나도
+        <GPTSummaryBox className="h-[600px] overflow-y-auto">
+          <h1 className="font-bold text-center">GPT 요약</h1>
           <br />
-          집에 가고싶은 하루야.
+          {"아 너무나도\n집에 가고싶은 하루야.\n진짜로."
+            .split("\n")
+            .map((line, index) => (
+              <>
+                <span key={index}>{line}</span>
+                <br />
+              </>
+            ))}
         </GPTSummaryBox>
       </Container>
     </div>
