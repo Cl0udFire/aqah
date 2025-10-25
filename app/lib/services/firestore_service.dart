@@ -170,4 +170,24 @@ class FirestoreService {
   Future<void> deleteQuestion(String questionId) async {
     await _firestore.collection('questions').doc(questionId).delete();
   }
+
+  Future<void> acceptQuestion(String questionId) async {
+    if (currentUserId == null) throw Exception('User not authenticated');
+
+    await _firestore.collection('questions').doc(questionId).update({
+      'acceptedByAssignee': true,
+      'updatedAt': DateTime.timestamp(),
+    });
+  }
+
+  Future<void> declineQuestion(String questionId) async {
+    if (currentUserId == null) throw Exception('User not authenticated');
+
+    await _firestore.collection('questions').doc(questionId).update({
+      'declinedBy': FieldValue.arrayUnion([currentUserId!]),
+      'assignee': FieldValue.delete(),
+      'acceptedByAssignee': FieldValue.delete(),
+      'updatedAt': DateTime.timestamp(),
+    });
+  }
 }

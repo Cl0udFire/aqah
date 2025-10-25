@@ -77,7 +77,28 @@ service cloud.firestore {
                              request.resource.data.content == resource.data.content &&
                              request.resource.data.assignee == resource.data.assignee &&
                              request.resource.data.answers == resource.data.get('answers', []) &&
-                             (request.resource.data.completed == false || resource.data.get('answers', []).size() > 0))
+                             (request.resource.data.completed == false || resource.data.get('answers', []).size() > 0)) ||
+                            
+                            // 3. 답변자가 질문 수락 (acceptedByAssignee를 true로 설정, 답변이 없을 때만)
+                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acceptedByAssignee', 'updatedAt']) &&
+                             request.resource.data.title == resource.data.title &&
+                             request.resource.data.content == resource.data.content &&
+                             request.resource.data.assignee == resource.data.assignee &&
+                             request.resource.data.completed == resource.data.completed &&
+                             request.resource.data.answers == resource.data.get('answers', []) &&
+                             request.resource.data.acceptedByAssignee == true &&
+                             resource.data.get('answers', []).size() == 0) ||
+                            
+                            // 4. 답변자가 질문 거절 (declinedBy에 자신 추가, assignee 제거)
+                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['declinedBy', 'assignee', 'acceptedByAssignee', 'updatedAt']) &&
+                             request.resource.data.title == resource.data.title &&
+                             request.resource.data.content == resource.data.content &&
+                             request.resource.data.completed == resource.data.completed &&
+                             request.resource.data.answers == resource.data.get('answers', []) &&
+                             request.resource.data.declinedBy is list &&
+                             request.resource.data.declinedBy.hasAll([request.auth.uid]) &&
+                             !request.resource.data.keys().hasAny(['assignee', 'acceptedByAssignee']) &&
+                             resource.data.get('answers', []).size() == 0)
                           ))
                        );
       
