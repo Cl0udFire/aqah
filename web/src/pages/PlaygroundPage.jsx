@@ -4,6 +4,7 @@ import DiskSchedulingPlayground from "../components/playground/DiskSchedulingPla
 import PointerPlayground from "../components/playground/PointerPlayground";
 import RecursionPlayground from "../components/playground/RecursionPlayground";
 import OSIPlayground from "../components/playground/OSIPlayground";
+import GraphPlayground from "../components/playground/GraphPlayground";
 import { useState } from "react";
 
 const sections = [
@@ -16,6 +17,11 @@ const sections = [
     id: "pointer",
     label: "포인터",
     description: "C 포인터의 주소와 역참조, 배열 포인터 산술을 눈으로 확인합니다.",
+  },
+  {
+    id: "graph",
+    label: "그래프",
+    description: "그래프 탐색과 최단 경로 알고리즘이 어떻게 진행되는지 비교합니다.",
   },
   {
     id: "osi",
@@ -51,7 +57,7 @@ const PlaygroundPage = () => {
           <p className="max-w-3xl text-base leading-relaxed text-slate-600">
             실제 코드를 작성하지 않고도 알고리즘과 시스템 동작 원리를
             직관적으로 이해할 수 있도록 인터랙티브한 실험 환경을 제공해요.
-            정렬, 포인터, 네트워크, 디스크, 재귀 학습 도구를 살펴보며 입력을
+            정렬, 포인터, 그래프, 네트워크, 디스크, 재귀 학습 도구를 살펴보며 입력을
             자유롭게 바꿔보세요.
           </p>
           <nav className="mt-2 flex flex-wrap gap-2">
@@ -77,6 +83,7 @@ const PlaygroundPage = () => {
         <div className="flex flex-col gap-8">
           {activeSection === "sorting" && <SortingPlayground />}
           {activeSection === "pointer" && <PointerPlayground />}
+          {activeSection === "graph" && <GraphPlayground />}
           {activeSection === "osi" && <OSIPlayground />}
           {activeSection === "disk" && <DiskSchedulingPlayground />}
           {activeSection === "recursion" && <RecursionPlayground />}
