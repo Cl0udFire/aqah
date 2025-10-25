@@ -7,9 +7,7 @@ import HomePage from "./pages/HomePage.jsx";
 import QuestionsPage from "./pages/QuestionsPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
-import AuthModal from "./components/AuthModal.jsx";
-import { auth } from "./firebase/firebase";
-import { useAppStore } from "./context/store";
+import PlaygroundPage from "./pages/PlaygroundPage.jsx";
 
 function App() {
   const setUser = useAppStore((state) => state.setUser);
@@ -35,6 +33,7 @@ function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/questions" element={<QuestionsPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/playground" element={<PlaygroundPage />} />
       </Routes>
     </BrowserRouter>
   );
