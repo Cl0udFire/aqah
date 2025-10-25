@@ -3,6 +3,9 @@ import { useAppStore } from "../context/store";
 import Topbar from "../components/Topbar";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
+
 import {
   faArrowDown,
   faArrowUp,
@@ -69,7 +72,6 @@ const SearchBox = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 2;
   position: relative;
-  background-color: color-mix(in oklab, #f8fafc 50%, transparent);
 `;
 
 const StyledDropdown = styled(Dropdown)`
@@ -220,17 +222,15 @@ const App = () => {
           <Highlight>A</Highlight>nswered&nbsp;<Highlight>H</Highlight>ere
         </Slogan>
         <GradientBackground />
-        <SearchBox>
-          <StyledDropdown
-            options={["Search", "Learn"]}
-            value="Search"
-            arrowClosed={<FontAwesomeIcon icon={faCaretDown} />}
-            arrowOpen={<FontAwesomeIcon icon={faCaretUp} />}
-          />
+        <SearchBox className="bg-slate-100">
+          <Select variant="plain" defaultValue="search">
+            <Option value="search">Search</Option>
+            <Option value="learn">Learn</Option>
+          </Select>
           <input
             type="text"
             placeholder="궁금한 내용을 입력해보세요..."
-            className="flex-grow outline-none border-none text-2xl bg-transparent ml-16"
+            className="flex-grow outline-none border-none text-2xl bg-transparent ml-4"
             defaultValue={query}
             onChange={(e) => {
               setQuery(e.target.value);
