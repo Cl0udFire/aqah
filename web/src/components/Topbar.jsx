@@ -1,7 +1,7 @@
 import { useAppStore } from "../context/store";
 import SideLink from "./SideLink";
 import { faComments, faHome } from "@fortawesome/free-regular-svg-icons";
-import { faWaveSquare } from "@fortawesome/free-solid-svg-icons";
+import { faWaveSquare, faGraduationCap } from "@fortawesome/free-solid-svg-icons";
 
 const Topbar = () => {
   const user = useAppStore((s) => s.user);
@@ -19,6 +19,7 @@ const Topbar = () => {
           <nav className="tb__nav">
             <SideLink to="/" icon={faHome} label="Home" />
             <SideLink to="/questions" icon={faComments} label="Question" />
+            <SideLink to="/learn" icon={faGraduationCap} label="Learn" />
             <SideLink to="/playground" icon={faWaveSquare} label="Playground" />
           </nav>
         </div>

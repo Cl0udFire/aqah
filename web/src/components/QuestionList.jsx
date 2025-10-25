@@ -25,7 +25,10 @@ transition: all 0.3s ease;
 `
 
 const QuestionList = ({ questions, type }) => {
-  if (!questions?.length) {
+  console.log(questions);
+  if (!questions?.current?.received?.length) {
+    console.log("!!!!");
+    console.log(questions.current);
     return (
       <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white">
         <div className="text-center text-sm">
@@ -39,18 +42,18 @@ const QuestionList = ({ questions, type }) => {
       </div>
     );
   }
-
+  
   return (
     <div className="container">
       <div className="y-scroll flex flex-col gap-4 max-h-[600px] overflow-y-auto">
-        {questions.map((question) => {
+        {questions.current[`${type}`].map((question) => {
+          console.log(question);
           // const statusClass = STATUS_STYLES[question.status] ?? STATUS_STYLES.pending;
-          
           return (
             <div key={question.id} className="p-6 rounded-2xl border border-gray-200 bg-white shadow-sm h-[10rem] flex justify-start items-start">
               <div className="flex">
                 <div className="flex flex-col gap-3 items-center w-min-[7rem] w-[7rem]">
-                  <div className="w-[5rem] h-[5rem] border-blue-500 border-4 rounded-2xl bg-blue-500 flex justify-center items-center">
+                  <div className="w-[5rem] h-[5rem] border-blue-500 border-4 rounded-2xl bg-blue-300 flex justify-center items-center">
                     <FontAwesomeIcon icon={faComputer} fontSize="2.5rem" color="black" />
                   </div>
                   <span className="text-[0.875rem]">{question.subject}</span>
