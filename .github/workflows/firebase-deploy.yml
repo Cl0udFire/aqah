@@ -45,11 +45,8 @@ jobs:
             echo "Error: firebase.json not found"
             exit 1
           fi
-          echo "Firebase configuration (.firebaserc):"
-          cat .firebaserc
-          echo ""
-          echo "Firebase project configuration (firebase.json):"
-          cat firebase.json
+          echo "✓ Firebase configuration files verified"
+          echo "✓ Project ID: ${{ secrets.FIREBASE_PROJECT_ID }}"
 
       - name: Deploy to Firebase
         env:
