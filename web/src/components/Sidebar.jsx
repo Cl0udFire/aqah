@@ -1,8 +1,5 @@
 import { NavLink } from "react-router-dom";
 import { useAppStore } from "../context/store";
-import SideLink from "./SideLink";
-import { faComments, faHome } from "@fortawesome/free-regular-svg-icons";
-import { faWaveSquare } from "@fortawesome/free-solid-svg-icons";
 
 const Sidebar = () => {
   const user = useAppStore((s) => s.user);
@@ -19,9 +16,30 @@ const Sidebar = () => {
       </header>
 
       <nav className="sb__nav">
-        <SideLink to="/" icon={faHome} label="Home" />
-        <SideLink to="/questions" icon={faComments} label="Questions" />
-        <SideLink to="/playground" icon={faWaveSquare} label="Playground" />
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            `sb__link${isActive ? " is-active" : ""}`
+          }
+        >
+          Home
+        </NavLink>
+        <NavLink
+          to="/questions"
+          className={({ isActive }) =>
+            `sb__link${isActive ? " is-active" : ""}`
+          }
+        >
+          Question
+        </NavLink>
+        <NavLink
+          to="/playground"
+          className={({ isActive }) =>
+            `sb__link${isActive ? " is-active" : ""}`
+          }
+        >
+          Playground
+        </NavLink>
       </nav>
 
       <footer className="sb__footer">
