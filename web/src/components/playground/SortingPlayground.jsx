@@ -13,6 +13,12 @@ const SORTING_ALGORITHMS = {
       "정렬된 부분에 새로운 값을 끼워 넣는 방식으로 동작합니다. 작은 입력에서 효율적입니다.",
     generator: insertionSortSteps,
   },
+  merge: {
+    name: "Merge Sort",
+    description:
+      "배열을 반으로 나누고 정렬된 부분 배열을 병합하는 분할 정복 정렬입니다. 시간 복잡도는 O(n log n)입니다.",
+    generator: mergeSortSteps,
+  },
   quick: {
     name: "Quick Sort",
     description:
@@ -51,6 +57,8 @@ const SortingPlayground = () => {
     comparing: [],
     swapped: false,
     pivotIndex: null,
+    leftPointer: null,
+    rightPointer: null,
   };
 
   const maxValue = Math.max(...frame.array, 1);
@@ -222,6 +230,22 @@ const SortingPlayground = () => {
                 <dt>교환 발생</dt>
                 <dd>{frame.swapped ? "예" : "아니오"}</dd>
               </div>
+              <div className="flex items-center justify-between">
+                <dt>왼쪽 포인터</dt>
+                <dd>
+                  {typeof frame.leftPointer === "number"
+                    ? `${frame.leftPointer + 1}번째`
+                    : "없음"}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt>오른쪽 포인터</dt>
+                <dd>
+                  {typeof frame.rightPointer === "number"
+                    ? `${frame.rightPointer + 1}번째`
+                    : "없음"}
+                </dd>
+              </div>
             </dl>
           </div>
 
@@ -327,21 +351,21 @@ function quickSortSteps(initialArray) {
   function partition(low, high) {
     const pivot = arr[high];
     let i = low;
-    steps.push(createSortingFrame(arr, [low, high], false, high));
+    steps.push(createSortingFrame(arr, [low, high], false, high, i, high));
 
     for (let j = low; j < high; j += 1) {
-      steps.push(createSortingFrame(arr, [j, high], false, high));
+      steps.push(createSortingFrame(arr, [j, high], false, high, i, j));
       if (arr[j] < pivot) {
         if (i !== j) {
           [arr[i], arr[j]] = [arr[j], arr[i]];
-          steps.push(createSortingFrame(arr, [i, j], true, high));
+          steps.push(createSortingFrame(arr, [i, j], true, high, i, j));
         }
         i += 1;
       }
     }
 
     [arr[i], arr[high]] = [arr[high], arr[i]];
-    steps.push(createSortingFrame(arr, [i, high], true, i));
+    steps.push(createSortingFrame(arr, [i, high], true, i, i, high));
     return i;
   }
 
@@ -360,12 +384,79 @@ function quickSortSteps(initialArray) {
   return steps;
 }
 
-function createSortingFrame(array, comparing = [], swapped = false, pivotIndex = null) {
+function mergeSortSteps(initialArray) {
+  const arr = [...initialArray];
+  const temp = Array(arr.length).fill(0);
+  const steps = [createSortingFrame(arr)];
+
+  function merge(left, mid, right) {
+    let i = left;
+    let j = mid + 1;
+    let k = left;
+
+    while (i <= mid && j <= right) {
+      steps.push(createSortingFrame(arr, [i, j], false, null, i, j));
+      if (arr[i] <= arr[j]) {
+        temp[k] = arr[i];
+        i += 1;
+      } else {
+        temp[k] = arr[j];
+        j += 1;
+      }
+      k += 1;
+    }
+
+    while (i <= mid) {
+      steps.push(createSortingFrame(arr, [i], false, null, i, null));
+      temp[k] = arr[i];
+      i += 1;
+      k += 1;
+    }
+
+    while (j <= right) {
+      steps.push(createSortingFrame(arr, [j], false, null, null, j));
+      temp[k] = arr[j];
+      j += 1;
+      k += 1;
+    }
+
+    for (let index = left; index <= right; index += 1) {
+      arr[index] = temp[index];
+      steps.push(createSortingFrame(arr, [index], true, null, left, right));
+    }
+  }
+
+  function mergeSort(left, right) {
+    if (left >= right) {
+      return;
+    }
+
+    const mid = Math.floor((left + right) / 2);
+    mergeSort(left, mid);
+    mergeSort(mid + 1, right);
+    merge(left, mid, right);
+  }
+
+  mergeSort(0, arr.length - 1);
+  steps.push(createSortingFrame(arr));
+  return steps;
+}
+
+function createSortingFrame(
+  array,
+  comparing = [],
+  swapped = false,
+  pivotIndex = null,
+  leftPointer = null,
+  rightPointer = null,
+) {
   return {
     array: [...array],
     comparing,
     swapped,
     pivotIndex,
+    leftPointer,
+    rightPointer,
   };
 }
 
