@@ -196,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    '완료됨',
+                                    '완료',
                                     style: textTheme.labelSmall?.copyWith(
                                       color: colorScheme.onTertiaryContainer,
                                       fontWeight: FontWeight.bold,

@@ -118,7 +118,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         const SnackBar(
                           content: Text('질문이 수정되었습니다'),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.only(bottom: 80, left: 16, right: 16),
+                          margin: EdgeInsets.only(
+                            bottom: 80,
+                            left: 16,
+                            right: 16,
+                          ),
                         ),
                       );
                     }
@@ -128,7 +132,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         SnackBar(
                           content: Text('질문 수정 실패: $e'),
                           behavior: SnackBarBehavior.floating,
-                          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+                          margin: const EdgeInsets.only(
+                            bottom: 80,
+                            left: 16,
+                            right: 16,
+                          ),
                         ),
                       );
                     }
@@ -194,7 +202,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     }
   }
 
-  Future<void> _toggleCompleted(String questionId, bool currentStatus, int answersCount) async {
+  Future<void> _toggleCompleted(
+    String questionId,
+    bool currentStatus,
+    int answersCount,
+  ) async {
     // Prevent completing if there are no answers
     if (!currentStatus && answersCount == 0) {
       if (mounted) {
@@ -233,7 +245,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     }
   }
 
-  Future<void> _showEditMessageDialog(String questionId, int answerIndex, String currentContent) async {
+  Future<void> _showEditMessageDialog(
+    String questionId,
+    int answerIndex,
+    String currentContent,
+  ) async {
     final contentController = TextEditingController(text: currentContent);
     final formKey = GlobalKey<FormState>();
 
@@ -279,7 +295,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         const SnackBar(
                           content: Text('메시지가 수정되었습니다'),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.only(bottom: 80, left: 16, right: 16),
+                          margin: EdgeInsets.only(
+                            bottom: 80,
+                            left: 16,
+                            right: 16,
+                          ),
                         ),
                       );
                     }
@@ -289,7 +309,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         SnackBar(
                           content: Text('메시지 수정 실패: $e'),
                           behavior: SnackBarBehavior.floating,
-                          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+                          margin: const EdgeInsets.only(
+                            bottom: 80,
+                            left: 16,
+                            right: 16,
+                          ),
                         ),
                       );
                     }
@@ -357,7 +381,12 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     }
   }
 
-  void _showMessageOptions(BuildContext context, String questionId, int answerIndex, String currentContent) {
+  void _showMessageOptions(
+    BuildContext context,
+    String questionId,
+    int answerIndex,
+    String currentContent,
+  ) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -370,7 +399,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                 title: const Text('수정'),
                 onTap: () {
                   Navigator.pop(context);
-                  _showEditMessageDialog(questionId, answerIndex, currentContent);
+                  _showEditMessageDialog(
+                    questionId,
+                    answerIndex,
+                    currentContent,
+                  );
                 },
               ),
               ListTile(
@@ -426,7 +459,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         : Icons.check_circle_outline,
                   ),
                   tooltip: question.completed ? '미완료로 변경' : '완료로 변경',
-                  onPressed: () => _toggleCompleted(question.id, question.completed, question.answers.length),
+                  onPressed: () => _toggleCompleted(
+                    question.id,
+                    question.completed,
+                    question.answers.length,
+                  ),
                 ),
               if (isQuestioner && !hasAssignee) ...[
                 IconButton(
@@ -478,14 +515,20 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.chat_bubble,
-                                  size: 16,
-                                  color: colorScheme.onPrimaryContainer,
-                                ),
+                                question.completed
+                                    ? Icon(
+                                        Icons.check,
+                                        size: 16,
+                                        color: colorScheme.onPrimaryContainer,
+                                      )
+                                    : Icon(
+                                        Icons.chat_bubble,
+                                        size: 16,
+                                        color: colorScheme.onPrimaryContainer,
+                                      ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  '채팅 중',
+                                  question.completed ? '완료' : '채팅 중',
                                   style: textTheme.labelMedium?.copyWith(
                                     color: colorScheme.onPrimaryContainer,
                                     fontWeight: FontWeight.bold,
@@ -580,15 +623,22 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             itemBuilder: (context, index) {
               final answer = question.answers[index];
               final isFromQuestioner = answer.sender == 'questioner';
-              final isMine = (isQuestioner && isFromQuestioner) ||
+              final isMine =
+                  (isQuestioner && isFromQuestioner) ||
                   (isAssignee && !isFromQuestioner);
 
               return Align(
-                alignment:
-                    isFromQuestioner ? Alignment.centerLeft : Alignment.centerRight,
+                alignment: isFromQuestioner
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
                 child: GestureDetector(
                   onLongPress: isMine && !question.completed
-                      ? () => _showMessageOptions(context, question.id, index, answer.content)
+                      ? () => _showMessageOptions(
+                          context,
+                          question.id,
+                          index,
+                          answer.content,
+                        )
                       : null,
                   child: Container(
                     constraints: BoxConstraints(
@@ -603,10 +653,12 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(16),
                         topRight: const Radius.circular(16),
-                        bottomLeft:
-                            isFromQuestioner ? const Radius.circular(4) : const Radius.circular(16),
-                        bottomRight:
-                            isFromQuestioner ? const Radius.circular(16) : const Radius.circular(4),
+                        bottomLeft: isFromQuestioner
+                            ? const Radius.circular(4)
+                            : const Radius.circular(16),
+                        bottomRight: isFromQuestioner
+                            ? const Radius.circular(16)
+                            : const Radius.circular(4),
                       ),
                     ),
                     child: Column(
@@ -695,7 +747,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
-                        hintText: question.completed 
+                        hintText: question.completed
                             ? '완료된 질문입니다. 메시지를 보내려면 완료를 해제하세요.'
                             : '메시지를 입력하세요...',
                         border: OutlineInputBorder(
@@ -712,8 +764,8 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
-                    onPressed: question.completed 
-                        ? null 
+                    onPressed: question.completed
+                        ? null
                         : () => _sendMessage(
                             question.id,
                             isQuestioner ? 'questioner' : 'answerer',
