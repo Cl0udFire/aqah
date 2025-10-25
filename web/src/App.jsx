@@ -30,6 +30,7 @@ function App() {
         <Route path="/questions" element={<QuestionsPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/playground" element={<PlaygroundPage />} />
+        {/* Learn : 채팅 ui 상대: ai/ 배경 */}
       </Routes>
     </BrowserRouter>
   );

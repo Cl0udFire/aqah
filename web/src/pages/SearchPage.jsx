@@ -23,7 +23,6 @@ const Container = styled.div`
   margin-top: 15px;
   height: calc(100vh - 84px);
 `;
-
 const WriteButton = styled.button`
   width: 125px;
   padding: 10px;
@@ -90,11 +89,11 @@ const SearchPage = () => {
             이미 궁금한 점을 해결하신 분들의 답변을 확인해보세요!
           </p>
         </header>
-        <WriteButton>
-          <NavLink to="/questions">
+        <NavLink to="/questions">
+          <WriteButton>
             <FontAwesomeIcon icon={faPlus} /> 새로 작성
-          </NavLink>
-        </WriteButton>
+          </WriteButton>
+        </NavLink>
         <StyledQuestionList className="y-scroll flex flex-col gap-4 h-[600px] overflow-y-auto">
           {questions ? (
             questions.map((question) => {

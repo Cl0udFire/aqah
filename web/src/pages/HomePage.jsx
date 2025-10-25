@@ -224,9 +224,7 @@ const App = () => {
     <div className="flex flex-col min-h-screen">
       <Topbar />
       <Container>
-        <Slogan>
-          All Questions Answered Here
-        </Slogan>
+        <Slogan>All Questions Answered Here</Slogan>
         <GradientBackground />
         <SearchBox className="bg-slate-100">
           <Select variant="plain" defaultValue="search">
@@ -243,11 +241,11 @@ const App = () => {
             }}
             value={query}
           />
-          <SearchButton>
-            <NavLink to={`/search?q=${query}`}>
+          <NavLink to={`/search?q=${query}`}>
+            <SearchButton>
               <FontAwesomeIcon icon={faMagnifyingGlass} />
-            </NavLink>
-          </SearchButton>
+            </SearchButton>
+          </NavLink>
         </SearchBox>
         <Related
           enabled={
