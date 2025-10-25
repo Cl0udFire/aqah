@@ -60,23 +60,34 @@ const QuestionList = ({ questions, type }) => {
                   <span className="text-[0.875rem]">{question.subject}</span>
                 </div>
               </div>
-
+              
               <div className="flex flex-col gap-1 ml-[2rem] w-[85%]">
-                <span className="text-black font-bold text-[1.4rem]">{question.title}</span>
-                <p className="text-[1rem] text-gray-700">{question.content}</p>
+              <span className="text-black font-bold text-[1.4rem]">{question.title}</span>
+              <p className="text-[1rem] text-gray-700">{question.content}</p>
 
-                <div className="flex justify-end items-center gap-4">
-                  <ConfirmButton className="bg-green-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-green-400">
-                    <FontAwesomeIcon icon={faCheck} fontSize="1rem" color="green" />
-                    <NavLink to={`/chat?id=${question.id}`}>
-                      <span>답변하기</span>
-                    </NavLink>
-                  </ConfirmButton>
-                  <DeclineButton className="bg-red-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-red-400">
-                    <FontAwesomeIcon icon={faXmark} fontSize="1rem" color="red" />
-                    거절하기
-                  </DeclineButton>
-                </div>
+              {
+                type === "received" ? (
+                  
+                  <div className="flex justify-end items-center gap-4">
+                    <ConfirmButton className="bg-green-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-green-400">
+                      <FontAwesomeIcon icon={faCheck} fontSize="1rem" color="green" />
+                      <NavLink to={`/chat?id=${question.id}`}>
+                        <span>답변하기</span>
+                      </NavLink>
+                    </ConfirmButton>
+                    <DeclineButton className="bg-red-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-red-400">
+                      {/* TODO: Question Decline 구현 */}
+                      <FontAwesomeIcon icon={faXmark} fontSize="1rem" color="red" />
+                      거절하기
+                    </DeclineButton>
+                  </div>
+                
+                ) : (
+                  <div className="flex justify-end items-center gap-4 mt-6">
+                    <p>아직 답변이 도착하지 않았습니다.</p>
+                  </div>
+                )
+              } 
               </div>
             </div>
           );
