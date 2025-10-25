@@ -21,6 +21,7 @@ class FirestoreService {
       'content': content,
       'questioner': currentUserId!,
       'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
@@ -80,16 +81,5 @@ class FirestoreService {
   // Delete question - only by questioner
   Future<void> deleteQuestion(String questionId) async {
     await _firestore.collection('questions').doc(questionId).delete();
-  }
-
-  // Assign an answerer to a question
-  Future<void> assignAnswerer({
-    required String questionId,
-    required String assigneeId,
-  }) async {
-    await _firestore.collection('questions').doc(questionId).update({
-      'assignee': assigneeId,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
   }
 }
