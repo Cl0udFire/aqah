@@ -435,21 +435,37 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      MarkdownBody(
-                        data: answer.content,
-                        styleSheet: MarkdownStyleSheet(
-                          p: textTheme.bodyMedium?.copyWith(
-                            color: isMine
-                                ? colorScheme.onPrimaryContainer
-                                : colorScheme.onSurface,
-                          ),
-                          code: textTheme.bodySmall?.copyWith(
-                            color: isMine
-                                ? colorScheme.onPrimaryContainer
-                                : colorScheme.onSurface,
-                            fontFamily: 'monospace',
-                          ),
-                        ),
+                      Builder(
+                        builder: (context) {
+                          try {
+                            return MarkdownBody(
+                              data: answer.content,
+                              styleSheet: MarkdownStyleSheet(
+                                p: textTheme.bodyMedium?.copyWith(
+                                  color: isMine
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurface,
+                                ),
+                                code: textTheme.bodySmall?.copyWith(
+                                  color: isMine
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurface,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            );
+                          } catch (e) {
+                            // Fallback to plain text if markdown rendering fails
+                            return Text(
+                              answer.content,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: isMine
+                                    ? colorScheme.onPrimaryContainer
+                                    : colorScheme.onSurface,
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),
