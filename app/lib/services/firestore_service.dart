@@ -6,10 +6,8 @@ class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Get current user ID
   String? get currentUserId => _auth.currentUser?.uid;
 
-  // Create a new question
   Future<void> createQuestion({
     required String title,
     required String content,
@@ -24,7 +22,6 @@ class FirestoreService {
     });
   }
 
-  // Get questions for current user (as questioner or assignee)
   Stream<List<Question>> getUserQuestions() {
     if (currentUserId == null) return Stream.value([]);
 
@@ -44,7 +41,6 @@ class FirestoreService {
         );
   }
 
-  // Get a specific question
   Stream<Question?> getQuestion(String questionId) {
     return _firestore
         .collection('questions')
@@ -53,7 +49,6 @@ class FirestoreService {
         .map((doc) => doc.exists ? Question.fromFirestore(doc) : null);
   }
 
-  // Update question (title and content) - only by questioner
   Future<void> updateQuestion({
     required String questionId,
     required String title,
@@ -66,7 +61,6 @@ class FirestoreService {
     });
   }
 
-  // Add or update answer - only by assignee
   Future<void> updateAnswer({
     required String questionId,
     required String answer,
@@ -77,12 +71,10 @@ class FirestoreService {
     });
   }
 
-  // Delete question - only by questioner
   Future<void> deleteQuestion(String questionId) async {
     await _firestore.collection('questions').doc(questionId).delete();
   }
 
-  // Assign an answerer to a question
   Future<void> assignAnswerer({
     required String questionId,
     required String assigneeId,

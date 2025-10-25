@@ -4,11 +4,11 @@ class Question {
   final String id;
   final String title;
   final String content;
-  final String questioner; // UID of the user who asked
-  final String? assignee; // UID of the answerer (optional)
-  final String? answer; // Answer text (optional)
+  final String questioner;
+  final String? assignee;
+  final String? answer;
   final DateTime createdAt;
-  final DateTime? updatedAt;
+  final DateTime updatedAt;
 
   Question({
     required this.id,
@@ -18,10 +18,9 @@ class Question {
     this.assignee,
     this.answer,
     required this.createdAt,
-    this.updatedAt,
+    required this.updatedAt,
   });
 
-  // Create Question from Firestore document
   factory Question.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Question(
@@ -32,11 +31,10 @@ class Question {
       assignee: data['assignee'],
       answer: data['answer'],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
+      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
     );
   }
 
-  // Convert Question to Firestore document
   Map<String, dynamic> toFirestore() {
     return {
       'title': title,
@@ -45,11 +43,10 @@ class Question {
       if (assignee != null) 'assignee': assignee,
       if (answer != null) 'answer': answer,
       'createdAt': Timestamp.fromDate(createdAt),
-      if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
+      'updatedAt': Timestamp.fromDate(updatedAt),
     };
   }
 
-  // Copy with method for updates
   Question copyWith({
     String? id,
     String? title,

@@ -3,16 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:developer' as developer;
 
-/// Service to handle Firebase Cloud Messaging (FCM) for push notifications
 class FCMService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  /// Initialize FCM and request permissions
   Future<void> initialize() async {
     try {
-      // Request permission for notifications
       NotificationSettings settings = await _messaging.requestPermission(
         alert: true,
         badge: true,
@@ -23,19 +20,14 @@ class FCMService {
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         developer.log('FCM: User granted permission');
 
-        // Get and save FCM token
         await _saveTokenToFirestore();
 
-        // Listen for token refresh
         FirebaseMessaging.instance.onTokenRefresh.listen(_updateToken);
 
-        // Handle foreground messages
         FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
 
-        // Handle background messages (when app is in background but not terminated)
         FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessage);
 
-        // Handle messages when app is opened from terminated state
         RemoteMessage? initialMessage = await _messaging.getInitialMessage();
         if (initialMessage != null) {
           _handleBackgroundMessage(initialMessage);
@@ -51,7 +43,6 @@ class FCMService {
     }
   }
 
-  /// Save FCM token to Firestore user document
   Future<void> _saveTokenToFirestore() async {
     try {
       final user = _auth.currentUser;
@@ -68,7 +59,6 @@ class FCMService {
 
       developer.log('FCM: Got token: ${token.substring(0, 20)}...');
 
-      // Save token to user document in Firestore
       await _firestore.collection('users').doc(user.uid).set({
         'fcmToken': token,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -80,7 +70,6 @@ class FCMService {
     }
   }
 
-  /// Update FCM token in Firestore when it changes
   Future<void> _updateToken(String token) async {
     try {
       final user = _auth.currentUser;
@@ -97,33 +86,27 @@ class FCMService {
     }
   }
 
-  /// Handle foreground messages (when app is in the foreground)
   void _handleForegroundMessage(RemoteMessage message) {
     developer.log('FCM: Foreground message received');
     developer.log('FCM: Title: ${message.notification?.title}');
     developer.log('FCM: Body: ${message.notification?.body}');
     developer.log('FCM: Data: ${message.data}');
-
-    // You can show a local notification or update UI here
-    // For now, we just log it
+    //TODO: 앱 내에서 온 알림의 처리
   }
 
-  /// Handle background messages (when app is in background or opened from notification)
   void _handleBackgroundMessage(RemoteMessage message) {
     developer.log('FCM: Background message received');
     developer.log('FCM: Title: ${message.notification?.title}');
     developer.log('FCM: Body: ${message.notification?.body}');
     developer.log('FCM: Data: ${message.data}');
 
-    // Handle navigation based on notification data
     final questionId = message.data['questionId'];
     if (questionId != null) {
       developer.log('FCM: Question assigned: $questionId');
-      // You can navigate to the question detail screen here
+      //TODO: 해당 질문 보여주기
     }
   }
 
-  /// Delete FCM token from Firestore (call on logout)
   Future<void> deleteToken() async {
     try {
       final user = _auth.currentUser;
@@ -142,7 +125,6 @@ class FCMService {
   }
 }
 
-/// Background message handler (must be top-level function)
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   developer.log('FCM: Handling background message: ${message.messageId}');
