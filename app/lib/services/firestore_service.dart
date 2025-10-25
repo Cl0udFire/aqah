@@ -21,6 +21,7 @@ class FirestoreService {
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
       'completed': false,
+      'declinedBy': [],
     });
   }
 
