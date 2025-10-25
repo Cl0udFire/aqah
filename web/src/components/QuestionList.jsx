@@ -6,6 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import { declineQuestion } from "../firebase/db";
 
 const hasAnswerFromAnswerer = (answers) => {
   if (!answers) return false;
@@ -102,8 +103,8 @@ const QuestionList = ({ questions, type }) => {
                         <span>답변하기</span>
                       </NavLink>
                     </ConfirmButton>
-                    <DeclineButton className="bg-red-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-red-400">
-                      {/* TODO: Question Decline 구현 */}
+                    <DeclineButton className="bg-red-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-red-400"
+                      onClick={async () => await declineQuestion(question.id)}>
                       <FontAwesomeIcon
                         icon={faXmark}
                         fontSize="1rem"

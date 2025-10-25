@@ -113,3 +113,13 @@ export async function appendChatMessage(questionId, message) {
     updatedAt: Timestamp.now(),
   })
 }
+
+export async function declineQuestion(questionId) {
+  if (!questionId) throw new Error('질문 ID가 필요합니다.')
+
+  const questionRef = doc(db, 'questions', questionId)
+  await updateDoc(questionRef, {
+    assignee: null,
+    updatedAt: Timestamp.now(),
+  })
+}
