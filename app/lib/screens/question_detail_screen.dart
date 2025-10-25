@@ -219,6 +219,161 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     }
   }
 
+  Future<void> _showEditMessageDialog(String questionId, int answerIndex, String currentContent) async {
+    final contentController = TextEditingController(text: currentContent);
+    final formKey = GlobalKey<FormState>();
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('메시지 수정'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: contentController,
+              decoration: const InputDecoration(
+                labelText: '내용',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 5,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return '내용을 입력하세요';
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('취소'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  try {
+                    await _firestoreService.updateAnswer(
+                      questionId: questionId,
+                      answerIndex: answerIndex,
+                      newContent: contentController.text,
+                    );
+                    if (mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('메시지가 수정되었습니다'),
+                          behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.only(bottom: 80, left: 16, right: 16),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('메시지 수정 실패: $e'),
+                          behavior: SnackBarBehavior.floating,
+                          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+              child: const Text('수정'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteMessage(String questionId, int answerIndex) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('메시지 삭제'),
+          content: const Text('정말로 이 메시지를 삭제하시겠습니까?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('취소'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('삭제'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      try {
+        await _firestoreService.deleteAnswer(
+          questionId: questionId,
+          answerIndex: answerIndex,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('메시지가 삭제되었습니다'),
+              behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(bottom: 80, left: 16, right: 16),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('메시지 삭제 실패: $e'),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  void _showMessageOptions(BuildContext context, String questionId, int answerIndex, String currentContent) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('수정'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditMessageDialog(questionId, answerIndex, currentContent);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete),
+                title: const Text('삭제'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deleteMessage(questionId, answerIndex);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -249,7 +404,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           appBar: AppBar(
             title: Text(hasAssignee ? '1:1 질문' : '질문 상세'),
             actions: [
-              if (isQuestioner || isAssignee)
+              if (hasAssignee && (isQuestioner || isAssignee))
                 IconButton(
                   icon: Icon(
                     question.completed
@@ -259,16 +414,11 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                   tooltip: question.completed ? '미완료로 변경' : '완료로 변경',
                   onPressed: () => _toggleCompleted(question.id, question.completed),
                 ),
-              if (isQuestioner) ...[
+              if (isQuestioner && !hasAssignee) ...[
                 IconButton(
                   icon: const Icon(Icons.edit),
                   tooltip: '수정',
                   onPressed: () => _showEditDialog(question),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  tooltip: '삭제',
-                  onPressed: () => _deleteQuestion(question.id),
                 ),
               ],
             ],
@@ -422,85 +572,90 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
               return Align(
                 alignment:
                     isMine ? Alignment.centerRight : Alignment.centerLeft,
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.75,
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: isMine
-                        ? colorScheme.primaryContainer
-                        : colorScheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(16),
-                      topRight: const Radius.circular(16),
-                      bottomLeft:
-                          isMine ? const Radius.circular(16) : const Radius.circular(4),
-                      bottomRight:
-                          isMine ? const Radius.circular(4) : const Radius.circular(16),
+                child: GestureDetector(
+                  onLongPress: isMine
+                      ? () => _showMessageOptions(context, question.id, index, answer.content)
+                      : null,
+                  child: Container(
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.75,
                     ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            isFromQuestioner
-                                ? Icons.person
-                                : Icons.person_outline,
-                            size: 14,
-                            color: isMine
-                                ? colorScheme.onPrimaryContainer
-                                : colorScheme.primary,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            isFromQuestioner ? '질문자' : '답변자',
-                            style: textTheme.labelSmall?.copyWith(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: isMine
+                          ? colorScheme.primaryContainer
+                          : colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(16),
+                        topRight: const Radius.circular(16),
+                        bottomLeft:
+                            isMine ? const Radius.circular(16) : const Radius.circular(4),
+                        bottomRight:
+                            isMine ? const Radius.circular(4) : const Radius.circular(16),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              isFromQuestioner
+                                  ? Icons.person
+                                  : Icons.person_outline,
+                              size: 14,
                               color: isMine
                                   ? colorScheme.onPrimaryContainer
                                   : colorScheme.primary,
-                              fontWeight: FontWeight.bold,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Builder(
-                        builder: (context) {
-                          try {
-                            return MarkdownBody(
-                              data: answer.content,
-                              styleSheet: MarkdownStyleSheet(
-                                p: textTheme.bodyMedium?.copyWith(
-                                  color: isMine
-                                      ? colorScheme.onPrimaryContainer
-                                      : colorScheme.onSurface,
-                                ),
-                                code: textTheme.bodySmall?.copyWith(
-                                  color: isMine
-                                      ? colorScheme.onPrimaryContainer
-                                      : colorScheme.onSurface,
-                                  fontFamily: 'monospace',
-                                ),
-                              ),
-                            );
-                          } catch (e) {
-                            // Fallback to plain text if markdown rendering fails
-                            return Text(
-                              answer.content,
-                              style: textTheme.bodyMedium?.copyWith(
+                            const SizedBox(width: 4),
+                            Text(
+                              isFromQuestioner ? '질문자' : '답변자',
+                              style: textTheme.labelSmall?.copyWith(
                                 color: isMine
                                     ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurface,
+                                    : colorScheme.primary,
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Builder(
+                          builder: (context) {
+                            try {
+                              return MarkdownBody(
+                                data: answer.content,
+                                styleSheet: MarkdownStyleSheet(
+                                  p: textTheme.bodyMedium?.copyWith(
+                                    color: isMine
+                                        ? colorScheme.onPrimaryContainer
+                                        : colorScheme.onSurface,
+                                  ),
+                                  code: textTheme.bodySmall?.copyWith(
+                                    color: isMine
+                                        ? colorScheme.onPrimaryContainer
+                                        : colorScheme.onSurface,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              );
+                            } catch (e) {
+                              // Fallback to plain text if markdown rendering fails
+                              return Text(
+                                answer.content,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: isMine
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurface,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

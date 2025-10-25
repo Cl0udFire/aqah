@@ -41,13 +41,13 @@ service cloud.firestore {
                              request.resource.data.assignee == resource.data.get('assignee', null) &&
                              request.resource.data.completed == resource.data.completed) ||
                             
-                            // 2. 질문자가 메시지 추가 (answers 배열)
+                            // 2. 질문자가 메시지 추가/수정/삭제 (answers 배열)
                             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answers', 'updatedAt']) &&
                              request.resource.data.title == resource.data.title &&
                              request.resource.data.content == resource.data.content &&
                              request.resource.data.assignee == resource.data.get('assignee', null) &&
                              request.resource.data.completed == resource.data.completed &&
-                             validateAnswerSender(request.resource.data.answers, resource.data.get('answers', []), 'questioner')) ||
+                             request.resource.data.answers is list) ||
                             
                             // 3. 질문자가 완료 상태 변경
                             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed', 'updatedAt']) &&
@@ -60,13 +60,13 @@ service cloud.firestore {
                          // 담당자 권한
                          (resource.data.assignee == request.auth.uid &&
                           (
-                            // 1. 답변자가 메시지 추가 (answers 배열)
+                            // 1. 답변자가 메시지 추가/수정/삭제 (answers 배열)
                             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answers', 'updatedAt']) &&
                              request.resource.data.title == resource.data.title &&
                              request.resource.data.content == resource.data.content &&
                              request.resource.data.assignee == resource.data.assignee &&
                              request.resource.data.completed == resource.data.completed &&
-                             validateAnswerSender(request.resource.data.answers, resource.data.get('answers', []), 'answerer')) ||
+                             request.resource.data.answers is list) ||
                             
                             // 2. 답변자가 완료 상태 변경
                             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed', 'updatedAt']) &&
@@ -77,9 +77,8 @@ service cloud.firestore {
                           ))
                        );
       
-      // 삭제 권한: 질문자만 가능
-      allow delete: if request.auth != null &&
-                       resource.data.questioner == request.auth.uid;
+      // 삭제 권한: 비활성화 (질문 삭제 불가)
+      allow delete: if false;
     }
     
     match /users/{username} {

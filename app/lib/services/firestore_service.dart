@@ -107,6 +107,57 @@ class FirestoreService {
     });
   }
 
+  Future<void> updateAnswer({
+    required String questionId,
+    required int answerIndex,
+    required String newContent,
+  }) async {
+    if (currentUserId == null) throw Exception('User not authenticated');
+
+    // Get the current question to update the specific answer
+    final docSnapshot = await _firestore.collection('questions').doc(questionId).get();
+    if (!docSnapshot.exists) throw Exception('Question not found');
+
+    final data = docSnapshot.data() as Map<String, dynamic>;
+    final answers = List<Map<String, dynamic>>.from(data['answers'] ?? []);
+
+    if (answerIndex >= 0 && answerIndex < answers.length) {
+      answers[answerIndex]['content'] = newContent;
+      
+      await _firestore.collection('questions').doc(questionId).update({
+        'answers': answers,
+        'updatedAt': DateTime.timestamp(),
+      });
+    } else {
+      throw Exception('Invalid answer index');
+    }
+  }
+
+  Future<void> deleteAnswer({
+    required String questionId,
+    required int answerIndex,
+  }) async {
+    if (currentUserId == null) throw Exception('User not authenticated');
+
+    // Get the current question to delete the specific answer
+    final docSnapshot = await _firestore.collection('questions').doc(questionId).get();
+    if (!docSnapshot.exists) throw Exception('Question not found');
+
+    final data = docSnapshot.data() as Map<String, dynamic>;
+    final answers = List<Map<String, dynamic>>.from(data['answers'] ?? []);
+
+    if (answerIndex >= 0 && answerIndex < answers.length) {
+      answers.removeAt(answerIndex);
+      
+      await _firestore.collection('questions').doc(questionId).update({
+        'answers': answers,
+        'updatedAt': DateTime.timestamp(),
+      });
+    } else {
+      throw Exception('Invalid answer index');
+    }
+  }
+
   Future<void> toggleCompleted(String questionId, bool completed) async {
     if (currentUserId == null) throw Exception('User not authenticated');
 
