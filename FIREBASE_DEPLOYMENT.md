@@ -6,11 +6,13 @@ This repository uses GitHub Actions to automatically deploy Firebase Functions a
 
 Before the automatic deployment can work, you need to set up the following:
 
-### 1. Firebase Token
+### 1. Required GitHub Secrets
 
-The deployment workflow requires a Firebase token to authenticate with Firebase. You have two options:
+The deployment workflow requires the following GitHub secrets to be configured:
 
-#### Option A: Using Firebase CI Token (Recommended for initial setup)
+#### FIREBASE_TOKEN (Required)
+
+The deployment workflow requires a Firebase token to authenticate with Firebase.
 
 1. Install Firebase CLI locally:
    ```bash
@@ -32,21 +34,34 @@ The deployment workflow requires a Firebase token to authenticate with Firebase.
    - Value: Paste the token from step 3
    - Click "Add secret"
 
-#### Option B: Using Service Account (Recommended for production)
+#### FIREBASE_PROJECT_ID (Required)
+
+The Firebase project ID is needed to configure which project to deploy to.
+
+1. Get your Firebase project ID:
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Select your project
+   - The project ID is shown in the project settings
+
+2. Add the project ID as a GitHub secret:
+   - Go to your repository on GitHub
+   - Navigate to Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `FIREBASE_PROJECT_ID`
+   - Value: Your Firebase project ID (e.g., `my-project-12345`)
+   - Click "Add secret"
+
+### 2. Alternative: Using Service Account (Optional)
+
+For enhanced security in production environments, you can use a service account instead of a CI token:
 
 1. Go to the [Firebase Console](https://console.firebase.google.com/)
 2. Select your project
 3. Go to Project Settings → Service Accounts
 4. Click "Generate new private key"
 5. Save the JSON file securely
-6. Convert the JSON content to a single-line string or base64
-7. Add it as a GitHub secret named `FIREBASE_SERVICE_ACCOUNT`
-
-If using a service account, update `.github/workflows/firebase-deploy.yml` to use:
-```yaml
-env:
-  GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-```
+6. Add it as a GitHub secret named `FIREBASE_SERVICE_ACCOUNT`
+7. Update the workflow to use the service account (see advanced configuration below)
 
 ## Deployment Trigger
 
