@@ -8,7 +8,6 @@
   justify-content: center;
   align-items: center;
   padding: clamp(1.5rem, 5vw, 3rem);
-  background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 40%, #f8fafc 100%);
 }
 
 .auth-card {
@@ -75,7 +74,6 @@
 }
 
 .button--primary {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #ffffff;
   box-shadow: 0 12px 24px rgba(99, 102, 241, 0.25);
 }
