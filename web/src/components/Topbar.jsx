@@ -1,15 +1,44 @@
+import { useCallback } from "react";
+import { signOut } from "firebase/auth";
 import { useAppStore } from "../context/store";
 import SideLink from "./SideLink";
 import { faComments, faHome } from "@fortawesome/free-regular-svg-icons";
 import { faWaveSquare, faGraduationCap } from "@fortawesome/free-solid-svg-icons";
+import { auth } from "../firebase/firebase";
 
 const Topbar = () => {
-  const user = useAppStore((s) => s.user);
+  const user = useAppStore((state) => state.user);
+  const openAuthModal = useAppStore((state) => state.openAuthModal);
 
   const initials = (user?.displayName || user?.email || "U")
     ?.trim()
     ?.charAt(0)
     ?.toUpperCase();
+
+  const handleAccountAction = useCallback(async () => {
+    if (user) {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error("Failed to sign out", error);
+      }
+      return;
+    }
+
+    openAuthModal();
+  }, [user, openAuthModal]);
+
+  const handleAccountKeyDown = useCallback(
+    (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        handleAccountAction();
+      }
+    },
+    [handleAccountAction]
+  );
+
+  const accountLabel = user ? "로그아웃" : "로그인";
 
   return (
     <header className="tb" aria-label="Top Navigation">
@@ -25,18 +54,28 @@ const Topbar = () => {
         </div>
 
         <div className="tb__right">
-          {user?.photoURL ? (
-            <img className="tb__avatar" src={user.photoURL} alt="avatar" />
-          ) : (
-            <div className="tb__avatar tb__avatar--fallback" aria-hidden>
-              {initials}
+          <div
+            className="tb__account"
+            role="button"
+            tabIndex={0}
+            onClick={handleAccountAction}
+            onKeyDown={handleAccountKeyDown}
+            aria-label={`계정 ${accountLabel}`}
+            title={user ? "로그아웃" : "로그인"}
+          >
+            {user?.photoURL ? (
+              <img className="tb__avatar" src={user.photoURL} alt="avatar" />
+            ) : (
+              <div className="tb__avatar tb__avatar--fallback" aria-hidden>
+                {initials}
+              </div>
+            )}
+            <div className="tb__meta">
+              <div className="tb__name">
+                {user?.displayName || user?.email?.split("@")[0] || "Guest"}
+              </div>
+              <div className="tb__email">{user?.email || "로그인이 필요합니다"}</div>
             </div>
-          )}
-          <div className="tb__meta">
-            <div className="tb__name">
-              {user?.displayName || user?.email?.split("@")[0] || "Guest"}
-            </div>
-            <div className="tb__email">{user?.email || "로그인이 필요합니다"}</div>
           </div>
         </div>
       </div>
@@ -82,7 +121,29 @@ const Topbar = () => {
         .sb__link:hover { background: rgba(0,0,0,.06); }
         .sb__link.is-active { background: rgba(0,0,0,.08); }
 
-        .tb__right { display: flex; align-items: center; gap: 10px; }
+        .tb__right { display: flex; align-items: center; }
+
+        .tb__account {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 6px 10px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: background 160ms ease, box-shadow 160ms ease, transform 120ms ease;
+          user-select: none;
+        }
+
+        .tb__account:hover,
+        .tb__account:focus-visible {
+          background: rgba(0,0,0,.06);
+        }
+
+        .tb__account:focus-visible {
+          outline: 2px solid rgba(59, 130, 246, 0.6);
+          outline-offset: 2px;
+        }
+
         .tb__avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
         .tb__avatar--fallback { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; font-weight: 700; color: #111; background: #e5e7eb; }
         .tb__meta { min-width: 0; }
