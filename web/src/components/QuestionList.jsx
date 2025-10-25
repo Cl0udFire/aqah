@@ -1,10 +1,28 @@
-import PropTypes from "prop-types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faComputer, faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
+import styled from "styled-components";
 
-const STATUS_STYLES = {
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
-  answered: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  archived: "bg-gray-100 text-gray-600 border-gray-200",
-};
+// const STATUS_STYLES = {
+//   pending: "bg-amber-50 text-amber-700 border-amber-200",
+//   answered: "bg-emerald-50 text-emerald-700 border-emerald-200",
+//   archived: "bg-gray-100 text-gray-600 border-gray-200",
+// };
+
+const ConfirmButton = styled.button`
+transition: all 0.3s ease;
+&:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 255, 0, 0.2);
+}
+`
+
+const DeclineButton = styled.button`
+transition: all 0.3s ease;
+&:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(255, 0, 0, 0.2);
+}
+`
 
 const QuestionList = ({ questions, type }) => {
   if (!questions?.length) {
@@ -29,10 +47,30 @@ const QuestionList = ({ questions, type }) => {
           // const statusClass = STATUS_STYLES[question.status] ?? STATUS_STYLES.pending;
           
           return (
-            <div key={question.id} className="p-6 rounded-2xl border border-gray-200 bg-white shadow-sm h-[10rem] flex justify-center items-center">
+            <div key={question.id} className="p-6 rounded-2xl border border-gray-200 bg-white shadow-sm h-[10rem] flex justify-start items-start">
               <div className="flex">
-                <img src="https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1095249842.jpg" alt="anonymous user" className="w-12 h-12 mr-4"/>
-                
+                <div className="flex flex-col gap-3 items-center w-min-[7rem] w-[7rem]">
+                  <div className="w-[5rem] h-[5rem] border-blue-500 border-4 rounded-2xl bg-blue-500 flex justify-center items-center">
+                    <FontAwesomeIcon icon={faComputer} fontSize="2.5rem" color="black" />
+                  </div>
+                  <span className="text-[0.875rem]">{question.subject}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1 ml-[2rem] w-[85%]">
+                <span className="text-black font-bold text-[1.4rem]">{question.title}</span>
+                <p className="text-[1rem] text-gray-700">{question.content}</p>
+
+                <div className="flex justify-end items-center gap-4">
+                  <ConfirmButton className="bg-green-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-green-400">
+                    <FontAwesomeIcon icon={faCheck} fontSize="1rem" color="green" />
+                    답변하기
+                  </ConfirmButton>
+                  <DeclineButton className="bg-red-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-red-400">
+                    <FontAwesomeIcon icon={faXmark} fontSize="1rem" color="red" />
+                    거절하기
+                  </DeclineButton>
+                </div>
               </div>
             </div>
           );
@@ -40,28 +78,6 @@ const QuestionList = ({ questions, type }) => {
       </div>
     </div>
   );
-};
-
-QuestionList.propTypes = {
-  questions: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-      content: PropTypes.string.isRequired,
-      sentAt: PropTypes.string.isRequired,
-      status: PropTypes.oneOf(["pending", "answered", "archived"]).isRequired,
-      statusLabel: PropTypes.string.isRequired,
-      from: PropTypes.string,
-      to: PropTypes.string,
-      answer: PropTypes.string,
-      respondent: PropTypes.string,
-      expectedReply: PropTypes.string,
-    })
-  ),
-  type: PropTypes.oneOf(["received", "sent"]).isRequired,
-};
-
-QuestionList.defaultProps = {
-  questions: [],
 };
 
 export default QuestionList;

@@ -10,31 +10,22 @@ const QuestionsPage = () => {
     () => ({
       received: [
         {
-          id: 101,
-          from: "익명 사용자 1",
-          content: "이번 분기 목표 중 가장 힘든 점은 무엇인가요?",
-          sentAt: "2024. 03. 21 · 14:12",
-          status: "pending",
-          statusLabel: "답변 대기",
-          answer: "이번 분기에는 신규 온보딩 자동화가 가장 큰 도전입니다.",
+          id: 1,
+          subject: "컴퓨터 시스템 일반",
+          title: "프로세스 스케줄링을 모르겠어요!",
+          content: "FCFS, SJF, RR 등 다양한 스케줄링 알고리즘이 헷갈립니다. 최대한 쉽게 설명해주세요.",
         },
         {
-          id: 102,
-          from: "익명 사용자 2",
-          content: "팀 문화에서 가장 중요하게 생각하는 가치는?",
-          sentAt: "2024. 03. 20 · 09:40",
-          status: "answered",
-          statusLabel: "답변 완료",
-          answer:
-            "우리는 투명한 커뮤니케이션과 빠른 피드백 사이클을 가장 큰 가치로 보고 있어요.",
+          id: 1,
+          subject: "컴퓨터 시스템 일반",
+          title: "프로세스 스케줄링을 모르겠어요!",
+          content: "FCFS, SJF, RR 등 다양한 스케줄링 알고리즘이 헷갈립니다. 최대한 쉽게 설명해주세요.",
         },
         {
-          id: 103,
-          from: "익명 사용자 3",
-          content: "다음 밋업 일정은 언제인가요?",
-          sentAt: "2024. 03. 18 · 18:22",
-          status: "archived",
-          statusLabel: "보관됨",
+          id: 1,
+          subject: "컴퓨터 시스템 일반",
+          title: "프로세스 스케줄링을 모르겠어요!",
+          content: "FCFS, SJF, RR 등 다양한 스케줄링 알고리즘이 헷갈립니다. 최대한 쉽게 설명해주세요.",
         },
       ],
       sent: [
