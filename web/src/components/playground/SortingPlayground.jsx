@@ -169,6 +169,12 @@ const SortingPlayground = () => {
               const heightPercent = Math.max((value / maxValue) * 100, 8);
               const isComparing = frame.comparing?.includes(index);
               const isPivot = frame.pivotIndex === index;
+              const isLeftPointer = frame.leftPointer === index;
+              const isRightPointer = frame.rightPointer === index;
+              const bothPointers =
+                typeof frame.leftPointer === "number" &&
+                frame.leftPointer === frame.rightPointer &&
+                frame.leftPointer === index;
               const barColor = isPivot
                 ? BAR_COLORS.pivot
                 : isComparing
@@ -180,8 +186,18 @@ const SortingPlayground = () => {
               return (
                 <div
                   key={index}
-                  className="flex h-full min-w-[24px] flex-1 flex-col items-center"
+                  className="relative flex h-full min-w-[24px] flex-1 flex-col items-center"
                 >
+                  {isLeftPointer && (
+                    <PointerIndicator
+                      label="L"
+                      color="sky"
+                      topOffset={bothPointers ? -76 : -60}
+                    />
+                  )}
+                  {isRightPointer && (
+                    <PointerIndicator label="R" color="rose" topOffset={-60} />
+                  )}
                   <div className="flex w-full flex-1 flex-col justify-end">
                     <div
                       className="w-full rounded-t-lg shadow-sm"
@@ -229,22 +245,6 @@ const SortingPlayground = () => {
               <div className="flex items-center justify-between">
                 <dt>교환 발생</dt>
                 <dd>{frame.swapped ? "예" : "아니오"}</dd>
-              </div>
-              <div className="flex items-center justify-between">
-                <dt>왼쪽 포인터</dt>
-                <dd>
-                  {typeof frame.leftPointer === "number"
-                    ? `${frame.leftPointer + 1}번째`
-                    : "없음"}
-                </dd>
-              </div>
-              <div className="flex items-center justify-between">
-                <dt>오른쪽 포인터</dt>
-                <dd>
-                  {typeof frame.rightPointer === "number"
-                    ? `${frame.rightPointer + 1}번째`
-                    : "없음"}
-                </dd>
               </div>
             </dl>
           </div>
@@ -440,6 +440,33 @@ function mergeSortSteps(initialArray) {
   mergeSort(0, arr.length - 1);
   steps.push(createSortingFrame(arr));
   return steps;
+}
+
+function PointerIndicator({ label, color, topOffset }) {
+  const baseColorClasses =
+    color === "sky"
+      ? {
+          badge: "border-sky-300 bg-sky-50 text-sky-600",
+          arrow: "text-sky-500",
+        }
+      : {
+          badge: "border-rose-300 bg-rose-50 text-rose-600",
+          arrow: "text-rose-500",
+        };
+
+  return (
+    <div
+      className="pointer-events-none absolute left-1/2 flex -translate-x-1/2 flex-col items-center"
+      style={{ top: `${topOffset}px` }}
+    >
+      <span
+        className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none ${baseColorClasses.badge}`}
+      >
+        {label}
+      </span>
+      <span className={`mt-1 text-lg leading-none ${baseColorClasses.arrow}`}>▼</span>
+    </div>
+  );
 }
 
 function createSortingFrame(
