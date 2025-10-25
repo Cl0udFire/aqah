@@ -194,7 +194,21 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     }
   }
 
-  Future<void> _toggleCompleted(String questionId, bool currentStatus) async {
+  Future<void> _toggleCompleted(String questionId, bool currentStatus, int answersCount) async {
+    // Prevent completing if there are no answers
+    if (!currentStatus && answersCount == 0) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('답변이 없는 질문은 완료할 수 없습니다'),
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(bottom: 80, left: 16, right: 16),
+          ),
+        );
+      }
+      return;
+    }
+
     try {
       await _firestoreService.toggleCompleted(questionId, !currentStatus);
       if (mounted) {
@@ -412,7 +426,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         : Icons.check_circle_outline,
                   ),
                   tooltip: question.completed ? '미완료로 변경' : '완료로 변경',
-                  onPressed: () => _toggleCompleted(question.id, question.completed),
+                  onPressed: () => _toggleCompleted(question.id, question.completed, question.answers.length),
                 ),
               if (isQuestioner && !hasAssignee) ...[
                 IconButton(

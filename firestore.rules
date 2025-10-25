@@ -50,12 +50,13 @@ service cloud.firestore {
                              request.resource.data.answers is list &&
                              resource.data.completed == false) ||
                             
-                            // 3. 질문자가 완료 상태 변경
+                            // 3. 질문자가 완료 상태 변경 (답변이 있는 경우에만)
                             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed', 'updatedAt']) &&
                              request.resource.data.title == resource.data.title &&
                              request.resource.data.content == resource.data.content &&
                              request.resource.data.assignee == resource.data.get('assignee', null) &&
-                             request.resource.data.answers == resource.data.get('answers', []))
+                             request.resource.data.answers == resource.data.get('answers', []) &&
+                             (request.resource.data.completed == false || resource.data.get('answers', []).size() > 0))
                           )) ||
                          
                          // 담당자 권한
@@ -70,12 +71,13 @@ service cloud.firestore {
                              request.resource.data.answers is list &&
                              resource.data.completed == false) ||
                             
-                            // 2. 답변자가 완료 상태 변경
+                            // 2. 답변자가 완료 상태 변경 (답변이 있는 경우에만)
                             (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed', 'updatedAt']) &&
                              request.resource.data.title == resource.data.title &&
                              request.resource.data.content == resource.data.content &&
                              request.resource.data.assignee == resource.data.assignee &&
-                             request.resource.data.answers == resource.data.get('answers', []))
+                             request.resource.data.answers == resource.data.get('answers', []) &&
+                             (request.resource.data.completed == false || resource.data.get('answers', []).size() > 0))
                           ))
                        );
       
