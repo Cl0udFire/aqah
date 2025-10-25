@@ -7,6 +7,7 @@ This Python server automatically assigns questions to available users every one 
 - **Automatic Assignment**: Assigns questions every 60 seconds (configurable)
 - **Round-Robin Distribution**: Fairly distributes questions among available users
 - **Firebase Integration**: Uses Firebase Admin SDK to interact with Firestore
+- **Push Notifications**: Sends FCM push notifications to assignees when questions are assigned
 - **Logging**: Comprehensive logging to both console and file
 
 ## Prerequisites
@@ -78,6 +79,33 @@ chmod +x assignment_server.py
 3. **Get Available Users**: Fetches available users from the Firestore `users` collection
 4. **Assignment**: Assigns questions to users using round-robin distribution
 5. **Update Database**: Updates each question's `assignee` field and `updatedAt` timestamp
+6. **Send Push Notification**: Sends an FCM push notification to the assignee
+   - Retrieves the user's FCM token from their user document
+   - Sends a notification with the question title and ID
+   - Gracefully handles cases where users don't have FCM tokens registered
+
+## Push Notifications
+
+The server automatically sends push notifications to users when questions are assigned to them. For this to work:
+
+1. **Mobile App Setup**: The mobile app must register the user's FCM token in Firestore
+   - When a user logs in, store their FCM token in the `users/{userId}` document
+   - The token should be stored in the `fcmToken` field
+
+2. **User Document Structure**: Each user document should have:
+   ```json
+   {
+     "fcmToken": "user_fcm_device_token_here",
+     // other user fields...
+   }
+   ```
+
+3. **Notification Format**: Notifications sent to users include:
+   - **Title**: "New Question Assigned"
+   - **Body**: "You have been assigned: [Question Title]"
+   - **Data**: `questionId` and `type: question_assigned` for handling in the app
+
+4. **Graceful Degradation**: If a user doesn't have an FCM token registered, the assignment still succeeds but no notification is sent (logged as a warning)
 
 ## Logs
 

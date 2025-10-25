@@ -1,3 +1,4 @@
+import 'package:expressive_loading_indicator/expressive_loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -18,20 +19,16 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Trigger the authentication flow
       final GoogleSignInAccount googleUser = await GoogleSignIn.instance
           .authenticate();
 
-      // Obtain the auth details from the request
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
 
-      // Create a new credential
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with the credential
       await FirebaseAuth.instance.signInWithCredential(credential);
     } catch (e) {
       if (mounted) {
@@ -72,7 +69,6 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  // Logo or App Icon
                   Container(
                     width: 120,
                     height: 120,
@@ -94,8 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-
-                  // App Title
                   Text(
                     'AQAH',
                     style: textTheme.displayMedium?.copyWith(
@@ -112,19 +106,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 64),
 
-                  // Login Button
                   FilledButton.icon(
                     onPressed: _isLoading ? null : _signInWithGoogle,
                     icon: _isLoading
                         ? const SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
+                            child: ExpressiveLoadingIndicator(),
                           )
                         : const Icon(Icons.login_rounded, size: 24),
                     label: Text(
