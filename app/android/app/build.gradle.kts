@@ -57,6 +57,11 @@ android {
             // isMinifyEnabled = false
             // proguardFiles(...)
         }
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("release")
+            // isMinifyEnabled = false
+            // proguardFiles(...)
+        }
     }
 }
 

@@ -6,10 +6,7 @@ import '../services/firestore_service.dart';
 class QuestionDetailScreen extends StatefulWidget {
   final String questionId;
 
-  const QuestionDetailScreen({
-    super.key,
-    required this.questionId,
-  });
+  const QuestionDetailScreen({super.key, required this.questionId});
 
   @override
   State<QuestionDetailScreen> createState() => _QuestionDetailScreenState();
@@ -214,9 +211,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
         if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
           return Scaffold(
             appBar: AppBar(title: const Text('오류')),
-            body: const Center(
-              child: Text('질문을 불러올 수 없습니다'),
-            ),
+            body: const Center(child: Text('질문을 불러올 수 없습니다')),
           );
         }
 
@@ -227,9 +222,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(
-              hasAssignee ? '1:1 채팅' : '질문 상세',
-            ),
+            title: Text(hasAssignee ? '1:1 질문' : '질문 상세'),
             actions: [
               if (isQuestioner) ...[
                 IconButton(
@@ -424,10 +417,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        question.content,
-                        style: textTheme.bodyMedium,
-                      ),
+                      Text(question.content, style: textTheme.bodyMedium),
                     ],
                   ),
                 ),
@@ -493,10 +483,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             decoration: BoxDecoration(
               color: colorScheme.surface,
               border: Border(
-                top: BorderSide(
-                  color: colorScheme.outlineVariant,
-                  width: 1,
-                ),
+                top: BorderSide(color: colorScheme.outlineVariant, width: 1),
               ),
             ),
             child: SafeArea(
@@ -540,10 +527,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerLow,
               border: Border(
-                top: BorderSide(
-                  color: colorScheme.outlineVariant,
-                  width: 1,
-                ),
+                top: BorderSide(color: colorScheme.outlineVariant, width: 1),
               ),
             ),
             child: SafeArea(
@@ -597,7 +581,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '답변자가 배정되면 1:1 채팅을 시작할 수 있습니다',
+              '답변자가 배정되면 1:1 질문을 시작할 수 있습니다',
               style: textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),

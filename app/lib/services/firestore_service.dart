@@ -19,6 +19,7 @@ class FirestoreService {
       'content': content,
       'questioner': currentUserId!,
       'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
