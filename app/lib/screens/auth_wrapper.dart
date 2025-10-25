@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:expressive_loading_indicator/expressive_loading_indicator.dart';
 import 'login_screen.dart';
-import 'questions_screen.dart';
+import 'main_navigation_screen.dart';
 import '../services/fcm_service.dart';
 
 class AuthWrapper extends StatefulWidget {
@@ -37,7 +37,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
         }
 
         if (snapshot.hasData && snapshot.data != null) {
-          return const QuestionsScreen();
+          return const MainNavigationScreen();
         }
 
         return const LoginScreen();

@@ -42,6 +42,38 @@ class FirestoreService {
         );
   }
 
+  Stream<List<Question>> getAllQuestions() {
+    return _firestore
+        .collection('questions')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Question.fromFirestore(doc)).toList(),
+        );
+  }
+
+  Stream<List<Question>> getCompletedQuestions() {
+    if (currentUserId == null) return Stream.value([]);
+
+    return _firestore
+        .collection('questions')
+        .where(
+          Filter.or(
+            Filter('questioner', isEqualTo: currentUserId),
+            Filter('assignee', isEqualTo: currentUserId),
+          ),
+        )
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Question.fromFirestore(doc))
+              .where((question) => question.answers.isNotEmpty)
+              .toList(),
+        );
+  }
+
   Stream<Question?> getQuestion(String questionId) {
     return _firestore
         .collection('questions')
