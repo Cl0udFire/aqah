@@ -23,9 +23,7 @@ class _CompletedQuestionsScreenState extends State<CompletedQuestionsScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('완료된 질의응답'),
-      ),
+      appBar: AppBar(title: const Text('완료된 질의응답')),
       body: StreamBuilder<List<Question>>(
         stream: _firestoreService.getCompletedQuestions(),
         builder: (context, snapshot) {

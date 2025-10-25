@@ -22,9 +22,7 @@ class _MyQuestionsScreenState extends State<MyQuestionsScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('내 질의응답'),
-      ),
+      appBar: AppBar(title: const Text('내 질의응답')),
       body: StreamBuilder<List<Question>>(
         stream: _firestoreService.getUserQuestions(),
         builder: (context, snapshot) {
@@ -132,7 +130,8 @@ class _MyQuestionsScreenState extends State<MyQuestionsScreen> {
                                       Text(
                                         '완료',
                                         style: textTheme.labelSmall?.copyWith(
-                                          color: colorScheme.onTertiaryContainer,
+                                          color:
+                                              colorScheme.onTertiaryContainer,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -214,7 +213,8 @@ class _MyQuestionsScreenState extends State<MyQuestionsScreen> {
                                       Text(
                                         '${question.answers.length}',
                                         style: textTheme.labelSmall?.copyWith(
-                                          color: colorScheme.onTertiaryContainer,
+                                          color:
+                                              colorScheme.onTertiaryContainer,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -222,7 +222,8 @@ class _MyQuestionsScreenState extends State<MyQuestionsScreen> {
                                       Text(
                                         '답변',
                                         style: textTheme.labelSmall?.copyWith(
-                                          color: colorScheme.onTertiaryContainer,
+                                          color:
+                                              colorScheme.onTertiaryContainer,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),

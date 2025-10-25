@@ -18,10 +18,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final User? _currentUser = FirebaseAuth.instance.currentUser;
   final FirestoreService _firestoreService = FirestoreService();
 
-  static const List<Widget> _screens = [
-    HomeScreen(),
-    MyQuestionsScreen(),
-  ];
+  static const List<Widget> _screens = [HomeScreen(), MyQuestionsScreen()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -37,9 +34,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void _navigateToAddQuestion() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const AddQuestionScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const AddQuestionScreen()),
     );
   }
 

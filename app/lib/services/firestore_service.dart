@@ -36,23 +36,21 @@ class FirestoreService {
         )
         .orderBy('createdAt', descending: true)
         .snapshots()
-        .map(
-          (snapshot) {
-            final questions = snapshot.docs
-                .map((doc) => Question.fromFirestore(doc))
-                .toList();
-            
-            // Sort: incomplete questions first, then completed questions
-            questions.sort((a, b) {
-              if (a.completed == b.completed) {
-                return b.createdAt.compareTo(a.createdAt);
-              }
-              return a.completed ? 1 : -1;
-            });
-            
-            return questions;
-          },
-        );
+        .map((snapshot) {
+          final questions = snapshot.docs
+              .map((doc) => Question.fromFirestore(doc))
+              .toList();
+
+          // Sort: incomplete questions first, then completed questions
+          questions.sort((a, b) {
+            if (a.completed == b.completed) {
+              return b.createdAt.compareTo(a.createdAt);
+            }
+            return a.completed ? 1 : -1;
+          });
+
+          return questions;
+        });
   }
 
   Stream<List<Question>> getAllQuestions() {
@@ -114,7 +112,10 @@ class FirestoreService {
     if (currentUserId == null) throw Exception('User not authenticated');
 
     // Get the current question to update the specific answer
-    final docSnapshot = await _firestore.collection('questions').doc(questionId).get();
+    final docSnapshot = await _firestore
+        .collection('questions')
+        .doc(questionId)
+        .get();
     if (!docSnapshot.exists) throw Exception('Question not found');
 
     final data = docSnapshot.data() as Map<String, dynamic>;
@@ -122,7 +123,7 @@ class FirestoreService {
 
     if (answerIndex >= 0 && answerIndex < answers.length) {
       answers[answerIndex]['content'] = newContent;
-      
+
       await _firestore.collection('questions').doc(questionId).update({
         'answers': answers,
         'updatedAt': DateTime.timestamp(),
@@ -139,7 +140,10 @@ class FirestoreService {
     if (currentUserId == null) throw Exception('User not authenticated');
 
     // Get the current question to delete the specific answer
-    final docSnapshot = await _firestore.collection('questions').doc(questionId).get();
+    final docSnapshot = await _firestore
+        .collection('questions')
+        .doc(questionId)
+        .get();
     if (!docSnapshot.exists) throw Exception('Question not found');
 
     final data = docSnapshot.data() as Map<String, dynamic>;
@@ -147,7 +151,7 @@ class FirestoreService {
 
     if (answerIndex >= 0 && answerIndex < answers.length) {
       answers.removeAt(answerIndex);
-      
+
       await _firestore.collection('questions').doc(questionId).update({
         'answers': answers,
         'updatedAt': DateTime.timestamp(),

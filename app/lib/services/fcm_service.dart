@@ -99,7 +99,7 @@ class FCMService {
     final context = NavigationService.context;
     if (context != null) {
       final questionId = message.data['questionId'];
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Column(
@@ -143,7 +143,7 @@ class FCMService {
     final questionId = message.data['questionId'];
     if (questionId != null) {
       developer.log('FCM: Navigating to question: $questionId');
-      
+
       final context = NavigationService.context;
       if (context != null) {
         Navigator.of(context).push(
