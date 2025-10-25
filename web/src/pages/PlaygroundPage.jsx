@@ -14,7 +14,7 @@ const sections = [
   {
     id: "pointer",
     label: "포인터",
-    description: "두 포인터 전략과 윈도우 계산을 직접 조작하며 이해합니다.",
+    description: "C 포인터의 주소와 역참조, 배열 포인터 산술을 눈으로 확인합니다.",
   },
   {
     id: "disk",

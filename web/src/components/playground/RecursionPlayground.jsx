@@ -104,37 +104,12 @@ const RecursionPlayground = () => {
             />
           </div>
 
-          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600">
-              호출 스택
+              호출 스택 프레임
             </h3>
-            <div className="mt-4 space-y-3">
-              {frame.stack.length === 0 ? (
-                <p className="text-sm text-slate-500">스택이 비어 있어요.</p>
-              ) : (
-                frame.stack.map((entry, index) => (
-                  <div
-                    key={`${entry.id}-${index}`}
-                    className={`rounded-lg border px-4 py-3 text-sm transition ${
-                      entry.state === "returning"
-                        ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                        : entry.state === "call"
-                        ? "border-sky-300 bg-sky-50 text-sky-700"
-                        : "border-slate-200 bg-white text-slate-700"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">{entry.signature}</span>
-                      <span className="text-xs uppercase tracking-wide text-slate-400">
-                        {entry.state === "returning" ? "return" : "call"}
-                      </span>
-                    </div>
-                    {entry.result !== undefined && (
-                      <p className="mt-1 text-xs text-slate-500">반환 값: {entry.result}</p>
-                    )}
-                  </div>
-                ))
-              )}
+            <div className="mt-4">
+              <StackFrameTree frames={frame.stack} />
             </div>
           </div>
 
@@ -185,14 +160,79 @@ const RecursionPlayground = () => {
           <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm leading-relaxed text-slate-600">
             <p className="font-medium text-slate-800">관찰 포인트</p>
             <ul className="mt-2 list-disc space-y-1 pl-4">
-              <li>호출이 발생하면 새로운 프레임이 스택 맨 위에 쌓입니다.</li>
-              <li>반환 단계에서는 결과가 프레임에 기록되고 스택에서 제거돼요.</li>
-              <li>이진 탐색은 좌/우 구간을 재귀적으로 줄여나가는 모습을 확인할 수 있어요.</li>
+              <li>각 호출은 독립적인 스택 프레임으로 표현되며 상위 프레임 안에 중첩됩니다.</li>
+              <li>return 단계에서는 프레임 배경이 초록색으로 변하며 반환 값이 기록돼요.</li>
+              <li>재귀가 끝나면 가장 안쪽 프레임부터 차례로 닫히며 스택이 비어 있습니다.</li>
             </ul>
           </div>
         </aside>
       </div>
     </section>
+  );
+};
+
+const StackFrameTree = ({ frames }) => {
+  if (!frames.length) {
+    return (
+      <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-6 text-sm text-slate-500">
+        스택이 비어 있어요.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <FrameNode frames={frames} index={0} depth={0} />
+    </div>
+  );
+};
+
+const FrameNode = ({ frames, index, depth }) => {
+  const frame = frames[index];
+  const isLeaf = index === frames.length - 1;
+  const nextDepth = depth + 1;
+
+  const stateStyles =
+    frame.state === "returning"
+      ? {
+          border: "border-emerald-400",
+          background: "bg-emerald-50",
+          badge: "bg-emerald-100 text-emerald-700",
+          label: "RETURN",
+        }
+      : {
+          border: "border-sky-300",
+          background: depth % 2 === 0 ? "bg-slate-50" : "bg-white",
+          badge: "bg-sky-100 text-sky-700",
+          label: "CALL",
+        };
+
+  return (
+    <div
+      className={`rounded-2xl border ${stateStyles.border} ${stateStyles.background} p-4 shadow-sm transition`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-semibold text-slate-900">{frame.signature}</span>
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${stateStyles.badge}`}
+        >
+          {stateStyles.label}
+        </span>
+      </div>
+      {frame.result !== undefined && (
+        <p className="mt-2 text-xs text-slate-600">
+          반환 값: <span className="font-semibold text-slate-800">{frame.result}</span>
+        </p>
+      )}
+      {isLeaf && frame.state !== "returning" && (
+        <p className="mt-3 text-xs text-slate-500">/* 현재 실행 중인 프레임 */</p>
+      )}
+      {!isLeaf && (
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-inner">
+          <FrameNode frames={frames} index={index + 1} depth={nextDepth} />
+        </div>
+      )}
+    </div>
   );
 };
 
