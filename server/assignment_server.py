@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import List, Optional
 import schedule
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, messaging
 from dotenv import load_dotenv
 
 # Configure logging
@@ -136,13 +136,75 @@ class QuestionAssignmentServer:
             logger.error(f"Error getting available users: {e}")
             return []
     
-    def assign_question(self, question_id: str, assignee_id: str):
+    def get_user_fcm_token(self, user_id: str) -> Optional[str]:
         """
-        Assign a question to a user.
+        Get the FCM token for a user.
+        
+        Args:
+            user_id: The ID of the user
+            
+        Returns:
+            The FCM token if it exists, None otherwise
+        """
+        try:
+            user_ref = self.db.collection('users').document(user_id)
+            user_doc = user_ref.get()
+            
+            if user_doc.exists:
+                user_data = user_doc.to_dict()
+                return user_data.get('fcmToken')
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting FCM token for user {user_id}: {e}")
+            return None
+    
+    def send_push_notification(self, user_id: str, question_id: str, question_title: str):
+        """
+        Send a push notification to a user about a newly assigned question.
+        
+        Args:
+            user_id: The ID of the user to send the notification to
+            question_id: The ID of the assigned question
+            question_title: The title of the question
+        """
+        try:
+            # Get the user's FCM token
+            fcm_token = self.get_user_fcm_token(user_id)
+            
+            if not fcm_token:
+                logger.warning(f"No FCM token found for user {user_id}, skipping notification")
+                return
+            
+            # Create the notification message
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title='New Question Assigned',
+                    body=f'You have been assigned: {question_title}',
+                ),
+                data={
+                    'questionId': question_id,
+                    'type': 'question_assigned',
+                },
+                token=fcm_token,
+            )
+            
+            # Send the notification
+            response = messaging.send(message)
+            logger.info(f"Push notification sent to user {user_id} for question {question_id}: {response}")
+            
+        except Exception as e:
+            logger.error(f"Error sending push notification to user {user_id}: {e}")
+    
+    def assign_question(self, question_id: str, assignee_id: str, question_title: str = ""):
+        """
+        Assign a question to a user and send a push notification.
         
         Args:
             question_id: The ID of the question to assign
             assignee_id: The ID of the user to assign the question to
+            question_title: The title of the question (for notification)
         """
         try:
             question_ref = self.db.collection('questions').document(question_id)
@@ -151,6 +213,9 @@ class QuestionAssignmentServer:
                 'updatedAt': firestore.SERVER_TIMESTAMP
             })
             logger.info(f"Assigned question {question_id} to user {assignee_id}")
+            
+            # Send push notification to the assignee
+            self.send_push_notification(assignee_id, question_id, question_title)
             
         except Exception as e:
             logger.error(f"Error assigning question {question_id} to user {assignee_id}: {e}")
@@ -180,7 +245,8 @@ class QuestionAssignmentServer:
             user_index = 0
             for question in unassigned_questions:
                 assignee_id = available_users[user_index % len(available_users)]
-                self.assign_question(question['id'], assignee_id)
+                question_title = question['data'].get('title', 'Untitled Question')
+                self.assign_question(question['id'], assignee_id, question_title)
                 user_index += 1
             
             logger.info(f"Assignment cycle completed. Assigned {len(unassigned_questions)} questions")

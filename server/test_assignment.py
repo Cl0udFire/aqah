@@ -74,8 +74,15 @@ class MockAssignmentServer:
             }
         ]
         
-        # Sample available users
+        # Sample available users with FCM tokens
         self.users = ['expert1', 'expert2', 'expert3']
+        
+        # Mock user data with FCM tokens
+        self.user_data = {
+            'expert1': {'fcmToken': 'fcm_token_expert1', 'name': 'Expert 1'},
+            'expert2': {'fcmToken': 'fcm_token_expert2', 'name': 'Expert 2'},
+            'expert3': {'fcmToken': None, 'name': 'Expert 3'},  # No FCM token
+        }
         
     def get_unassigned_questions(self):
         """Get questions without assignees."""
@@ -93,13 +100,33 @@ class MockAssignmentServer:
         logger.info(f"Found {len(self.users)} available users")
         return self.users
     
+    def get_user_fcm_token(self, user_id):
+        """Get FCM token for a user."""
+        return self.user_data.get(user_id, {}).get('fcmToken')
+    
+    def send_push_notification(self, user_id, question_id, question_title):
+        """Send a push notification to a user (mocked)."""
+        fcm_token = self.get_user_fcm_token(user_id)
+        
+        if fcm_token:
+            logger.info(f"  📱 Sending push notification to {user_id} (token: {fcm_token[:20]}...)")
+            logger.info(f"     Title: 'New Question Assigned'")
+            logger.info(f"     Body: 'You have been assigned: {question_title}'")
+            logger.info(f"     Data: questionId={question_id}, type=question_assigned")
+        else:
+            logger.warning(f"  ⚠️  No FCM token for {user_id}, skipping notification")
+    
     def assign_question(self, question_id, assignee_id):
         """Assign a question to a user."""
         for q in self.questions:
             if q['id'] == question_id:
                 q['data']['assignee'] = assignee_id
                 q['data']['updatedAt'] = datetime.now()
-                logger.info(f"Assigned question '{q['data']['title']}' (ID: {question_id}) to user {assignee_id}")
+                question_title = q['data']['title']
+                logger.info(f"Assigned question '{question_title}' (ID: {question_id}) to user {assignee_id}")
+                
+                # Send push notification
+                self.send_push_notification(assignee_id, question_id, question_title)
                 return
     
     def assign_questions_round_robin(self):
