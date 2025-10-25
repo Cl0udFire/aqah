@@ -5,6 +5,8 @@ import QuestionList from "../components/QuestionList";
 import { getReceivedQuestionList, getSentQuestionList } from "../firebase/db";
 import { useAppStore } from "../context/store";
 import Loading from "../components/Loading";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faQuestion, faQuestionCircle, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const QuestionsPage = () => {
   const [currentFilter, setCurrentFilter] = useState("received");
@@ -88,9 +90,6 @@ const QuestionsPage = () => {
         console.log(data);
         questions.current.sent = data;
       })
-      .catch((error) => {
-        console.error("Error fetching questions:", error);
-      })
       .finally(() => {
         setIsLoading(false);
       });
@@ -119,8 +118,14 @@ const QuestionsPage = () => {
             </p>
           </header>
 
-          <QuestionSelector value={currentFilter} onChange={setCurrentFilter} />
-
+          <div className="flex justify-between items-center">
+            <QuestionSelector value={currentFilter} onChange={setCurrentFilter} />
+            <button className="w-[7rem] h-[2.5rem] bg-blue-500 text-white flex justify-center items-center rounded-xl gap-2">
+              <FontAwesomeIcon icon={faPlus} />
+              질문하기
+            </button>
+          </div>
+ 
           <QuestionList questions={questions} type={currentFilter} />
         </div>
       </main>

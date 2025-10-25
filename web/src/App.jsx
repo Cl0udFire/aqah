@@ -6,6 +6,7 @@ import "./App.css";
 import HomePage from "./pages/HomePage.jsx";
 import QuestionsPage from "./pages/QuestionsPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
+import ChatPage from "./pages/ChatPage.js";
 
 const toError = (error) => {
   if (error instanceof Error) {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/questions" element={<QuestionsPage />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </BrowserRouter>
   );

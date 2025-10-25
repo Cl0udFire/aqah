@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComputer, faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
+import { NavLink } from "react-router-dom";
 
 // const STATUS_STYLES = {
 //   pending: "bg-amber-50 text-amber-700 border-amber-200",
@@ -67,7 +68,9 @@ const QuestionList = ({ questions, type }) => {
                 <div className="flex justify-end items-center gap-4">
                   <ConfirmButton className="bg-green-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-green-400">
                     <FontAwesomeIcon icon={faCheck} fontSize="1rem" color="green" />
-                    답변하기
+                    <NavLink to={`/chat?id=${question.id}`}>
+                      <span>답변하기</span>
+                    </NavLink>
                   </ConfirmButton>
                   <DeclineButton className="bg-red-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-red-400">
                     <FontAwesomeIcon icon={faXmark} fontSize="1rem" color="red" />
