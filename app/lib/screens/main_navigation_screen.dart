@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home_screen.dart';
 import 'my_questions_screen.dart';
-import 'completed_questions_screen.dart';
+import 'add_question_screen.dart';
 import '../services/firestore_service.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -21,7 +21,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   static const List<Widget> _screens = [
     HomeScreen(),
     MyQuestionsScreen(),
-    CompletedQuestionsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -35,91 +34,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     await GoogleSignIn.instance.signOut();
   }
 
-  Future<void> _showCreateQuestionDialog() async {
-    final titleController = TextEditingController();
-    final contentController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('새 질문 작성'),
-          content: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: '제목',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '제목을 입력하세요';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: contentController,
-                  decoration: const InputDecoration(
-                    labelText: '내용',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 5,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '내용을 입력하세요';
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('취소'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  try {
-                    await _firestoreService.createQuestion(
-                      title: titleController.text,
-                      content: contentController.text,
-                    );
-                    if (mounted) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('질문이 작성되었습니다'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('질문 작성 실패: $e'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
-                  }
-                }
-              },
-              child: const Text('작성'),
-            ),
-          ],
-        );
-      },
+  void _navigateToAddQuestion() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddQuestionScreen(),
+      ),
     );
   }
 
@@ -193,15 +113,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             selectedIcon: Icon(Icons.question_answer),
             label: '내 질의응답',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.check_circle_outline),
-            selectedIcon: Icon(Icons.check_circle),
-            label: '완료됨',
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showCreateQuestionDialog,
+        onPressed: _navigateToAddQuestion,
         icon: const Icon(Icons.add),
         label: const Text('새 질문'),
       ),

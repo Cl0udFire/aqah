@@ -37,6 +37,7 @@ class Question {
   final List<Answer> answers;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool completed;
 
   Question({
     required this.id,
@@ -47,6 +48,7 @@ class Question {
     List<Answer>? answers,
     required this.createdAt,
     required this.updatedAt,
+    this.completed = false,
   }) : answers = answers ?? [];
 
   factory Question.fromFirestore(DocumentSnapshot doc) {
@@ -68,6 +70,7 @@ class Question {
       answers: answersList,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      completed: data['completed'] ?? false,
     );
   }
 
@@ -80,6 +83,7 @@ class Question {
       'answers': answers.map((answer) => answer.toMap()).toList(),
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
+      'completed': completed,
     };
   }
 
@@ -92,6 +96,7 @@ class Question {
     List<Answer>? answers,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? completed,
   }) {
     return Question(
       id: id ?? this.id,
@@ -102,6 +107,7 @@ class Question {
       answers: answers ?? this.answers,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      completed: completed ?? this.completed,
     );
   }
 }
