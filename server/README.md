@@ -15,6 +15,17 @@ This Python server automatically assigns questions to available users every one 
 - Firebase project with Firestore database
 - Firebase Admin SDK service account key
 
+## Quick Test
+
+Before setting up Firebase, you can test the assignment logic with the included test script:
+
+```bash
+cd server
+python3 test_assignment.py
+```
+
+This will demonstrate how the assignment algorithm works using mock data.
+
 ## Setup
 
 1. **Install Dependencies**
