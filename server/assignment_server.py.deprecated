@@ -120,11 +120,13 @@ class QuestionAssignmentServer:
             logger.warning("배정할 유저 없음")
             return
 
+        user_index = 0
         for question in unassigned_questions:
-            assignee_id = question['questioner']
-            while assignee_id == question['questioner']:
-                assignee_id = random.choice(available_users)
-            assignee_id = available_users[user_index % len(available_users)]
+            # Ensure we don't assign to the questioner
+            assignee_id = question['data'].get('questioner')
+            while assignee_id == question['data'].get('questioner'):
+                assignee_id = available_users[user_index % len(available_users)]
+                user_index += 1
             question_title = question['data'].get('title', 'Untitled Question')
             self.assign_question(question['id'], assignee_id, question_title)
 

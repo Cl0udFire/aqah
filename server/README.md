@@ -1,6 +1,28 @@
 # Question Assignment Server
 
-This Python server automatically assigns questions to available users every one minute. It queries the Firestore database for questions that don't have an assignee or have an empty string assignee, and distributes them to available users using a round-robin algorithm.
+> **⚠️ DEPRECATED**: This server has been migrated to Firebase Functions. See the [functions/README.md](functions/README.md) for the new implementation.
+
+This directory previously contained a Python server that automatically assigned questions to available users every one minute. It has been replaced by Firebase Cloud Functions for a more scalable, serverless approach.
+
+## Migration to Firebase Functions
+
+The functionality of this server has been migrated to Firebase Cloud Functions. The new implementation provides:
+
+- **Event-driven processing**: Questions are assigned instantly when created, not on a schedule
+- **Serverless architecture**: No need to run and maintain a dedicated server
+- **Additional notifications**: 
+  - Notify questioners when answers are received
+  - Notify answerers when additional questions are asked
+- **Better scalability**: Automatically scales with demand
+- **Lower operational costs**: Pay only for actual function executions
+
+See [functions/README.md](functions/README.md) for details on the new implementation.
+
+---
+
+## Legacy Documentation
+
+The following documentation is kept for reference. **This server is no longer the recommended approach.**
 
 ## Features
 

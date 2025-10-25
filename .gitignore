@@ -6,3 +6,18 @@ server/firebase-credentials.json
 server/*.log
 server/__pycache__/
 server/*.pyc
+
+# Firebase
+.firebase/
+.firebaserc
+firebase.json
+*-debug.log
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Firebase Functions
+server/functions/__pycache__/
+server/functions/*.pyc
+server/functions/venv/
+server/functions/.venv/
