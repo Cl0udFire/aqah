@@ -45,19 +45,14 @@ const GradientBackground = styled.div`
   border-radius: 9999px;
   background: radial-gradient(
     circle,
-    rgba(255, 0, 150, 9%) 0%,
-    rgba(255, 100, 0, 9%) 15%,
-    rgba(255, 200, 0, 9%) 30%,
-    rgba(100, 255, 0, 9%) 45%,
-    rgba(0, 150, 255, 9%) 60%,
-    rgba(150, 0, 255, 9%) 75%,
-    rgba(255, 0, 100, 9%) 90%,
-    transparent 100%
+    rgba(45, 42, 218, 0.3) 0%, /* Light Blue */
+    rgba(40, 224, 234, 0.3) 50%, /* Light Green */
+    transparent 70%
   );
   pointer-events: none;
   z-index: 0;
   top: 290px;
-  filter: blur(40px);
+  filter: blur(100px);
 `;
 
 const SearchBox = styled.div`
@@ -199,7 +194,7 @@ const App = () => {
     console.log(user);
   }, [user]);
 
-  // TODO: 검색어를 입력할 때마다 서버에 추천 검색어 호출 필요 (like같은거???).
+  /// TODO: 검색어를 입력할 때마다 서버에 추천 검색어 호출 필요 (like같은거???).
   useEffect(() => {
     const fetchQuestions = async () => {
       setRelated(
