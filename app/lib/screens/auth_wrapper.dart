@@ -2,9 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
 import 'questions_screen.dart';
+import '../services/fcm_service.dart';
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  final FCMService _fcmService = FCMService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen to auth state changes and initialize FCM when user logs in
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        // User is logged in, initialize FCM
+        _fcmService.initialize();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
