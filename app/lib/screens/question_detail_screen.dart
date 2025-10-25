@@ -194,6 +194,31 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     }
   }
 
+  Future<void> _toggleCompleted(String questionId, bool currentStatus) async {
+    try {
+      await _firestoreService.toggleCompleted(questionId, !currentStatus);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(!currentStatus ? '질문이 완료되었습니다' : '질문을 미완료로 변경했습니다'),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('상태 변경 실패: $e'),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -224,6 +249,16 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
           appBar: AppBar(
             title: Text(hasAssignee ? '1:1 질문' : '질문 상세'),
             actions: [
+              if (isQuestioner || isAssignee)
+                IconButton(
+                  icon: Icon(
+                    question.completed
+                        ? Icons.check_circle
+                        : Icons.check_circle_outline,
+                  ),
+                  tooltip: question.completed ? '미완료로 변경' : '완료로 변경',
+                  onPressed: () => _toggleCompleted(question.id, question.completed),
+                ),
               if (isQuestioner) ...[
                 IconButton(
                   icon: const Icon(Icons.edit),

@@ -20,6 +20,7 @@ class FirestoreService {
       'questioner': currentUserId!,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
+      'completed': false,
     });
   }
 
@@ -37,40 +38,33 @@ class FirestoreService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(
-          (snapshot) =>
-              snapshot.docs.map((doc) => Question.fromFirestore(doc)).toList(),
+          (snapshot) {
+            final questions = snapshot.docs
+                .map((doc) => Question.fromFirestore(doc))
+                .toList();
+            
+            // Sort: incomplete questions first, then completed questions
+            questions.sort((a, b) {
+              if (a.completed == b.completed) {
+                return b.createdAt.compareTo(a.createdAt);
+              }
+              return a.completed ? 1 : -1;
+            });
+            
+            return questions;
+          },
         );
   }
 
   Stream<List<Question>> getAllQuestions() {
     return _firestore
         .collection('questions')
+        .where('completed', isEqualTo: true)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(
           (snapshot) =>
               snapshot.docs.map((doc) => Question.fromFirestore(doc)).toList(),
-        );
-  }
-
-  Stream<List<Question>> getCompletedQuestions() {
-    if (currentUserId == null) return Stream.value([]);
-
-    return _firestore
-        .collection('questions')
-        .where(
-          Filter.or(
-            Filter('questioner', isEqualTo: currentUserId),
-            Filter('assignee', isEqualTo: currentUserId),
-          ),
-        )
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => Question.fromFirestore(doc))
-              .where((question) => question.answers.isNotEmpty)
-              .toList(),
         );
   }
 
@@ -109,6 +103,15 @@ class FirestoreService {
           'timestamp': DateTime.timestamp(),
         },
       ]),
+      'updatedAt': DateTime.timestamp(),
+    });
+  }
+
+  Future<void> toggleCompleted(String questionId, bool completed) async {
+    if (currentUserId == null) throw Exception('User not authenticated');
+
+    await _firestore.collection('questions').doc(questionId).update({
+      'completed': completed,
       'updatedAt': DateTime.timestamp(),
     });
   }
