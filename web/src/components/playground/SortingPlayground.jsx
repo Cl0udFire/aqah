@@ -164,17 +164,31 @@ const SortingPlayground = () => {
             </button>
           </div>
 
-          <div className="relative mt-6 flex h-64 items-end gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 pb-4">
+          <div className="relative mt-6 flex h-64 items-end gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 pb-4 pt-14">
+            {typeof frame.leftPointer === "number" && (
+              <PointerIndicator
+                label="L"
+                color="sky"
+                positionPercent={((frame.leftPointer + 0.5) / frame.array.length) * 100}
+                verticalOffset={4}
+              />
+            )}
+            {typeof frame.rightPointer === "number" && (
+              <PointerIndicator
+                label="R"
+                color="rose"
+                positionPercent={((frame.rightPointer + 0.5) / frame.array.length) * 100}
+                verticalOffset={
+                  typeof frame.leftPointer === "number" && frame.rightPointer === frame.leftPointer
+                    ? 36
+                    : 4
+                }
+              />
+            )}
             {frame.array.map((value, index) => {
               const heightPercent = Math.max((value / maxValue) * 100, 8);
               const isComparing = frame.comparing?.includes(index);
               const isPivot = frame.pivotIndex === index;
-              const isLeftPointer = frame.leftPointer === index;
-              const isRightPointer = frame.rightPointer === index;
-              const bothPointers =
-                typeof frame.leftPointer === "number" &&
-                frame.leftPointer === frame.rightPointer &&
-                frame.leftPointer === index;
               const barColor = isPivot
                 ? BAR_COLORS.pivot
                 : isComparing
@@ -188,16 +202,6 @@ const SortingPlayground = () => {
                   key={index}
                   className="relative flex h-full min-w-[24px] flex-1 flex-col items-center"
                 >
-                  {isLeftPointer && (
-                    <PointerIndicator
-                      label="L"
-                      color="sky"
-                      topOffset={bothPointers ? -76 : -60}
-                    />
-                  )}
-                  {isRightPointer && (
-                    <PointerIndicator label="R" color="rose" topOffset={-60} />
-                  )}
                   <div className="flex w-full flex-1 flex-col justify-end">
                     <div
                       className="w-full rounded-t-lg shadow-sm"
@@ -442,7 +446,7 @@ function mergeSortSteps(initialArray) {
   return steps;
 }
 
-function PointerIndicator({ label, color, topOffset }) {
+function PointerIndicator({ label, color, positionPercent, verticalOffset }) {
   const baseColorClasses =
     color === "sky"
       ? {
@@ -456,8 +460,12 @@ function PointerIndicator({ label, color, topOffset }) {
 
   return (
     <div
-      className="pointer-events-none absolute left-1/2 flex -translate-x-1/2 flex-col items-center"
-      style={{ top: `${topOffset}px` }}
+      className="pointer-events-none absolute z-10 flex -translate-x-1/2 flex-col items-center"
+      style={{
+        left: `${positionPercent}%`,
+        top: `${verticalOffset}px`,
+        transition: "left 0.3s ease, top 0.3s ease",
+      }}
     >
       <span
         className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none ${baseColorClasses.badge}`}
