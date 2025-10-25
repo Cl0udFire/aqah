@@ -1,1 +1,8 @@
 .DS_Store
+
+# Server-specific files
+server/.env
+server/firebase-credentials.json
+server/*.log
+server/__pycache__/
+server/*.pyc
