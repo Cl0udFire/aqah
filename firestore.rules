@@ -3,10 +3,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /questions/{questionId} {
       
-      // 읽기 권한: 인증된 사용자 중 질문자 또는 담당자만 가능
+      // 읽기 권한: 인증된 사용자 중 질문자 또는 담당자만 가능, 또는 완료된 질문은 모두 읽기 가능
       allow read: if request.auth != null && 
                      (resource.data.questioner == request.auth.uid || 
-                      resource.data.assignee == request.auth.uid);
+                      resource.data.assignee == request.auth.uid ||
+                      resource.data.completed == true);
       
       // 생성 권한: 인증된 사용자만 가능
       allow create: if request.auth != null &&
