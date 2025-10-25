@@ -3,7 +3,15 @@ import { useAppStore } from "../context/store";
 import Topbar from "../components/Topbar";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowDown,
+  faArrowUp,
+  faCaretDown,
+  faCaretUp,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
+import { NavLink } from "react-router-dom";
+import Dropdown from "react-dropdown";
 
 const Container = styled.div`
   display: flex;
@@ -25,7 +33,8 @@ const Slogan = styled.div`
 const Highlight = styled.span`
   color: #3b82f6;
 `;
-
+// search
+// learn
 const GradientBackground = styled.div`
   position: absolute;
   width: 850px;
@@ -62,6 +71,74 @@ const SearchBox = styled.div`
   position: relative;
   background-color: color-mix(in oklab, #f8fafc 50%, transparent);
 `;
+
+const StyledDropdown = styled(Dropdown)`
+  --width: 140px;
+  box-sizing: border-box;
+  border-color: #3b82f6;
+  border-radius: 999px;
+  border-width: 2px;
+  background-color: #f8fafc;
+  .Dropdown-control {
+    padding: 9px;
+    padding-left: 15px;
+    position: relative;
+    color: #000000;
+    border-color: transparent;
+    width: var(--width);
+    font-size: 24px;
+    z-index: 10;
+  }
+  .Dropdown-placeholder.is-selected {
+    width: calc(var(--width) - 50px);
+  }
+  .Dropdown-menu {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: calc(var(--width) + 4px);
+    padding-top: 4px;
+    background-color: #f8fafc;
+    color: #000000;
+    font-size: 24px;
+    padding-top: 27px;
+    margin-left: -2px;
+    margin-top: -27px;
+    z-index: 5;
+    border-top: none;
+    border-color: #3b82f6;
+    border-width: 2px;
+
+    &:last-child {
+      border-bottom-left-radius: 27px;
+      border-bottom-right-radius: 27px;
+    }
+  }
+  .Dropdown-option {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 50px;
+    font-size: 24px;
+
+    &:first-child {
+      border-top: 1px solid #222222;
+    }
+    &:last-child {
+      border-bottom-left-radius: 16px;
+      border-bottom-right-radius: 16px;
+    }
+  }
+  .Dropdown-option.is-selected {
+    color: #3b82f6;
+    background-color: #00000022;
+  }
+`;
+
 const SearchButton = styled.button`
   margin-left: 16px;
   border: none;
@@ -73,6 +150,10 @@ const SearchButton = styled.button`
   aspect-ratio: 1 / 1;
   box-sizing: content-box;
   padding: 9px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     background-color: #00000022;
@@ -116,9 +197,11 @@ const App = () => {
     console.log(user);
   }, [user]);
 
+  // TODO: 검색어를 입력할 때마다 서버에 추천 검색어 호출 필요 (like같은거???).
   useEffect(() => {
     const fetchQuestions = async () => {
       setRelated(
+        // 추천 검색어 목록
         ["아집에가고싶다", "오늘날씨어때?", "리액트란무엇인가?"].filter((q) =>
           q.includes(query)
         )
@@ -138,10 +221,16 @@ const App = () => {
         </Slogan>
         <GradientBackground />
         <SearchBox>
+          <StyledDropdown
+            options={["Search", "Learn"]}
+            value="Search"
+            arrowClosed={<FontAwesomeIcon icon={faCaretDown} />}
+            arrowOpen={<FontAwesomeIcon icon={faCaretUp} />}
+          />
           <input
             type="text"
             placeholder="궁금한 내용을 입력해보세요..."
-            className="flex-grow outline-none border-none text-2xl bg-transparent"
+            className="flex-grow outline-none border-none text-2xl bg-transparent ml-16"
             defaultValue={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -149,7 +238,9 @@ const App = () => {
             value={query}
           />
           <SearchButton>
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
+            <NavLink to={`/search?q=${query}`}>
+              <FontAwesomeIcon icon={faMagnifyingGlass} />
+            </NavLink>
           </SearchButton>
         </SearchBox>
         <Related enabled={query !== "" && related.length > 0}>
