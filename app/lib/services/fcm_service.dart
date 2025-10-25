@@ -1,7 +1,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'dart:developer' as developer;
+import 'navigation_service.dart';
+import '../screens/question_detail_screen.dart';
 
 class FCMService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
@@ -91,19 +94,64 @@ class FCMService {
     developer.log('FCM: Title: ${message.notification?.title}');
     developer.log('FCM: Body: ${message.notification?.body}');
     developer.log('FCM: Data: ${message.data}');
-    //TODO: 앱 내에서 온 알림의 처리
+
+    // Show in-app notification
+    final context = NavigationService.context;
+    if (context != null) {
+      final questionId = message.data['questionId'];
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                message.notification?.title ?? '새 알림',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              if (message.notification?.body != null)
+                Text(message.notification!.body!),
+            ],
+          ),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+          action: questionId != null
+              ? SnackBarAction(
+                  label: '보기',
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            QuestionDetailScreen(questionId: questionId),
+                      ),
+                    );
+                  },
+                )
+              : null,
+        ),
+      );
+    }
   }
 
   void _handleBackgroundMessage(RemoteMessage message) {
-    developer.log('FCM: Background message received');
+    developer.log('FCM: Background message opened');
     developer.log('FCM: Title: ${message.notification?.title}');
     developer.log('FCM: Body: ${message.notification?.body}');
     developer.log('FCM: Data: ${message.data}');
 
     final questionId = message.data['questionId'];
     if (questionId != null) {
-      developer.log('FCM: Question assigned: $questionId');
-      //TODO: 해당 질문 보여주기
+      developer.log('FCM: Navigating to question: $questionId');
+      
+      final context = NavigationService.context;
+      if (context != null) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => QuestionDetailScreen(questionId: questionId),
+          ),
+        );
+      }
     }
   }
 

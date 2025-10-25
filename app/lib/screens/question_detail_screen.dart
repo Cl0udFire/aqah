@@ -38,20 +38,14 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
         sender: sender,
       );
       _messageController.clear();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('메시지가 전송되었습니다'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      // Don't show SnackBar to avoid covering the message input
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('메시지 전송 실패: $e'),
             behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
           ),
         );
       }
@@ -124,6 +118,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         const SnackBar(
                           content: Text('질문이 수정되었습니다'),
                           behavior: SnackBarBehavior.floating,
+                          margin: EdgeInsets.only(bottom: 80, left: 16, right: 16),
                         ),
                       );
                     }
@@ -133,6 +128,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         SnackBar(
                           content: Text('질문 수정 실패: $e'),
                           behavior: SnackBarBehavior.floating,
+                          margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
                         ),
                       );
                     }
@@ -180,6 +176,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             const SnackBar(
               content: Text('질문이 삭제되었습니다'),
               behavior: SnackBarBehavior.floating,
+              margin: EdgeInsets.only(bottom: 80, left: 16, right: 16),
             ),
           );
         }
@@ -189,6 +186,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
             SnackBar(
               content: Text('질문 삭제 실패: $e'),
               behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
             ),
           );
         }

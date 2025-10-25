@@ -12,6 +12,7 @@
         "@fortawesome/free-solid-svg-icons": "^7.1.0",
         "@fortawesome/react-fontawesome": "^3.1.0",
         "@mui/joy": "^5.0.0-beta.52",
+        "@vavt/cm-extension": "^1.11.1",
         "firebase": "^11.0.2",
         "md-editor-rt": "^6.1.0",
         "prop-types": "^15.8.1",
@@ -481,6 +482,8 @@
     "@types/react-dom": ["@types/react-dom@19.2.2", "", { "peerDependencies": { "@types/react": "^19.2.0" } }, "sha512-9KQPoO6mZCi7jcIStSnlOWn2nEF3mNmyr3rIAsGnAbQKYbRLyqmeSc39EVgtxXVia+LMT8j3knZLAZAh+xLmrw=="],
 
     "@types/stylis": ["@types/stylis@4.2.5", "", {}, "sha512-1Xve+NMN7FWjY14vLoY5tL3BVEQ/n42YLwaqJIPYhotZ9uBHt87VceMwWQpzmdEt2TNXIorIFG+YeCUUW7RInw=="],
+
+    "@vavt/cm-extension": ["@vavt/cm-extension@1.11.1", "", {}, "sha512-UGWMhaMbk05aUH2duhTjDMD2SKPsh5D5LNnfYzDXHAVusmpcBT3Z/0gyyZIc1O4ZyKVaNRZ04dwkTzDpFEZD0g=="],
 
     "@vavt/copy2clipboard": ["@vavt/copy2clipboard@1.0.3", "", {}, "sha512-HtG48r2FBYp9eRvGB3QGmtRBH1zzRRAVvFbGgFstOwz4/DDaNiX0uZc3YVKPydqgOav26pibr9MtoCaWxn7aeA=="],
 

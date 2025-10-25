@@ -2,7 +2,7 @@
   "functions": [
     {
       "codebase": "default",
-      "source": "server/functions",
+      "source": "functions",
       "runtime": "python313",
       "ignore": [
         "venv",
