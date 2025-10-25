@@ -45,10 +45,16 @@ jobs:
             echo "Error: firebase.json not found"
             exit 1
           fi
+          echo "Firebase configuration (.firebaserc):"
           cat .firebaserc
+          echo ""
+          echo "Firebase project configuration (firebase.json):"
+          cat firebase.json
 
       - name: Deploy to Firebase
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
+          echo "Starting Firebase deployment..."
           firebase deploy --only firestore:rules,functions --token "$FIREBASE_TOKEN" --force
+          echo "Deployment completed successfully!"

@@ -2,6 +2,23 @@
 
 This repository uses GitHub Actions to automatically deploy Firebase Functions and Firestore rules to Firebase.
 
+## Quick Start
+
+To enable automatic Firebase deployment:
+
+1. **Generate Firebase Token**:
+   ```bash
+   npm install -g firebase-tools
+   firebase login:ci
+   ```
+
+2. **Add GitHub Secrets**:
+   - Go to Repository Settings → Secrets and variables → Actions
+   - Add `FIREBASE_TOKEN` with the token from step 1
+   - Add `FIREBASE_PROJECT_ID` with your Firebase project ID
+
+3. **Push to main branch** - The workflow will automatically deploy!
+
 ## Prerequisites
 
 Before the automatic deployment can work, you need to set up the following:
@@ -72,8 +89,10 @@ The workflow is configured to run:
 ## What Gets Deployed
 
 The current workflow deploys:
-- **Firestore Rules**: Security rules for Firestore database
-- **Firebase Functions**: Python Cloud Functions
+- **Firestore Rules**: Security rules for Firestore database (`firestore.rules`)
+- **Firebase Functions**: Python Cloud Functions (from the `functions` directory)
+
+**Note**: The `.firebaserc` file is automatically generated during the GitHub Actions workflow using the `FIREBASE_PROJECT_ID` secret. You don't need to commit this file to the repository (it's in `.gitignore`). A `.firebaserc.example` file is provided for local development reference.
 
 ## Testing the Deployment
 
@@ -105,14 +124,22 @@ After setting up the secret:
 If you need to deploy manually from your local machine:
 
 ```bash
-# Install dependencies
+# Install Firebase CLI
 npm install -g firebase-tools
 
 # Login to Firebase
 firebase login
 
-# Deploy
+# Create .firebaserc from example (first time only)
+cp .firebaserc.example .firebaserc
+# Then edit .firebaserc to add your actual project ID
+
+# Deploy everything
 firebase deploy
+
+# Or deploy specific components
+firebase deploy --only functions
+firebase deploy --only firestore:rules
 ```
 
 ## Additional Resources
