@@ -7,6 +7,17 @@ import {
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
 
+const hasAnswerFromAnswerer = (answers) => {
+  if (!answers) return false;
+  if (Array.isArray(answers)) {
+    return answers.some((entry) => entry && entry.sender === "answerer");
+  }
+  if (typeof answers === "object") {
+    return answers.sender === "answerer";
+  }
+  return false;
+};
+
 // const STATUS_STYLES = {
 //   pending: "bg-amber-50 text-amber-700 border-amber-200",
 //   answered: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -53,6 +64,7 @@ const QuestionList = ({ questions, type }) => {
     <div className="container">
       <div className="y-scroll flex flex-col gap-4 max-h-[600px] overflow-y-auto">
         {questionItems.map((question) => {
+          const answeredByAssignee = hasAnswerFromAnswerer(question.answers);
           // const statusClass = STATUS_STYLES[question.status] ?? STATUS_STYLES.pending;
           return (
             <div
@@ -102,7 +114,16 @@ const QuestionList = ({ questions, type }) => {
                   </div>
                 ) : (
                   <div className="flex justify-end items-center gap-4 mt-6">
-                    <p>아직 답변이 도착하지 않았습니다.</p>
+                    {answeredByAssignee ? (
+                      <NavLink
+                        to={`/chat?id=${question.id}`}
+                        className="flex h-[2.5rem] min-w-[7rem] items-center justify-center gap-2 rounded-[0.5rem] border-2 border-blue-400 bg-blue-200 px-4 text-sm font-semibold text-blue-900 transition hover:bg-blue-300"
+                      >
+                        답변 보기
+                      </NavLink>
+                    ) : (
+                      <p>아직 답변이 도착하지 않았습니다.</p>
+                    )}
                   </div>
                 )}
               </div>
