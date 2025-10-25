@@ -78,17 +78,14 @@ const QuestionsPage = () => {
     <div className="min-h-screen bg-slate-50">
       <Sidebar />
 
-      <main className="ml-[250px] flex-1 p-8">
+      <main className="ml-[100px] flex-1 p-8">
         <div className="mx-auto max-w-4xl space-y-8">
           <header className="space-y-2">
-            <p className="text-sm font-medium uppercase tracking-[0.3em] text-gray-400">
-              Direct Q&A
-            </p>
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="text-[2rem] font-bold text-gray-900">
               1:1 질문함
             </h1>
             <p className="text-sm text-gray-500">
-              받은 질문과 보낸 질문을 한 곳에서 확인하고 관리해보세요.
+              궁금한 점을 질문하고 답변을 받아보세요!
             </p>
           </header>
 

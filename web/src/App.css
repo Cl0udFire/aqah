@@ -1,5 +1,12 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 #root {
   min-height: 100vh;
+}
+
+:root {
+  font-family: Pretendard, 'Pretendard Variable', -apple-system,
+    BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', Arial,
+    sans-serif;
 }
 
 .home {

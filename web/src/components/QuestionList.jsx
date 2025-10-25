@@ -23,65 +23,21 @@ const QuestionList = ({ questions, type }) => {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <ul className="divide-y divide-gray-100">
+    <div className="container">
+      <div className="y-scroll flex flex-col gap-4 max-h-[600px] overflow-y-auto">
         {questions.map((question) => {
-          const statusClass = STATUS_STYLES[question.status] ?? STATUS_STYLES.pending;
-
+          // const statusClass = STATUS_STYLES[question.status] ?? STATUS_STYLES.pending;
+          
           return (
-            <li key={question.id} className="p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-3">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-500">
-                    <span className="font-medium text-gray-700">
-                      {type === "received" ? question.from : question.to}
-                    </span>
-                    <span className="text-gray-300">•</span>
-                    <span>{question.sentAt}</span>
-                    <span className="text-gray-300">•</span>
-                    <span
-                      className={`rounded-full border px-2.5 py-1 text-xs font-medium ${statusClass}`}
-                    >
-                      {question.statusLabel}
-                    </span>
-                  </div>
-                  <p className="text-base font-medium text-gray-900">
-                    {question.content}
-                  </p>
-                  {type === "received" && question.answer ? (
-                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700">
-                      <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                        내 답변
-                      </div>
-                      <p className="leading-relaxed">{question.answer}</p>
-                    </div>
-                  ) : null}
-                </div>
-
-                {type === "received" ? (
-                  <button
-                    type="button"
-                    className="inline-flex items-center justify-center rounded-full border border-gray-200 px-4 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-900"
-                  >
-                    답장하기
-                  </button>
-                ) : (
-                  <div className="flex w-full flex-col items-start gap-2 text-xs text-gray-500 sm:w-auto sm:items-end">
-                    <span>
-                      답변 요청: <strong className="ml-1 text-gray-700">{question.respondent}</strong>
-                    </span>
-                    {question.expectedReply ? (
-                      <span>
-                        예상 답변일: <strong className="ml-1 text-gray-700">{question.expectedReply}</strong>
-                      </span>
-                    ) : null}
-                  </div>
-                )}
+            <div key={question.id} className="p-6 rounded-2xl border border-gray-200 bg-white shadow-sm h-[10rem] flex justify-center items-center">
+              <div className="flex">
+                <img src="https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1095249842.jpg" alt="anonymous user" className="w-12 h-12 mr-4"/>
+                
               </div>
-            </li>
+            </div>
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 };
