@@ -12,13 +12,13 @@ service cloud.firestore {
       // 생성 권한: 인증된 사용자만 가능
       allow create: if request.auth != null &&
                        request.resource.data.questioner == request.auth.uid &&
-                       request.resource.data.keys().hasAll(['title', 'questioner', 'content', 'createdAt', 'updatedAt', 'completed', 'declinedBy']) &&
+                       request.resource.data.keys().hasAll(['title', 'questioner', 'content', 'createdAt', 'updatedAt']) &&
                        request.resource.data.title is string &&
                        request.resource.data.content is string &&
                        request.resource.data.createdAt is timestamp &&
                        request.resource.data.updatedAt is timestamp &&
-                       request.resource.data.completed is bool &&
-                       request.resource.data.declinedBy is list &&
+                       (!request.resource.data.keys().hasAny(['completed']) || request.resource.data.completed is bool) &&
+                       (!request.resource.data.keys().hasAny(['declinedBy']) || request.resource.data.declinedBy is list) &&
                        (!request.resource.data.keys().hasAny(['answers']) || 
                         request.resource.data.answers is list);
         

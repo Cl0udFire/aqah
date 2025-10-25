@@ -20,8 +20,6 @@ class FirestoreService {
       'questioner': currentUserId!,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-      'completed': false,
-      'declinedBy': [],
     });
   }
 
