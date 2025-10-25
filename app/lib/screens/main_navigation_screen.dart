@@ -4,7 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'home_screen.dart';
 import 'my_questions_screen.dart';
 import 'completed_questions_screen.dart';
-import 'add_question_screen.dart';
+import '../services/firestore_service.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -16,12 +16,12 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   final User? _currentUser = FirebaseAuth.instance.currentUser;
+  final FirestoreService _firestoreService = FirestoreService();
 
   static const List<Widget> _screens = [
     HomeScreen(),
     MyQuestionsScreen(),
     CompletedQuestionsScreen(),
-    AddQuestionScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -33,6 +33,94 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
     await GoogleSignIn.instance.signOut();
+  }
+
+  Future<void> _showCreateQuestionDialog() async {
+    final titleController = TextEditingController();
+    final contentController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('새 질문 작성'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: '제목',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '제목을 입력하세요';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: contentController,
+                  decoration: const InputDecoration(
+                    labelText: '내용',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 5,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '내용을 입력하세요';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('취소'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  try {
+                    await _firestoreService.createQuestion(
+                      title: titleController.text,
+                      content: contentController.text,
+                    );
+                    if (mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('질문이 작성되었습니다'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('질문 작성 실패: $e'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+              child: const Text('작성'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showProfileMenu(BuildContext context) {
@@ -110,27 +198,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             selectedIcon: Icon(Icons.check_circle),
             label: '완료됨',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_outline),
-            selectedIcon: Icon(Icons.add_circle),
-            label: '질문 추가',
-          ),
         ],
       ),
-      floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton(
-              onPressed: () => _showProfileMenu(context),
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: _currentUser?.photoURL != null
-                    ? NetworkImage(_currentUser!.photoURL!)
-                    : null,
-                child: _currentUser?.photoURL == null
-                    ? const Icon(Icons.person, size: 20)
-                    : null,
-              ),
-            )
-          : null,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showCreateQuestionDialog,
+        icon: const Icon(Icons.add),
+        label: const Text('새 질문'),
+      ),
     );
   }
 }

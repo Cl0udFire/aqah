@@ -1,6 +1,7 @@
 import 'package:expressive_loading_indicator/expressive_loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../models/question.dart';
 import '../services/firestore_service.dart';
 import 'question_detail_screen.dart';
@@ -16,6 +17,61 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final User? _currentUser = FirebaseAuth.instance.currentUser;
 
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    await GoogleSignIn.instance.signOut();
+  }
+
+  void _showProfileMenu(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: CircleAvatar(
+                  radius: 24,
+                  backgroundImage: _currentUser?.photoURL != null
+                      ? NetworkImage(_currentUser!.photoURL!)
+                      : null,
+                  child: _currentUser?.photoURL == null
+                      ? const Icon(Icons.person)
+                      : null,
+                ),
+                title: Text(
+                  _currentUser?.displayName ?? '사용자',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  _currentUser?.email ?? '',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('로그아웃'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _signOut();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -24,6 +80,20 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('홈'),
+        actions: [
+          IconButton(
+            icon: CircleAvatar(
+              radius: 16,
+              backgroundImage: _currentUser?.photoURL != null
+                  ? NetworkImage(_currentUser!.photoURL!)
+                  : null,
+              child: _currentUser?.photoURL == null
+                  ? const Icon(Icons.person, size: 16)
+                  : null,
+            ),
+            onPressed: () => _showProfileMenu(context),
+          ),
+        ],
       ),
       body: StreamBuilder<List<Question>>(
         stream: _firestoreService.getAllQuestions(),
