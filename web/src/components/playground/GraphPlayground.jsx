@@ -420,6 +420,7 @@ const GraphPlayground = () => {
   const [startNode, setStartNode] = useState("A");
   const [targetNode, setTargetNode] = useState("D");
   const [stepIndex, setStepIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const steps = useMemo(
     () => runAlgorithm(algorithm, startNode, targetNode),
@@ -428,6 +429,7 @@ const GraphPlayground = () => {
 
   useEffect(() => {
     setStepIndex(0);
+    setIsPlaying(false);
   }, [algorithm, startNode, targetNode]);
 
   const activeStep = steps[stepIndex] ?? steps[steps.length - 1];
@@ -435,6 +437,34 @@ const GraphPlayground = () => {
   const visitedSet = new Set(activeStep?.visited ?? []);
   const frontierSet = new Set(activeStep?.frontier ?? []);
   const pathNodes = new Set(activeStep?.path ?? []);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      return undefined;
+    }
+
+    if (steps.length <= 1) {
+      setIsPlaying(false);
+      return undefined;
+    }
+
+    const timer = setInterval(() => {
+      setStepIndex((prev) => {
+        if (prev >= steps.length - 1) {
+          setIsPlaying(false);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 1100);
+
+    return () => clearInterval(timer);
+  }, [isPlaying, steps.length]);
+
+  const handleStepChange = (value) => {
+    setIsPlaying(false);
+    setStepIndex(value);
+  };
 
   return (
     <section className="rounded-2xl bg-white p-6 shadow-sm">
@@ -509,13 +539,23 @@ const GraphPlayground = () => {
 
           <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
             <p className="font-semibold text-slate-700">단계 제어</p>
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                className={`rounded-full px-3 py-1 text-xs font-semibold text-white transition ${
+                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-sky-500 hover:bg-sky-600"
+                }`}
+                onClick={() => setIsPlaying((prev) => !prev)}
+                disabled={steps.length <= 1}
+              >
+                {isPlaying ? "일시정지" : "자동 재생"}
+              </button>
               <input
                 type="range"
                 min={0}
                 max={Math.max(steps.length - 1, 0)}
                 value={stepIndex}
-                onChange={(event) => setStepIndex(Number(event.target.value))}
+                onChange={(event) => handleStepChange(Number(event.target.value))}
                 className="w-full accent-sky-500"
               />
               <span className="whitespace-nowrap font-semibold text-slate-700">
@@ -584,7 +624,7 @@ const GraphPlayground = () => {
 };
 
 const GraphView = ({ nodes, edges, highlightedEdges, visited, frontier, current, pathNodes }) => (
-  <div className="relative h-[480px] w-[480px] rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 flex justify-center items-center">
+  <div className="relative h-[480px] w-full max-w-[480px] rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 flex justify-center items-center mx-auto">
     <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
       {edges.map((edge) => {
         const from = nodes.find((node) => node.id === edge.from);
