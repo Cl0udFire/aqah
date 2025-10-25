@@ -624,7 +624,7 @@ const GraphPlayground = () => {
 };
 
 const GraphView = ({ nodes, edges, highlightedEdges, visited, frontier, current, pathNodes }) => (
-  <div className="relative h-[360px] w-full max-w-[480px] rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 flex justify-center items-center mx-auto">
+  <div className="relative h-[480px] w-full max-w-[480px] rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 p-4 flex justify-center items-center mx-auto">
     <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
       {edges.map((edge) => {
         const from = nodes.find((node) => node.id === edge.from);
