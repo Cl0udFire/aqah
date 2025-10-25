@@ -504,8 +504,6 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         ),
                       ),
                       maxLines: null,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _submitAnswer(question.id),
                     ),
                   ),
                   const SizedBox(width: 8),

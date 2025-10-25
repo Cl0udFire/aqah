@@ -7,6 +7,7 @@ from typing import List, Optional
 import schedule
 import firebase_admin
 from firebase_admin import credentials, firestore, messaging
+import random
 
 # Configure logging
 logging.basicConfig(
@@ -119,12 +120,13 @@ class QuestionAssignmentServer:
             logger.warning("배정할 유저 없음")
             return
 
-        user_index = 0
         for question in unassigned_questions:
+            assignee_id = question['questioner']
+            while assignee_id == question['questioner']:
+                assignee_id = random.choice(available_users)
             assignee_id = available_users[user_index % len(available_users)]
             question_title = question['data'].get('title', 'Untitled Question')
             self.assign_question(question['id'], assignee_id, question_title)
-            user_index += 1
 
         logger.info(f"{len(unassigned_questions)}개의 질문 배정 완료")
 
