@@ -116,13 +116,12 @@ class MockAssignmentServer:
         else:
             logger.warning(f"  ⚠️  No FCM token for {user_id}, skipping notification")
     
-    def assign_question(self, question_id, assignee_id):
+    def assign_question(self, question_id, assignee_id, question_title="Untitled Question"):
         """Assign a question to a user."""
         for q in self.questions:
             if q['id'] == question_id:
                 q['data']['assignee'] = assignee_id
                 q['data']['updatedAt'] = datetime.now()
-                question_title = q['data']['title']
                 logger.info(f"Assigned question '{question_title}' (ID: {question_id}) to user {assignee_id}")
                 
                 # Send push notification
@@ -160,7 +159,8 @@ class MockAssignmentServer:
         user_index = 0
         for question in unassigned_questions:
             assignee_id = available_users[user_index % len(available_users)]
-            self.assign_question(question['id'], assignee_id)
+            question_title = question['data'].get('title', 'Untitled Question')
+            self.assign_question(question['id'], assignee_id, question_title)
             user_index += 1
         
         # Show questions after assignment
