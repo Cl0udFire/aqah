@@ -12,25 +12,25 @@ const App = () => {
   const user = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => s.setUser);
 
-//   const [questions, setQuestions] = useState([]);
+  //   const [questions, setQuestions] = useState([]);
 
-//   useEffect(() => {
-//     const fetchQuestions = async () => {
-//       try {
-//         if (!user) {
-//           setQuestions([]);
-//           return;
-//         }
-//         // 필요에 따라 getQuestionList(user.uid)로 변경하세요.
-//         const list = await getQuestionList(user);
-//         setQuestions(Array.isArray(list) ? list : []);
-//       } catch (e) {
-//         console.error("[questions] fetch error:", e);
-//         setQuestions([]);
-//       }
-//     };
-//     fetchQuestions();
-//   }, [user]);
+  //   useEffect(() => {
+  //     const fetchQuestions = async () => {
+  //       try {
+  //         if (!user) {
+  //           setQuestions([]);
+  //           return;
+  //         }
+  //         // 필요에 따라 getQuestionList(user.uid)로 변경하세요.
+  //         const list = await getQuestionList(user);
+  //         setQuestions(Array.isArray(list) ? list : []);
+  //       } catch (e) {
+  //         console.error("[questions] fetch error:", e);
+  //         setQuestions([]);
+  //       }
+  //     };
+  //     fetchQuestions();
+  //   }, [user]);
 
   const handleLogin = () => {
     signInWithPopup(auth, provider)
