@@ -5,6 +5,8 @@ import PointerPlayground from "../components/playground/PointerPlayground";
 import RecursionPlayground from "../components/playground/RecursionPlayground";
 import OSIPlayground from "../components/playground/OSIPlayground";
 import GraphPlayground from "../components/playground/GraphPlayground";
+import DataStructuresPlayground from "../components/playground/DataStructuresPlayground";
+import CryptoPlayground from "../components/playground/CryptoPlayground";
 import { useState } from "react";
 
 const sections = [
@@ -21,7 +23,12 @@ const sections = [
   {
     id: "graph",
     label: "그래프",
-    description: "그래프 탐색과 최단 경로 알고리즘이 어떻게 진행되는지 비교합니다.",
+    description: "그래프 탐색과 최소 신장 트리 알고리즘이 어떻게 진행되는지 비교합니다.",
+  },
+  {
+    id: "data-structures",
+    label: "자료구조",
+    description: "큐, 스택, 트리, 세그먼트 트리를 단계별로 이해합니다.",
   },
   {
     id: "osi",
@@ -37,6 +44,11 @@ const sections = [
     id: "recursion",
     label: "재귀",
     description: "호출 스택과 반환 흐름을 추적하며 재귀 함수를 학습해요.",
+  },
+  {
+    id: "crypto",
+    label: "해시 & 암호화",
+    description: "문자열이 해시 함수와 암호화 알고리즘을 거치며 변형되는 과정을 살펴봐요.",
   },
 ];
 
@@ -57,7 +69,7 @@ const PlaygroundPage = () => {
           <p className="max-w-3xl text-base leading-relaxed text-slate-600">
             실제 코드를 작성하지 않고도 알고리즘과 시스템 동작 원리를
             직관적으로 이해할 수 있도록 인터랙티브한 실험 환경을 제공해요.
-            정렬, 포인터, 그래프, 네트워크, 디스크, 재귀 학습 도구를 살펴보며 입력을
+            정렬, 포인터, 그래프, 자료구조, 네트워크, 디스크, 재귀, 암호화 학습 도구를 살펴보며 입력을
             자유롭게 바꿔보세요.
           </p>
           <nav className="mt-2 flex flex-wrap gap-2">
@@ -84,9 +96,11 @@ const PlaygroundPage = () => {
           {activeSection === "sorting" && <SortingPlayground />}
           {activeSection === "pointer" && <PointerPlayground />}
           {activeSection === "graph" && <GraphPlayground />}
+          {activeSection === "data-structures" && <DataStructuresPlayground />}
           {activeSection === "osi" && <OSIPlayground />}
           {activeSection === "disk" && <DiskSchedulingPlayground />}
           {activeSection === "recursion" && <RecursionPlayground />}
+          {activeSection === "crypto" && <CryptoPlayground />}
         </div>
       </main>
     </div>
