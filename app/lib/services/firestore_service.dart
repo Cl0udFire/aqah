@@ -62,12 +62,21 @@ class FirestoreService {
     });
   }
 
-  Future<void> updateAnswer({
+  Future<void> addAnswer({
     required String questionId,
-    required String answer,
+    required String content,
+    required String sender,
   }) async {
+    if (currentUserId == null) throw Exception('User not authenticated');
+    
     await _firestore.collection('questions').doc(questionId).update({
-      'answer': answer,
+      'answers': FieldValue.arrayUnion([
+        {
+          'content': content,
+          'sender': sender,
+          'timestamp': FieldValue.serverTimestamp(),
+        }
+      ]),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }

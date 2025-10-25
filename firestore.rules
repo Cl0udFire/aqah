@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /questions/{questionId} {
+      
+      // 읽기 권한: 인증된 사용자 중 질문자 또는 담당자만 가능
+      allow read: if request.auth != null && 
+                     (resource.data.questioner == request.auth.uid || 
+                      resource.data.assignee == request.auth.uid);
+      
+      // 생성 권한: 인증된 사용자만 가능
+      allow create: if request.auth != null &&
+                       request.resource.data.questioner == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['title', 'questioner', 'content', 'createdAt', 'updatedAt']) &&
+                       request.resource.data.title is string &&
+                       request.resource.data.content is string &&
+                       request.resource.data.createdAt is timestamp &&
+                       request.resource.data.updatedAt is timestamp &&
+                       (!request.resource.data.keys().hasAny(['answers']) || 
+                        request.resource.data.answers is list);
+        
+      // 업데이트 권한: 질문자는 질문 수정 및 메시지 추가, 담당자는 답변 추가 가능
+      allow update: if request.auth != null &&
+                       (
+                         // 질문자는 title, content 수정 가능하고, answers 배열에 추가 가능 (sender가 'questioner'인 경우)
+                         (resource.data.questioner == request.auth.uid &&
+                          (
+                            // 질문 내용만 수정하는 경우
+                            !request.resource.data.diff(resource.data).affectedKeys().hasAny(['questioner', 'assignee']) ||
+                            // answers 배열에 추가하는 경우 (질문자가 메시지 전송)
+                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answers', 'updatedAt']) &&
+                             validateAnswerSender(request.resource.data.answers, resource.data.get('answers', []), 'questioner'))
+                          )) ||
+                         // 담당자는 answers 배열에 추가 가능 (sender가 'answerer'인 경우)
+                         (resource.data.assignee == request.auth.uid &&
+                          (
+                            // assignee 설정만 하는 경우
+                            !request.resource.data.diff(resource.data).affectedKeys().hasAny(['title', 'content', 'questioner']) ||
+                            // answers 배열에 추가하는 경우 (담당자가 메시지 전송)
+                            (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answers', 'updatedAt']) &&
+                             validateAnswerSender(request.resource.data.answers, resource.data.get('answers', []), 'answerer'))
+                          ))
+                       );
+      
+      // 삭제 권한: 질문자만 가능
+      allow delete: if request.auth != null &&
+                       resource.data.questioner == request.auth.uid;
+    }
+    
+    match /users/{username} {
+      allow read, write: if request.auth != null && request.auth.uid == username;
+    }
+    
+    // Helper function to validate that new answers have the correct sender
+    function validateAnswerSender(newAnswers, oldAnswers, expectedSender) {
+      let newAnswersList = newAnswers;
+      let oldAnswersList = oldAnswers;
+      return newAnswersList.size() > oldAnswersList.size() &&
+             newAnswersList[newAnswersList.size() - 1].sender == expectedSender &&
+             newAnswersList[newAnswersList.size() - 1].content is string &&
+             newAnswersList[newAnswersList.size() - 1].timestamp is timestamp;
+    }
+  }
+}

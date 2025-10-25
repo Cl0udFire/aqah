@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../models/question.dart';
 import '../services/firestore_service.dart';
 
@@ -15,31 +16,32 @@ class QuestionDetailScreen extends StatefulWidget {
 class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   final FirestoreService _firestoreService = FirestoreService();
   final User? _currentUser = FirebaseAuth.instance.currentUser;
-  final TextEditingController _answerController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
 
   @override
   void dispose() {
-    _answerController.dispose();
+    _messageController.dispose();
     _titleController.dispose();
     _contentController.dispose();
     super.dispose();
   }
 
-  Future<void> _submitAnswer(String questionId) async {
-    if (_answerController.text.trim().isEmpty) return;
+  Future<void> _sendMessage(String questionId, String sender) async {
+    if (_messageController.text.trim().isEmpty) return;
 
     try {
-      await _firestoreService.updateAnswer(
+      await _firestoreService.addAnswer(
         questionId: questionId,
-        answer: _answerController.text.trim(),
+        content: _messageController.text.trim(),
+        sender: sender,
       );
-      _answerController.clear();
+      _messageController.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('답변이 저장되었습니다'),
+            content: Text('메시지가 전송되었습니다'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -48,7 +50,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('답변 저장 실패: $e'),
+            content: Text('메시지 전송 실패: $e'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -375,12 +377,18 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     return Column(
       children: [
         Expanded(
-          child: ListView(
+          child: ListView.builder(
             padding: const EdgeInsets.all(16),
-            children: [
-              // Question Message (from questioner)
-              Align(
-                alignment: Alignment.centerLeft,
+            itemCount: question.answers.length,
+            itemBuilder: (context, index) {
+              final answer = question.answers[index];
+              final isFromQuestioner = answer.sender == 'questioner';
+              final isMine = (isQuestioner && isFromQuestioner) ||
+                  (isAssignee && !isFromQuestioner);
+
+              return Align(
+                alignment:
+                    isMine ? Alignment.centerRight : Alignment.centerLeft,
                 child: Container(
                   constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width * 0.75,
@@ -388,12 +396,16 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                   padding: const EdgeInsets.all(12),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHigh,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                      bottomRight: Radius.circular(16),
-                      bottomLeft: Radius.circular(4),
+                    color: isMine
+                        ? colorScheme.primaryContainer
+                        : colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(16),
+                      topRight: const Radius.circular(16),
+                      bottomLeft:
+                          isMine ? const Radius.circular(16) : const Radius.circular(4),
+                      bottomRight:
+                          isMine ? const Radius.circular(4) : const Radius.circular(16),
                     ),
                   ),
                   child: Column(
@@ -402,82 +414,53 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                       Row(
                         children: [
                           Icon(
-                            Icons.person,
+                            isFromQuestioner
+                                ? Icons.person
+                                : Icons.person_outline,
                             size: 14,
-                            color: colorScheme.primary,
+                            color: isMine
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.primary,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '질문자',
+                            isFromQuestioner ? '질문자' : '답변자',
                             style: textTheme.labelSmall?.copyWith(
-                              color: colorScheme.primary,
+                              color: isMine
+                                  ? colorScheme.onPrimaryContainer
+                                  : colorScheme.primary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text(question.content, style: textTheme.bodyMedium),
+                      MarkdownBody(
+                        data: answer.content,
+                        styleSheet: MarkdownStyleSheet(
+                          p: textTheme.bodyMedium?.copyWith(
+                            color: isMine
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.onSurface,
+                          ),
+                          code: textTheme.bodySmall?.copyWith(
+                            color: isMine
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.onSurface,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ),
-
-              // Answer Message (from assignee) - if exists
-              if (question.answer != null)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.75,
-                    ),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        topRight: Radius.circular(16),
-                        bottomLeft: Radius.circular(16),
-                        bottomRight: Radius.circular(4),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.person_outline,
-                              size: 14,
-                              color: colorScheme.onPrimaryContainer,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '답변자',
-                              style: textTheme.labelSmall?.copyWith(
-                                color: colorScheme.onPrimaryContainer,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          question.answer!,
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onPrimaryContainer,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
+              );
+            },
           ),
         ),
 
-        // Answer Input (only for assignee)
-        if (isAssignee)
+        // Message Input (for both questioner and assignee)
+        if (isQuestioner || isAssignee)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -492,9 +475,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: _answerController,
+                      controller: _messageController,
                       decoration: InputDecoration(
-                        hintText: '답변을 입력하세요...',
+                        hintText: '메시지를 입력하세요...',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -508,43 +491,15 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
-                    onPressed: () => _submitAnswer(question.id),
+                    onPressed: () => _sendMessage(
+                      question.id,
+                      isQuestioner ? 'questioner' : 'answerer',
+                    ),
                     style: FilledButton.styleFrom(
                       shape: const CircleBorder(),
                       padding: const EdgeInsets.all(12),
                     ),
                     child: const Icon(Icons.send),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else if (isQuestioner)
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
-              border: Border(
-                top: BorderSide(color: colorScheme.outlineVariant, width: 1),
-              ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 20,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '답변자의 답변을 기다리고 있습니다',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
                   ),
                 ],
               ),
