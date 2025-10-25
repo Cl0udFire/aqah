@@ -15,6 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { NavLink } from "react-router-dom";
 import Dropdown from "react-dropdown";
+import { keyframes } from "styled-components";
 
 const Container = styled.div`
   display: flex;
@@ -25,12 +26,29 @@ const Container = styled.div`
   /* justify-content: center; */
   margin-top: 150px;
 `;
+const waveAnimation = keyframes`
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+`;
+
 const Slogan = styled.div`
   font-size: 56px;
-  color: #111111;
   text-align: center;
   letter-spacing: -1px;
   font-weight: bold;
+  background: linear-gradient(to right, #69c49f, #3b82f6, #7429ba);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ${waveAnimation} 5s ease-in-out infinite;
 `;
 
 const Highlight = styled.span`
@@ -213,8 +231,7 @@ const App = () => {
       <Topbar />
       <Container>
         <Slogan>
-          <Highlight>A</Highlight>ll&nbsp;<Highlight>Q</Highlight>uestions{" "}
-          <Highlight>A</Highlight>nswered&nbsp;<Highlight>H</Highlight>ere
+          All Questions Answered Here
         </Slogan>
         <GradientBackground />
         <SearchBox className="bg-slate-100">

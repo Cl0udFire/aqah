@@ -7,100 +7,15 @@ import "md-editor-rt/lib/style.css"
 import "md-editor-rt/lib/preview.css"
 import { useAppStore } from "../context/store"
 import { subscribeToQuestion, appendChatMessage } from "../firebase/db"
+import KO_KR from '@vavt/cm-extension/dist/locale/ko-KR'
 
-const KO_KR_LOCALE = {
-  toolbarTips: {
-    bold: "굵게",
-    underline: "밑줄",
-    italic: "기울임",
-    strikeThrough: "취소선",
-    title: "제목",
-    sub: "아래첨자",
-    sup: "위첨자",
-    quote: "인용",
-    unorderedList: "글머리 기호 목록",
-    orderedList: "번호 매기기 목록",
-    task: "체크리스트",
-    codeRow: "인라인 코드",
-    code: "블록 코드",
-    link: "링크",
-    image: "이미지",
-    table: "표",
-    mermaid: "Mermaid",
-    katex: "수식",
-    revoke: "되돌리기",
-    next: "다시 실행",
-    save: "저장",
-    prettier: "서식 정리",
-    pageFullscreen: "페이지 전체 화면",
-    fullscreen: "전체 화면",
-    preview: "미리보기",
-    previewOnly: "미리보기 전용",
-    htmlPreview: "HTML 미리보기",
-    catalog: "목차",
-    github: "소스 코드",
-  },
-  titleItem: {
-    h1: "제목 1",
-    h2: "제목 2",
-    h3: "제목 3",
-    h4: "제목 4",
-    h5: "제목 5",
-    h6: "제목 6",
-  },
-  imgTitleItem: {
-    link: "이미지 링크 추가",
-    upload: "이미지 업로드",
-    clip2upload: "자르고 업로드",
-  },
-  linkModalTips: {
-    linkTitle: "링크 추가",
-    imageTitle: "이미지 추가",
-    descLabel: "설명:",
-    descLabelPlaceHolder: "설명을 입력하세요...",
-    urlLabel: "링크:",
-    urlLabelPlaceHolder: "주소를 입력하세요...",
-    buttonOK: "확인",
-  },
-  clipModalTips: {
-    title: "이미지 자르기",
-    buttonUpload: "업로드",
-  },
-  copyCode: {
-    text: "복사",
-    successTips: "복사 완료!",
-    failTips: "복사 실패!",
-  },
-  mermaid: {
-    flow: "순서도",
-    sequence: "시퀀스",
-    gantt: "간트 차트",
-    class: "클래스 다이어그램",
-    state: "상태도",
-    pie: "원형 차트",
-    relationship: "관계도",
-    journey: "여정",
-  },
-  katex: {
-    inline: "인라인",
-    block: "블록",
-  },
-  footer: {
-    markdownTotal: "글자 수",
-    scrollAuto: "스크롤 동기화",
-  },
-}
-
-let isMdEditorConfigured = false
-if (!isMdEditorConfigured) {
-  config({
-    language: "ko-KR",
-    languageUserDefined: {
-      "ko-KR": KO_KR_LOCALE,
-    },
-  })
-  isMdEditorConfigured = true
-}
+config({
+    editorConfig: {
+        languageUserDefined: {
+            'ko-KR': KO_KR
+        }
+    }
+})
 
 const toDate = (value) => {
   if (!value) return null
@@ -359,7 +274,7 @@ return (
                                         <MdPreview
                                             id={`chat-message-${index}`}
                                             modelValue={message.content}
-                                            language="ko-KR"
+                                            locale="ko-KR"
                                             showCodeRowNumber
                                             className={isMine ? "!bg-slate-100" : "!bg-white"}
                                         />
