@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import Sidebar from "../components/Sidebar";
+import Topbar from "../components/Topbar";
 import QuestionSelector from "../components/QuestionSelector";
 import QuestionList from "../components/QuestionList";
 
@@ -76,7 +76,7 @@ const QuestionsPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Sidebar />
+      <Topbar />
 
       <main className="ml-[100px] flex-1 p-8">
         <div className="mx-auto max-w-4xl space-y-8">

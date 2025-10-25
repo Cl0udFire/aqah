@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import app from "../firebase/firebase";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useAppStore } from "../context/store";
-import Sidebar from "../components/Sidebar";
+import Topbar from "../components/Topbar";
 import { getQuestionList, issueQuestion } from "../firebase/db";
 
 const auth = getAuth(app);
@@ -51,8 +51,8 @@ const App = () => {
   }, [user]);
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
+    <div className="flex flex-col min-h-screen">
+      <Topbar />
       <div className="flex-1 ml-[250px] p-8">
         {!user && (
           <div className="flex items-center justify-center min-h-screen">
