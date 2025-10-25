@@ -65,9 +65,9 @@ const Sidebar = () => {
       <style>{`
         .sb {
           position: fixed;
-          top: 5vh;               /* 가운데 정렬 느낌을 위해 위/아래 여백 */
+          top: 2.5vh;               /* 가운데 정렬 느낌을 위해 위/아래 여백 */
           left: 20px;
-          height: 90vh;           /* 요구사항: 높이 90% */
+          height: 95vh;           /* 요구사항: 높이 95% */
           width: clamp(220px, 22vw, 300px); /* 적절한 너비 */
           padding: 14px 12px;
           box-sizing: border-box;
