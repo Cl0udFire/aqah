@@ -319,142 +319,143 @@ const ChatPage = () => {
     )
   }
 
-  return (
+return (
     <div className="min-h-screen bg-slate-50">
-      <Topbar />
-      <main className="cp">
-        <div className="cp__inner">
-          <header className="cp__header">
-            <div className="cp__peer">
-              <div className="cp__avatar" aria-hidden>
-                {avatarText}
-              </div>
-              <div className="cp__meta">
-                <div className="cp__name">{question.title || "1:1 채팅"}</div>
-                <div className="cp__sub">{roleDescription}</div>
-              </div>
-            </div>
-            <div className="cp__metaRight">
-              {question.updatedAt ? ensureTimestampString(question.updatedAt) : null}
-            </div>
-          </header>
-
-          <section className="cp__list" ref={listRef}>
-            {conversation.length === 0 ? (
-              <div className="cp__emptyBox">
-                <h2>아직 메시지가 없습니다.</h2>
-                <p>첫 메시지를 보내 대화를 시작해보세요.</p>
-              </div>
-            ) : (
-              conversation.map((message, index) => {
-                const isMine = canSend && message.sender === role
-                const senderLabel = message.sender === "answerer" ? "답변자" : "질문자"
-                return (
-                  <article
-                    key={message.id || `${message.sender}-${index}`}
-                    className={`bubble ${isMine ? "bubble--me" : "bubble--peer"}`}
-                  >
-                    <div className="bubble__card">
-                      <div className="bubble__sender">{senderLabel}</div>
-                      <MdPreview
-                        id={`chat-message-${index}`}
-                        value={message.content}
-                        language="ko-KR"
-                        showCodeRowNumber
-                      />
-                      {message.timestamp ? (
-                        <time className="bubble__time">{message.timestamp}</time>
-                      ) : null}
+        <Topbar />
+        <main className="cp">
+            <div className="cp__inner">
+                <header className="cp__header">
+                    <div className="cp__peer">
+                        <div className="cp__avatar" aria-hidden>
+                            {avatarText}
+                        </div>
+                        <div className="cp__meta">
+                            <div className="cp__name">{question.title || "1:1 채팅"}</div>
+                            <div className="cp__sub">{roleDescription}</div>
+                        </div>
                     </div>
-                  </article>
-                )
-              })
-            )}
-          </section>
+                    <div className="cp__metaRight">
+                        {question.updatedAt ? ensureTimestampString(question.updatedAt) : null}
+                    </div>
+                </header>
 
-          <footer className="cp__composer">
-            <div className="cp__editor">
-              <MdEditor
-                value={draft}
-                onChange={setDraft}
-                preview={false}
-                noMermaid
-                noKatex
-                className="cp__editorBox"
-                onSave={handleSave}
-                placeholder="메시지를 마크다운으로 입력하세요... (Ctrl/Cmd+S 전송)"
-                style={{ height: 160 }}
-                language="ko-KR"
-              />
+                <section className="cp__list" ref={listRef}>
+                    {conversation.length === 0 ? (
+                        <div className="cp__emptyBox">
+                            <h2>아직 메시지가 없습니다.</h2>
+                            <p>첫 메시지를 보내 대화를 시작해보세요.</p>
+                        </div>
+                    ) : (
+                        conversation.map((message, index) => {
+                            const isMine = canSend && message.sender === role
+                            const senderLabel = message.sender === "answerer" ? "답변자" : "질문자"
+                            return (
+                                <article
+                                    key={message.id || `${message.sender}-${index}`}
+                                    className={`bubble ${isMine ? "bubble--me" : "bubble--peer"}`}
+                                >
+                                    <div className="bubble__card">
+                                        <div className="bubble__sender">{senderLabel}</div>
+                                        <MdPreview
+                                            id={`chat-message-${index}`}
+                                            modelValue={message.content}
+                                            language="ko-KR"
+                                            showCodeRowNumber
+                                            className={isMine ? "!bg-slate-100" : "!bg-white"}
+                                        />
+                                        {message.timestamp ? (
+                                            <time className="bubble__time">{message.timestamp}</time>
+                                        ) : null}
+                                    </div>
+                                </article>
+                            )
+                        })
+                    )}
+                </section>
+
+                <footer className="cp__composer">
+                    <div className="cp__editor">
+                        <MdEditor
+                            modelValue={draft}
+                            onChange={setDraft}
+                            preview={false}
+                            noMermaid
+                            noKatex
+                            className="cp__editorBox"
+                            onSave={handleSave}
+                            placeholder="메시지를 마크다운으로 입력하세요... (Ctrl/Cmd+S 전송)"
+                            style={{ height: 160 }}
+                            language="ko-KR"
+                        />
+                    </div>
+                    <button
+                        className="cp__send"
+                        onClick={() => {
+                            void sendMessage()
+                        }}
+                        aria-label="전송"
+                        disabled={!canSend || sending || !draft.trim()}
+                    >
+                        {sending ? "전송 중..." : "전송"}
+                    </button>
+                </footer>
+
+                {error ? <div className="cp__error" role="status">{error}</div> : null}
             </div>
-            <button
-              className="cp__send"
-              onClick={() => {
-                void sendMessage()
-              }}
-              aria-label="전송"
-              disabled={!canSend || sending || !draft.trim()}
-            >
-              {sending ? "전송 중..." : "전송"}
-            </button>
-          </footer>
+        </main>
 
-          {error ? <div className="cp__error" role="status">{error}</div> : null}
-        </div>
-      </main>
+        <style>{`
+            .cp { display: flex; justify-content: center; padding: 16px 0 24px; }
+            .cp--empty { align-items: center; }
+            .cp__inner { width: min(1100px, 84vw); display: grid; grid-template-rows: auto 1fr auto auto; gap: 12px; height: calc(100vh - 120px); max-height: calc(100vh - 120px); }
 
-      <style>{`
-        .cp { display: flex; justify-content: center; padding: 16px 0 24px; }
-        .cp--empty { align-items: center; }
-        .cp__inner { width: min(1100px, 84vw); display: grid; grid-template-rows: auto 1fr auto auto; gap: 12px; min-height: calc(100vh - 120px); }
+            .cp__header { display: flex; align-items: center; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid rgba(0,0,0,.06); }
+            .cp__peer { display: flex; align-items: center; gap: 10px; }
+            .cp__avatar { width: 40px; height: 40px; border-radius: 50%; background:#e5e7eb; display:grid; place-items:center; font-weight:700; color:#111; }
+            .cp__meta { line-height: 1.1; }
+            .cp__name { font-weight: 700; color:#111; }
+            .cp__sub { font-size:.8rem; color:#6b7280; }
+            .cp__metaRight { font-size:.75rem; color:#9ca3af; }
 
-        .cp__header { display: flex; align-items: center; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid rgba(0,0,0,.06); }
-        .cp__peer { display: flex; align-items: center; gap: 10px; }
-        .cp__avatar { width: 40px; height: 40px; border-radius: 50%; background:#e5e7eb; display:grid; place-items:center; font-weight:700; color:#111; }
-        .cp__meta { line-height: 1.1; }
-        .cp__name { font-weight: 700; color:#111; }
-        .cp__sub { font-size:.8rem; color:#6b7280; }
-        .cp__metaRight { font-size:.75rem; color:#9ca3af; }
+            .cp__list { display: flex; flex-direction: column; gap: 10px; padding: 16px; overflow-y: auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(15,23,42,.08); box-shadow: 0 12px 24px rgba(15,23,42,.04); min-height: 0; }
 
-        .cp__list { display: flex; flex-direction: column; gap: 10px; padding: 16px; overflow-y: auto; background: #ffffff; border-radius: 16px; border: 1px solid rgba(15,23,42,.08); box-shadow: 0 12px 24px rgba(15,23,42,.04); }
+            .bubble { display:flex; }
+            .bubble--me { justify-content: flex-end; }
+            .bubble--peer { justify-content: flex-start; }
+            .bubble__card { max-width: min(760px, 80%); border: 1px solid rgba(0,0,0,.08); background: #fff; border-radius: 14px; padding: 12px 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+            .bubble--me .bubble__card { background: #f1f5f9; border-color: rgba(15,23,42,.12); }
+            .bubble__sender { font-size: .75rem; font-weight: 600; color: #1f2937; margin-bottom: 6px; }
+            .bubble__time { display:block; margin-top:8px; font-size:.72rem; color:#9ca3af; text-align:right; }
 
-        .bubble { display:flex; }
-        .bubble--me { justify-content: flex-end; }
-        .bubble--peer { justify-content: flex-start; }
-        .bubble__card { max-width: min(760px, 80%); border: 1px solid rgba(0,0,0,.08); background: #fff; border-radius: 14px; padding: 12px 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
-        .bubble--me .bubble__card { background: #f1f5f9; border-color: rgba(15,23,42,.12); }
-        .bubble__sender { font-size: .75rem; font-weight: 600; color: #1f2937; margin-bottom: 6px; }
-        .bubble__time { display:block; margin-top:8px; font-size:.72rem; color:#9ca3af; text-align:right; }
+            .cp__composer { display:flex; align-items: flex-end; gap: 12px; padding: 16px; border-radius: 16px; border: 1px solid rgba(15,23,42,.08); background: #ffffff; box-shadow: 0 12px 24px rgba(15,23,42,.04); }
+            .cp__editor { flex:1; }
+            .cp__editorBox { border-radius: 12px; overflow: hidden; }
+            .cp__editorBox .md-editor-rt { background: transparent !important; box-shadow: none !important; border: none !important; }
+            .cp__editorBox .md-editor-rt .md-editor-rt__main,
+            .cp__editorBox .md-editor-rt .md-editor-rt__content,
+            .cp__editorBox .md-editor-rt .md-editor-rt__editor { background: transparent !important; }
+            .cp__editorBox .md-editor-rt .md-editor-rt__input,
+            .cp__editorBox .md-editor-rt textarea,
+            .cp__editorBox .md-editor-rt .md-editor-rt__textarea { background: transparent !important; }
+            .cp__send { align-self: stretch; min-width: 96px; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background:#111; color:#fff; font-weight:600; cursor:pointer; transition: background .2s ease, transform .2s ease; }
+            .cp__send:disabled { cursor: not-allowed; opacity: .6; transform: none; background: #9ca3af; border-color: transparent; }
+            .cp__send:not(:disabled):active { transform: translateY(1px); }
 
-        .cp__composer { display:flex; align-items: flex-end; gap: 12px; padding: 16px; border-radius: 16px; border: 1px solid rgba(15,23,42,.08); background: #ffffff; box-shadow: 0 12px 24px rgba(15,23,42,.04); }
-        .cp__editor { flex:1; }
-        .cp__editorBox { border-radius: 12px; overflow: hidden; }
-        .cp__editorBox .md-editor-rt { background: transparent !important; box-shadow: none !important; border: none !important; }
-        .cp__editorBox .md-editor-rt .md-editor-rt__main,
-        .cp__editorBox .md-editor-rt .md-editor-rt__content,
-        .cp__editorBox .md-editor-rt .md-editor-rt__editor { background: transparent !important; }
-        .cp__editorBox .md-editor-rt .md-editor-rt__input,
-        .cp__editorBox .md-editor-rt textarea,
-        .cp__editorBox .md-editor-rt .md-editor-rt__textarea { background: transparent !important; }
-        .cp__send { align-self: stretch; min-width: 96px; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,.1); background:#111; color:#fff; font-weight:600; cursor:pointer; transition: background .2s ease, transform .2s ease; }
-        .cp__send:disabled { cursor: not-allowed; opacity: .6; transform: none; background: #9ca3af; border-color: transparent; }
-        .cp__send:not(:disabled):active { transform: translateY(1px); }
+            .cp__emptyBox { width: 100%; min-height: 260px; border: 1px dashed rgba(148,163,184,.6); border-radius: 16px; display: grid; place-items: center; gap: 8px; text-align: center; padding: 24px; background: rgba(255,255,255,.8); }
+            .cp__emptyBox h2 { font-size: 1.1rem; font-weight: 700; color: #111827; }
+            .cp__emptyBox p { font-size: .9rem; color: #6b7280; }
 
-        .cp__emptyBox { width: 100%; min-height: 260px; border: 1px dashed rgba(148,163,184,.6); border-radius: 16px; display: grid; place-items: center; gap: 8px; text-align: center; padding: 24px; background: rgba(255,255,255,.8); }
-        .cp__emptyBox h2 { font-size: 1.1rem; font-weight: 700; color: #111827; }
-        .cp__emptyBox p { font-size: .9rem; color: #6b7280; }
+            .cp__error { padding: 10px 14px; border-radius: 10px; background: rgba(248, 113, 113, 0.1); color: #b91c1c; font-size: .85rem; border: 1px solid rgba(248, 113, 113, 0.4); }
 
-        .cp__error { padding: 10px 14px; border-radius: 10px; background: rgba(248, 113, 113, 0.1); color: #b91c1c; font-size: .85rem; border: 1px solid rgba(248, 113, 113, 0.4); }
-
-        @media (max-width: 860px) {
-          .cp__inner { width: 92vw; }
-          .bubble__card { max-width: 92%; }
-          .cp__composer { flex-direction: column; }
-          .cp__send { width: 100%; min-height: 44px; }
-        }
-      `}</style>
+            @media (max-width: 860px) {
+                .cp__inner { width: 92vw; }
+                .bubble__card { max-width: 92%; }
+                .cp__composer { flex-direction: column; }
+                .cp__send { width: 100%; min-height: 44px; }
+            }
+        `}</style>
     </div>
-  )
+)
 }
 
 export default ChatPage
