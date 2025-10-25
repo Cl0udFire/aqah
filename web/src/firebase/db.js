@@ -11,6 +11,8 @@ import {
   serverTimestamp,
   updateDoc,
   arrayUnion,
+  FieldValue,
+  Timestamp
 } from 'firebase/firestore'
 import app from './firebase'
 const db = getFirestore(app) // 기본 앱에서 Firestore 인스턴스 획득
@@ -103,11 +105,11 @@ export async function appendChatMessage(questionId, message) {
 
   const questionRef = doc(db, 'questions', questionId)
   await updateDoc(questionRef, {
-    answer: arrayUnion({
+    answers: arrayUnion({
       content: content.trim(),
       sender,
-      timestamp,
+      timestamp: Timestamp.now(),
     }),
-    updatedAt: serverTimestamp(),
+    updatedAt: Timestamp.now(),
   })
 }

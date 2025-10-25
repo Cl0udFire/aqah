@@ -229,7 +229,7 @@ const ChatPage = () => {
         ]
       : []
 
-    const answers = normalizeAnswerList(question.answer).map((entry, index) => ({
+    const answers = normalizeAnswerList(question.answers).map((entry, index) => ({
       id: entry.id ?? `answer-${index}`,
       content: entry.content ?? "",
       sender: entry.sender === "answerer" ? "answerer" : "questioner",
