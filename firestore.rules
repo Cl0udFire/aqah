@@ -87,6 +87,7 @@ service cloud.firestore {
                              request.resource.data.assignee == resource.data.assignee &&
                              request.resource.data.completed == resource.data.completed &&
                              request.resource.data.answers == resource.data.get('answers', []) &&
+                             request.resource.data.declinedBy == resource.data.get('declinedBy', []) &&
                              request.resource.data.acceptedByAssignee == true &&
                              resource.data.get('answers', []).size() == 0) ||
                             
@@ -97,6 +98,8 @@ service cloud.firestore {
                              request.resource.data.completed == resource.data.completed &&
                              request.resource.data.answers == resource.data.get('answers', []) &&
                              request.resource.data.declinedBy is list &&
+                             request.resource.data.declinedBy.size() == resource.data.get('declinedBy', []).size() + 1 &&
+                             request.resource.data.declinedBy.hasAll(resource.data.get('declinedBy', [])) &&
                              request.resource.data.declinedBy.hasAll([request.auth.uid]) &&
                              !request.resource.data.keys().hasAny(['assignee', 'acceptedByAssignee']) &&
                              resource.data.get('answers', []).size() == 0)
