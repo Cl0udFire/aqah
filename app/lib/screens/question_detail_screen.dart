@@ -571,9 +571,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
 
               return Align(
                 alignment:
-                    isMine ? Alignment.centerRight : Alignment.centerLeft,
+                    isFromQuestioner ? Alignment.centerLeft : Alignment.centerRight,
                 child: GestureDetector(
-                  onLongPress: isMine
+                  onLongPress: isMine && !question.completed
                       ? () => _showMessageOptions(context, question.id, index, answer.content)
                       : null,
                   child: Container(
@@ -590,9 +590,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         topLeft: const Radius.circular(16),
                         topRight: const Radius.circular(16),
                         bottomLeft:
-                            isMine ? const Radius.circular(16) : const Radius.circular(4),
+                            isFromQuestioner ? const Radius.circular(4) : const Radius.circular(16),
                         bottomRight:
-                            isMine ? const Radius.circular(4) : const Radius.circular(16),
+                            isFromQuestioner ? const Radius.circular(16) : const Radius.circular(4),
                       ),
                     ),
                     child: Column(
@@ -681,7 +681,9 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                     child: TextField(
                       controller: _messageController,
                       decoration: InputDecoration(
-                        hintText: '메시지를 입력하세요...',
+                        hintText: question.completed 
+                            ? '완료된 질문입니다. 메시지를 보내려면 완료를 해제하세요.'
+                            : '메시지를 입력하세요...',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -691,13 +693,17 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
                         ),
                       ),
                       maxLines: null,
+                      enabled: !question.completed,
                     ),
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
-                    onPressed: () => _sendMessage(
-                      question.id,
-                      isQuestioner ? 'questioner' : 'answerer',
+                    onPressed: question.completed 
+                        ? null 
+                        : () => _sendMessage(
+                            question.id,
+                            isQuestioner ? 'questioner' : 'answerer',
+                          ),
                     ),
                     style: FilledButton.styleFrom(
                       shape: const CircleBorder(),

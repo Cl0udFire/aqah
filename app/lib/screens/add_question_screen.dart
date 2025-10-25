@@ -125,7 +125,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  prefixIcon: const Icon(Icons.title),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -148,7 +147,6 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  prefixIcon: const Icon(Icons.description),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 10,
