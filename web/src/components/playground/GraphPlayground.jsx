@@ -25,6 +25,7 @@ const ALGORITHMS = [
   { id: "bfs", label: "너비 우선 탐색 (BFS)" },
   { id: "dfs", label: "깊이 우선 탐색 (DFS)" },
   { id: "dijkstra", label: "다익스트라 최단 경로" },
+  { id: "kruskal", label: "크루스칼 최소 신장 트리" },
 ];
 
 const EDGE_ID = (a, b) => [a, b].sort().join("-");
@@ -270,6 +271,113 @@ const runDijkstra = (start, goal) => {
   return steps;
 };
 
+const runKruskal = () => {
+  const sortedEdges = GRAPH_EDGES.slice().sort((a, b) => a.weight - b.weight);
+  const parent = Object.fromEntries(GRAPH_NODES.map((node) => [node.id, node.id]));
+  const rank = Object.fromEntries(GRAPH_NODES.map((node) => [node.id, 0]));
+
+  const find = (node) => {
+    if (parent[node] !== node) {
+      parent[node] = find(parent[node]);
+    }
+    return parent[node];
+  };
+
+  const union = (a, b) => {
+    const rootA = find(a);
+    const rootB = find(b);
+
+    if (rootA === rootB) {
+      return false;
+    }
+
+    if (rank[rootA] < rank[rootB]) {
+      parent[rootA] = rootB;
+    } else if (rank[rootA] > rank[rootB]) {
+      parent[rootB] = rootA;
+    } else {
+      parent[rootB] = rootA;
+      rank[rootA] += 1;
+    }
+
+    return true;
+  };
+
+  const steps = [
+    {
+      title: "초기 상태",
+      description:
+        "모든 정점을 서로 다른 집합으로 두고, 간선을 가중치가 낮은 순서로 정렬합니다.",
+      current: null,
+      visited: [],
+      frontier: [],
+      highlightedEdges: [],
+      distances: {},
+    },
+  ];
+
+  const mstEdges = [];
+  const mstNodes = new Set();
+  let totalWeight = 0;
+
+  sortedEdges.forEach(({ from, to, weight }) => {
+    const rootA = find(from);
+    const rootB = find(to);
+    const createsCycle = rootA === rootB;
+
+    steps.push({
+      title: `간선 ${from}-${to} (${weight}) 검사`,
+      description: createsCycle
+        ? `${from}과(와) ${to}는 이미 같은 집합이므로 사이클을 만들게 되어 간선을 선택하지 않습니다.`
+        : `${from}과(와) ${to}가 서로 다른 집합이므로 간선을 선택하고 집합을 합칩니다.`,
+      current: null,
+      visited: Array.from(mstNodes),
+      frontier: [],
+      highlightedEdges: [
+        ...mstEdges.map((edge) => EDGE_ID(edge.from, edge.to)),
+        EDGE_ID(from, to),
+      ],
+      distances: {},
+    });
+
+    if (!createsCycle) {
+      union(rootA, rootB);
+      mstEdges.push({ from, to, weight });
+      mstNodes.add(from);
+      mstNodes.add(to);
+      totalWeight += weight;
+
+      steps.push({
+        title: `간선 ${from}-${to} 추가`,
+        description: `간선 ${from}-${to}를 최소 신장 트리에 포함합니다. 현재 누적 가중치는 ${totalWeight}입니다.`,
+        current: null,
+        visited: Array.from(mstNodes),
+        frontier: [],
+        highlightedEdges: mstEdges.map((edge) => EDGE_ID(edge.from, edge.to)),
+        distances: {},
+        path: Array.from(mstNodes),
+      });
+    }
+  });
+
+  if (mstEdges.length === GRAPH_NODES.length - 1) {
+    steps.push({
+      title: "최소 신장 트리 완성",
+      description: `선택된 간선: ${mstEdges
+        .map(({ from, to, weight }) => `${from}-${to}(${weight})`)
+        .join(", ")}. 총 가중치는 ${totalWeight}입니다.`,
+      current: null,
+      visited: Array.from(mstNodes),
+      frontier: [],
+      highlightedEdges: mstEdges.map((edge) => EDGE_ID(edge.from, edge.to)),
+      distances: {},
+      path: Array.from(mstNodes),
+    });
+  }
+
+  return steps;
+};
+
 const reconstructPath = (goal, parents, start) => {
   if (goal !== start && !parents[goal]) {
     return [];
@@ -300,6 +408,8 @@ const runAlgorithm = (algorithm, start, goal) => {
       return runDfs(start, goal);
     case "dijkstra":
       return runDijkstra(start, goal);
+    case "kruskal":
+      return runKruskal();
     default:
       return [];
   }
@@ -333,7 +443,7 @@ const GraphPlayground = () => {
           <div>
             <h2 className="text-xl font-bold text-slate-900">그래프 탐색 실험실</h2>
             <p className="mt-2 text-sm text-slate-600">
-              동일한 그래프에서 BFS, DFS, 다익스트라 알고리즘이 어떻게 탐색하고 경로를 찾는지 비교해 보세요.
+              동일한 그래프에서 BFS, DFS, 다익스트라, 크루스칼 알고리즘이 어떻게 탐색하거나 최소 신장 트리를 찾는지 비교해 보세요.
             </p>
           </div>
 
@@ -362,6 +472,7 @@ const GraphPlayground = () => {
               <select
                 className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
                 value={startNode}
+                disabled={algorithm === "kruskal"}
                 onChange={(event) => setStartNode(event.target.value)}
               >
                 {GRAPH_NODES.map((node) => (
@@ -378,6 +489,7 @@ const GraphPlayground = () => {
               <select
                 className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
                 value={targetNode}
+                disabled={algorithm === "kruskal"}
                 onChange={(event) => setTargetNode(event.target.value)}
               >
                 {GRAPH_NODES.map((node) => (
@@ -388,6 +500,12 @@ const GraphPlayground = () => {
               </select>
             </div>
           </div>
+
+          {algorithm === "kruskal" && (
+            <p className="rounded-lg border border-dashed border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-700">
+              크루스칼 알고리즘은 전체 그래프에서 최소 신장 트리를 구성하므로 시작/목표 노드 선택은 사용되지 않습니다.
+            </p>
+          )}
 
           <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
             <p className="font-semibold text-slate-700">단계 제어</p>
