@@ -3,16 +3,10 @@ import { useAppStore } from "../context/store";
 import Topbar from "../components/Topbar";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Select from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
-
-import {
-  faArrowDown,
-  faArrowUp,
-  faCaretDown,
-  faCaretUp,
-  faMagnifyingGlass,
-} from "@fortawesome/free-solid-svg-icons";
+import Select from "@mui/joy/Select";
+import Option from "@mui/joy/Option";
+import { getQuestionsLike } from "../firebase/db";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { NavLink } from "react-router-dom";
 import Dropdown from "react-dropdown";
 import { keyframes } from "styled-components";
@@ -63,9 +57,9 @@ const GradientBackground = styled.div`
   border-radius: 9999px;
   background: radial-gradient(
     circle,
-    rgba(45, 42, 218, 0.3) 0%, /* Light Blue */
-    rgba(40, 224, 234, 0.3) 50%, /* Light Green */
-    transparent 70%
+    rgba(45, 42, 218, 0.3) 0%,
+    /* Light Blue */ rgba(40, 224, 234, 0.3) 50%,
+    /* Light Green */ transparent 70%
   );
   pointer-events: none;
   z-index: 0;
@@ -186,6 +180,7 @@ const Related = styled.div`
   background-color: color-mix(in oklab, #f8fafc 50%, transparent);
   position: relative;
   z-index: 2;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 `;
 const Text = styled.div`
   font-size: 24px;
@@ -208,22 +203,21 @@ const App = () => {
   const [query, setQuery] = useState("");
   const [related, setRelated] = useState([]);
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
+  // useEffect(() => {
+  //   console.log(user);
+  // }, [user]);
 
   /// TODO: 검색어를 입력할 때마다 서버에 추천 검색어 호출 필요 (like같은거???).
   useEffect(() => {
     const fetchQuestions = async () => {
       setRelated(
         // 추천 검색어 목록
-        ["아집에가고싶다", "오늘날씨어때?", "리액트란무엇인가?"].filter((q) =>
-          q.includes(query)
-        )
+        await getQuestionsLike(user, query)
       );
     };
-    if (query !== "") fetchQuestions();
-    else setRelated([]);
+    // if (query !== "")
+    fetchQuestions();
+    // else setRelated([]);
   }, [query]);
 
   return (
@@ -255,10 +249,15 @@ const App = () => {
             </NavLink>
           </SearchButton>
         </SearchBox>
-        <Related enabled={query !== "" && related.length > 0}>
+        <Related
+          enabled={
+            // query !== "" &&
+            related.length > 0
+          }
+        >
           {related.map((item, index) => (
-            <Text key={index} onClick={() => setQuery(item)}>
-              {item}
+            <Text key={index} onClick={() => setQuery(item.title)}>
+              {item.title}
             </Text>
           ))}
         </Related>
