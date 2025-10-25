@@ -13,7 +13,6 @@ from typing import Optional
 
 from firebase_functions import firestore_fn, options
 from firebase_admin import initialize_app, firestore, messaging
-from google.cloud.firestore_v1.base_query import FieldFilter
 
 # Initialize Firebase Admin SDK
 initialize_app()
