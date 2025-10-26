@@ -34,6 +34,13 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
+      - name: Set up Python virtual environment
+        run: |
+          cd functions
+          python3.13 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+
       - name: Create .firebaserc from secret
         run: |
           echo '{
