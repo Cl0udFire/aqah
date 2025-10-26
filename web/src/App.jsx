@@ -8,6 +8,7 @@ import QuestionsPage from "./pages/QuestionsPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import PlaygroundPage from "./pages/PlaygroundPage.jsx";
+import RankingPage from "./pages/RankingPage.jsx";
 
 const toError = (error) => {
   if (error instanceof Error) {
@@ -30,7 +31,8 @@ function App() {
         <Route path="/questions" element={<QuestionsPage />} />
         <Route path="/chat" element={<ChatPage />} />
         <Route path="/playground" element={<PlaygroundPage />} />
-        {/* Learn : 채팅 ui 상대: ai/ 배경 */}
+        <Route path="/ranking" element={<RankingPage />} />
+        {/* Learn : 채팅 ui 상대: ai/ 배경 */}``
       </Routes>
     </BrowserRouter>
   );

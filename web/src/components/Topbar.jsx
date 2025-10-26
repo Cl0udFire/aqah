@@ -3,7 +3,11 @@ import { signOut } from "firebase/auth";
 import { useAppStore } from "../context/store";
 import SideLink from "./SideLink";
 import { faComments, faHome } from "@fortawesome/free-regular-svg-icons";
-import { faWaveSquare, faGraduationCap } from "@fortawesome/free-solid-svg-icons";
+import {
+  faWaveSquare,
+  faGraduationCap,
+  faTrophy,
+} from "@fortawesome/free-solid-svg-icons";
 import { auth } from "../firebase/firebase";
 
 const Topbar = () => {
@@ -50,6 +54,7 @@ const Topbar = () => {
             <SideLink to="/questions" icon={faComments} label="Question" />
             <SideLink to="/learn" icon={faGraduationCap} label="Learn" />
             <SideLink to="/playground" icon={faWaveSquare} label="Playground" />
+            <SideLink to="/ranking" icon={faTrophy} label="Ranking" />
           </nav>
         </div>
 
@@ -74,7 +79,9 @@ const Topbar = () => {
               <div className="tb__name">
                 {user?.displayName || user?.email?.split("@")[0] || "Guest"}
               </div>
-              <div className="tb__email">{user?.email || "로그인이 필요합니다"}</div>
+              <div className="tb__email">
+                {user?.email || "로그인이 필요합니다"}
+              </div>
             </div>
           </div>
         </div>
