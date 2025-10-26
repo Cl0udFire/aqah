@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faComputer,
@@ -6,6 +7,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import { declineQuestion } from "../firebase/db";
+import { useAppStore } from "../context/store";
 
 const hasAnswerFromAnswerer = (answers) => {
   if (!answers) return false;
@@ -41,7 +44,26 @@ const DeclineButton = styled.button`
 `;
 
 const QuestionList = ({ questions, type }) => {
+  const [decliningId, setDecliningId] = useState(null);
   const questionItems = questions?.[type] ?? [];
+  const user = useAppStore((s) => s.user);
+  console.log(user.uid)
+
+  const handleDecline = async (questionId) => {
+    if (!questionId || decliningId) return;
+    const confirmed = window.confirm("해당 질문을 거절하시겠어요?");
+    if (!confirmed) return;
+
+    try {
+      setDecliningId(questionId);
+      await declineQuestion(questionId);
+    } catch (error) {
+      console.error("Failed to decline question:", error);
+      alert("질문 거절에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setDecliningId(null);
+    }
+  };
 
   if (!questionItems.length) {
     return (
@@ -92,7 +114,10 @@ const QuestionList = ({ questions, type }) => {
 
                 {type === "received" ? (
                   <div className="flex justify-end items-center gap-4">
-                    <ConfirmButton className="bg-green-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-green-400">
+                    <ConfirmButton
+                      type="button"
+                      className="bg-green-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-green-400"
+                    >
                       <FontAwesomeIcon
                         icon={faCheck}
                         fontSize="1rem"
@@ -102,8 +127,12 @@ const QuestionList = ({ questions, type }) => {
                         <span>답변하기</span>
                       </NavLink>
                     </ConfirmButton>
-                    <DeclineButton className="bg-red-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-red-400">
-                      {/* TODO: Question Decline 구현 */}
+                    <DeclineButton
+                      type="button"
+                      className="bg-red-200 w-[7rem] h-[2.5rem] flex justify-center items-center rounded-[0.5rem] mt-2 gap-2 border-2 border-red-400 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={decliningId === question.id}
+                      onClick={() => declineQuestion(question.id, user.uid)}
+                    >
                       <FontAwesomeIcon
                         icon={faXmark}
                         fontSize="1rem"

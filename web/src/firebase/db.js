@@ -14,6 +14,7 @@ import {
   arrayUnion,
   FieldValue,
   Timestamp,
+  deleteField
 } from "firebase/firestore";
 import app from "./firebase";
 const db = getFirestore(app); // 기본 앱에서 Firestore 인스턴스 획득
@@ -142,3 +143,15 @@ export async function appendChatMessage(questionId, message) {
     updatedAt: Timestamp.now(),
   });
 }
+
+export async function declineQuestion(questionId, uid) {
+  if (!questionId) throw new Error("질문 ID가 필요합니다.");
+  console.log(uid)
+  const questionRef = doc(db, "questions", questionId);
+  await updateDoc(questionRef, {
+    assignee: deleteField(),
+    updatedAt: Timestamp.now(),
+    declinedBy: arrayUnion(uid),
+  });
+}
+
