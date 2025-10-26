@@ -100,10 +100,10 @@ const SearchPage = () => {
               return (
                 <div
                   key={question.id}
-                  className="p-6 rounded-2xl border border-gray-200 bg-white shadow-sm h-[9rem] flex justify-start items-start"
+                  className="p-6 rounded-2xl border border-gray-200 bg-white shadow-sm h-min-[9rem] h-auto flex justify-start items-start"
                 >
                   <div className="flex">
-                    <div className="flex flex-col gap-3 items-center mt-[0.5rem] w-min-[7rem] w-[7rem]">
+                    <div className="flex flex-col gap-3 items-center w-min-[7rem] w-[7rem]">
                       <div className="w-[5rem] h-[5rem] border-blue-500 border-4 rounded-2xl bg-blue-300 flex justify-center items-center">
                         <FontAwesomeIcon
                           icon={faComputer}
