@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import "../index.css";
@@ -9,20 +9,21 @@ import SearchPage from "./pages/SearchPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import PlaygroundPage from "./pages/PlaygroundPage.jsx";
 import RankingPage from "./pages/RankingPage.jsx";
-
-const toError = (error) => {
-  if (error instanceof Error) {
-    return error;
-  }
-
-  if (error && typeof error === "object" && "message" in error) {
-    return new Error(error.message);
-  }
-
-  return new Error(String(error));
-};
+import AuthModal from "./components/AuthModal.jsx";
+import { auth } from "./firebase/firebase.js";
+import { useAppStore } from "./context/store.js";
 
 function App() {
+  const setUser = useAppStore((state) => state.setUser);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
+
+    return unsubscribe;
+  }, [setUser]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -34,6 +35,7 @@ function App() {
         <Route path="/ranking" element={<RankingPage />} />
         {/* Learn : 채팅 ui 상대: ai/ 배경 */}``
       </Routes>
+      <AuthModal />
     </BrowserRouter>
   );
 }
