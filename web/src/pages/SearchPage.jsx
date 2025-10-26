@@ -15,7 +15,7 @@ const Container = styled.div`
   max-width: 1350px;
   align-self: center;
 
-  grid-template-columns: 5fr 2fr;
+  grid-template-columns: 1fr 5fr 1fr;
 
   grid-template-rows: auto 1fr;
   gap: 25px;
@@ -23,20 +23,31 @@ const Container = styled.div`
   margin-top: 15px;
   height: calc(100vh - 84px);
 `;
+const DIV = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  & > {
+    display: inline-block;
+  }
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  align-items: end;
+`;
 const WriteButton = styled.button`
   width: 125px;
   padding: 10px;
   border-radius: 99999px;
   background-color: #3b82f6;
   color: white;
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 1;
   justify-self: right;
   align-self: end;
 `;
 
 const StyledQuestionList = styled.div`
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 2;
 `;
 
@@ -83,17 +94,19 @@ const SearchPage = () => {
     <div className="flex flex-col min-h-screen">
       <Topbar />
       <Container>
-        <header className="space-y-2">
-          <h1 className="text-[2rem] font-bold text-gray-900">검색 결과</h1>
-          <p className="text-sm text-gray-500">
-            이미 궁금한 점을 해결하신 분들의 답변을 확인해보세요!
-          </p>
-        </header>
-        <NavLink to="/questions">
-          <WriteButton>
-            <FontAwesomeIcon icon={faPlus} /> 새로 작성
-          </WriteButton>
-        </NavLink>
+        <DIV>
+          <header className="space-y-2 col-span-2">
+            <h1 className="text-[2rem] font-bold text-gray-900">검색 결과</h1>
+            <p className="text-sm text-gray-500">
+              이미 궁금한 점을 해결하신 분들의 답변을 확인해보세요!
+            </p>
+          </header>
+          <NavLink to="/questions">
+            <WriteButton>
+              <FontAwesomeIcon icon={faPlus} /> 새로 작성
+            </WriteButton>
+          </NavLink>
+        </DIV>
         <StyledQuestionList className="y-scroll flex flex-col gap-4 h-[600px] overflow-y-auto">
           {questions ? (
             questions.map((question) => {
@@ -139,7 +152,7 @@ const SearchPage = () => {
           )}
         </StyledQuestionList>
 
-        <GPTSummaryBox className="h-[600px] overflow-y-auto">
+        {/* <GPTSummaryBox className="h-[600px] overflow-y-auto">
           <h1 className="font-bold text-center">GPT 요약</h1>
           <br />
           {"아 너무나도\n집에 가고싶은 하루야.\n진짜로."
@@ -150,7 +163,7 @@ const SearchPage = () => {
                 <br />
               </>
             ))}
-        </GPTSummaryBox>
+        </GPTSummaryBox> */}
       </Container>
     </div>
   );
