@@ -58,49 +58,62 @@ const PlaygroundPage = () => {
   return (
     <div className="flex min-h-screen flex-col bg-slate-100">
       <Topbar />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 pb-16 pt-12">
-        <header className="flex flex-col gap-4 pb-8">
-          <span className="text-sm font-semibold uppercase tracking-wide text-sky-600">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-6 pb-12 pt-10">
+        <header className="pb-6">
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-500">
             Playground
           </span>
-          <h1 className="text-4xl font-bold text-slate-900">
-            어려운 알고리즘을 더 쉽게 실험해보세요
-          </h1>
-          <p className="max-w-3xl text-base leading-relaxed text-slate-600">
-            실제 코드를 작성하지 않고도 알고리즘과 시스템 동작 원리를
-            직관적으로 이해할 수 있도록 인터랙티브한 실험 환경을 제공해요.
-            정렬, 포인터, 그래프, 자료구조, 네트워크, 디스크, 재귀, 암호화 학습 도구를 살펴보며 입력을
-            자유롭게 바꿔보세요.
-          </p>
-          <nav className="mt-2 flex flex-wrap gap-2">
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
-                  activeSection === section.id
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-slate-700 hover:bg-slate-200"
-                }`}
-                onClick={() => setActiveSection(section.id)}
-              >
-                {section.label}
-              </button>
-            ))}
-          </nav>
-          <p className="text-sm text-slate-500">
-            {sections.find((section) => section.id === activeSection)?.description}
-          </p>
+          <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">알고리즘 실험실</h1>
+              <p className="mt-2 max-w-xl text-sm text-slate-600">
+                주요 시각화 도구를 한 화면에서 빠르게 비교하며 실험해보세요.
+              </p>
+            </div>
+            <p className="text-xs text-slate-500">
+              정렬 · 포인터 · 그래프 · 자료구조 · 네트워크 · 디스크 · 재귀 · 암호화
+            </p>
+          </div>
         </header>
 
-        <div className="flex flex-col gap-8">
-          {activeSection === "sorting" && <SortingPlayground />}
-          {activeSection === "pointer" && <PointerPlayground />}
-          {activeSection === "graph" && <GraphPlayground />}
-          {activeSection === "data-structures" && <DataStructuresPlayground />}
-          {activeSection === "osi" && <OSIPlayground />}
-          {activeSection === "disk" && <DiskSchedulingPlayground />}
-          {activeSection === "recursion" && <RecursionPlayground />}
-          {activeSection === "crypto" && <CryptoPlayground />}
+        <div className="flex flex-col gap-6 lg:flex-row">
+          <aside className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur lg:w-64">
+            <nav className="flex flex-col gap-1">
+              {sections.map((section) => {
+                const isActive = activeSection === section.id;
+                return (
+                  <button
+                    key={section.id}
+                    type="button"
+                    className={`rounded-xl px-4 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
+                      isActive
+                        ? "bg-blue-500 text-white shadow"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    onClick={() => setActiveSection(section.id)}
+                  >
+                    <span className="block text-base">{section.label}</span>
+                    {isActive && (
+                      <span className="mt-1 block text-xs font-normal text-blue-50">
+                        {section.description}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </aside>
+
+          <section className="flex-1 space-y-6">
+            {activeSection === "sorting" && <SortingPlayground />}
+            {activeSection === "pointer" && <PointerPlayground />}
+            {activeSection === "graph" && <GraphPlayground />}
+            {activeSection === "data-structures" && <DataStructuresPlayground />}
+            {activeSection === "osi" && <OSIPlayground />}
+            {activeSection === "disk" && <DiskSchedulingPlayground />}
+            {activeSection === "recursion" && <RecursionPlayground />}
+            {activeSection === "crypto" && <CryptoPlayground />}
+          </section>
         </div>
       </main>
     </div>
