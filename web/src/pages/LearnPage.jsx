@@ -2,352 +2,104 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import styled from "styled-components";
 import Topbar from "../components/Topbar";
 
-const mindMapTemplate = {
-  overview: "주제를 한 문장으로 요약 (최대 40자)",
-  spotlight: "핵심 메시지를 한 문장으로 강조",
-  branches: [
-    {
-      title: "세부 축 이름",
-      summary: "세부 축 설명 (최대 20자)",
-      subtopics: [
-        {
-          title: "소주제 이름",
-          context: "소주제 설명 (최대 35자)",
-          insights: ["핵심 포인트를 짧게"]
-        }
-      ]
-    }
-  ]
-};
-
 const mockMindMaps = {
-  "인공지능 개론": {
-    overview: "AI 핵심 개념과 흐름을 한눈에 정리합니다.",
-    spotlight: "데이터·모델·컴퓨팅의 균형이 성과를 좌우합니다.",
+  "인공지능 일반": {
+    overview: "데이터 준비부터 모델 학습까지의 핵심 흐름을 한 장에서 정리합니다.",
+    spotlight: "전처리-분석-설계-학습 순환을 이해하면 실무 전반을 연결할 수 있습니다.",
     branches: [
       {
-        title: "핵심 개념",
+        title: "데이터 전처리",
         color: "#2563eb",
-        summary: "AI 정의와 철학적 배경",
+        summary: "데이터 품질을 정비하는 단계",
         subtopics: [
           {
-            title: "튜링 테스트",
-            context: "대화를 통해 기계 지능을 판별한 고전 실험.",
-            insights: ["대화 품질이 평가 기준"]
+            title: "원천 수집",
+            context: "파일·API에서 데이터를 모읍니다.",
+            insights: ["형식과 인코딩 점검"]
           },
           {
-            title: "약한 vs 강한 AI",
-            context: "실용 목표와 자각 추구 간 차이를 비교합니다.",
-            insights: ["현실은 약한 AI 중심"]
+            title: "Pandas 기본",
+            context: "행·열 구조의 DataFrame을 다룹니다.",
+            insights: ["row/column 개념"]
           },
           {
-            title: "AI 3요소",
-            context: "데이터·알고리즘·연산 자원의 균형을 점검합니다.",
-            insights: ["데이터 품질이 토대"]
+            title: "정제 기법",
+            context: "결측치·이상치를 처리하고 스케일링합니다.",
+            insights: ["전처리 파이프라인"]
           }
         ]
       },
       {
-        title: "주요 기법",
-        color: "#4338ca",
-        summary: "학습 패러다임과 모델",
-        subtopics: [
-          {
-            title: "학습 유형",
-            context: "지도·비지도·강화 학습의 차이를 요약합니다.",
-            insights: ["보상이 정책을 결정"]
-          },
-          {
-            title: "대표 아키텍처",
-            context: "CNN·RNN·Transformer의 활용 포인트를 정리합니다.",
-            insights: ["어텐션이 전역 문맥 확보"]
-          },
-          {
-            title: "전통 기법",
-            context: "규칙 기반 추론과 탐색 전략을 간단히 소개합니다.",
-            insights: ["휴리스틱이 탐색을 압축"]
-          }
-        ]
-      },
-      {
-        title: "응용 분야",
-        color: "#0ea5e9",
-        summary: "산업 전반의 활용",
-        subtopics: [
-          {
-            title: "감각 데이터",
-            context: "비전·언어·음성 분야의 대표 사례를 정리합니다.",
-            insights: ["언어 모델이 업무를 보조"]
-          },
-          {
-            title: "추천 시스템",
-            context: "행동 데이터를 활용한 개인화 전략을 설명합니다.",
-            insights: ["피드백으로 품질 개선"]
-          },
-          {
-            title: "물리 시스템",
-            context: "자율주행과 로보틱스에서의 의사결정 자동화를 다룹니다.",
-            insights: ["센서 융합이 핵심"]
-          }
-        ]
-      },
-      {
-        title: "학습 전략",
+        title: "데이터 분석",
         color: "#14b8a6",
-        summary: "학습 로드맵과 도구",
+        summary: "패턴과 인사이트를 찾는 단계",
         subtopics: [
           {
-            title: "수학 기초",
-            context: "선형대수·확률·최적화가 모델 이해에 연결됩니다.",
-            insights: ["행렬 연산이 토대"]
+            title: "EDA 절차",
+            context: "질문을 세우고 분포를 시각화합니다.",
+            insights: ["질문-그래프-해석"]
           },
           {
-            title: "실험 워크플로",
-            context: "전처리와 실험 추적을 반복 가능한 흐름으로 만듭니다.",
-            insights: ["추적 도구가 협업 지원"]
+            title: "통계 기초",
+            context: "평균·분산과 검정 논리를 이해합니다.",
+            insights: ["샘플 vs 모집단"]
           },
           {
-            title: "도구 활용",
-            context: "클라우드와 오픈소스 도구로 학습·배포 환경을 구성합니다.",
-            insights: ["MLOps가 배포를 자동화"]
+            title: "시각화 도구",
+            context: "Matplotlib·Seaborn으로 패턴을 드러냅니다.",
+            insights: ["그래프 선택 기준"]
           }
         ]
       },
       {
-        title: "윤리와 거버넌스",
+        title: "인공지능 모델 설계",
         color: "#f97316",
-        summary: "책임 있는 개발 원칙",
+        summary: "문제를 구조화하고 모델을 고르는 단계",
         subtopics: [
           {
-            title: "공정성",
-            context: "데이터 편향과 설명 가능성 확보 방안을 점검합니다.",
-            insights: ["대표성 있는 데이터"]
+            title: "문제 정의",
+            context: "업무 목표와 평가 지표를 확정합니다.",
+            insights: ["분류·회귀 구분"]
           },
           {
-            title: "프라이버시",
-            context: "차등 프라이버시와 연합 학습을 통한 보호 전략을 소개합니다.",
-            insights: ["민감 정보 최소화"]
+            title: "피처 설계",
+            context: "도메인 지식을 반영한 변수를 만듭니다.",
+            insights: ["파생 피처 기획"]
           },
           {
-            title: "규제 동향",
-            context: "글로벌 규제와 표준 흐름을 간략히 정리합니다.",
-            insights: ["위험 등급이 감독 결정"]
-          }
-        ]
-      }
-    ]
-  },
-  "양자 컴퓨팅": {
-    overview: "큐비트와 양자 현상을 활용하는 계산 패러다임입니다.",
-    spotlight: "양자 알고리즘은 특정 문제를 대폭 단축할 가능성이 있습니다.",
-    branches: [
-      {
-        title: "기초 물리",
-        color: "#8b5cf6",
-        summary: "큐비트와 양자 현상",
-        subtopics: [
-          {
-            title: "블로흐 구면",
-            context: "큐비트 상태를 구면 좌표로 표현합니다.",
-            insights: ["게이트는 회전으로 해석"]
-          },
-          {
-            title: "중첩과 간섭",
-            context: "여러 상태를 동시에 다루고 간섭을 조절합니다.",
-            insights: ["간섭 제어가 확률 집중"]
-          },
-          {
-            title: "얽힘",
-            context: "다중 큐비트 상관관계로 상태 공간을 확장합니다.",
-            insights: ["유지 관리가 핵심 과제"]
+            title: "모델 선택",
+            context: "여러 기법을 비교해 구조를 정합니다.",
+            insights: ["베이스라인 확보"]
           }
         ]
       },
       {
-        title: "대표 알고리즘",
-        color: "#22d3ee",
-        summary: "복잡도 개선 사례",
+        title: "인공지능 학습",
+        color: "#6366f1",
+        summary: "훈련과 검증을 반복하는 단계",
         subtopics: [
           {
-            title: "쇼어 알고리즘",
-            context: "양자 푸리에 변환으로 소인수분해를 가속합니다.",
-            insights: ["주기 검출이 핵심"]
+            title: "학습 파이프라인",
+            context: "데이터 분할과 배치를 구성합니다.",
+            insights: ["재현성 관리"]
           },
           {
-            title: "그로버 탐색",
-            context: "앰플리튜드 증폭으로 탐색 복잡도를 줄입니다.",
-            insights: ["√N 단계로 탐색"]
+            title: "성능 검증",
+            context: "검증·테스트로 과적합을 점검합니다.",
+            insights: ["교차검증 활용"]
           },
           {
-            title: "변분 회로",
-            context: "양자·고전 하이브리드 루프로 최적화를 수행합니다.",
-            insights: ["매개변수화 회로"]
-          }
-        ]
-      },
-      {
-        title: "하드웨어",
-        color: "#34d399",
-        summary: "플랫폼 비교",
-        subtopics: [
-          {
-            title: "주요 플랫폼",
-            context: "초전도·이온트랩·광자 방식의 특징을 비교합니다.",
-            insights: ["속도와 확장성의 절충"]
-          },
-          {
-            title: "규모 지표",
-            context: "큐비트 수와 게이트 충실도 지표를 해석합니다.",
-            insights: ["에러가 깊이를 제한"]
-          },
-          {
-            title: "NISQ 제약",
-            context: "노이즈가 큰 중간 규모 장치의 한계를 요약합니다.",
-            insights: ["오류 완화가 필수"]
-          }
-        ]
-      },
-      {
-        title: "오류 정정",
-        color: "#facc15",
-        summary: "오류 정정 전략",
-        subtopics: [
-          {
-            title: "표면 코드",
-            context: "2차원 격자에 큐비트를 배치해 오류를 감지합니다.",
-            insights: ["문턱값 이상 유지"]
-          },
-          {
-            title: "피델리티 개선",
-            context: "디커플링과 리셋으로 누적 오차를 줄입니다.",
-            insights: ["파형 제어가 중요"]
-          },
-          {
-            title: "협력 제어",
-            context: "하드웨어와 소프트웨어가 함께 에러율을 낮춥니다.",
-            insights: ["피드백 루프 활용"]
-          }
-        ]
-      },
-      {
-        title: "응용 가능성",
-        color: "#fb7185",
-        summary: "잠재적 응용 분야",
-        subtopics: [
-          {
-            title: "보안",
-            context: "양자 공격 대비 전략과 안전한 암호 기술을 비교합니다.",
-            insights: ["암호 전환이 필요"]
-          },
-          {
-            title: "신소재·화학",
-            context: "전자 구조 계산과 시뮬레이션 가속 가능성을 다룹니다.",
-            insights: ["양자-고전 하이브리드"]
-          },
-          {
-            title: "금융·ML",
-            context: "최적화와 샘플링을 가속하려는 연구를 소개합니다.",
-            insights: ["QAOA가 대표 사례"]
-          }
-        ]
-      }
-    ]
-  },
-  "지속가능한 에너지 전환": {
-    overview: "재생에너지와 효율 개선을 결합한 전환 전략입니다.",
-    spotlight: "기술·제도·참여가 동시에 굴러갈 때 효과가 큽니다.",
-    branches: [
-      {
-        title: "재생에너지",
-        color: "#22c55e",
-        summary: "주요 자원과 확산 전략",
-        subtopics: [
-          {
-            title: "태양광·풍력",
-            context: "간헐성과 출력 변동을 고려한 운영 전략을 다룹니다.",
-            insights: ["예측 정확도가 핵심"]
-          },
-          {
-            title: "대체 자원",
-            context: "수소·해양·지열 등 장기 에너지 믹스를 정리합니다.",
-            insights: ["지역 맞춤 전략"]
-          },
-          {
-            title: "분산형 발전",
-            context: "지역 단위 마이크로그리드 설계 요소를 요약합니다.",
-            insights: ["EMS가 수요 최적화"]
-          }
-        ]
-      },
-      {
-        title: "저장 기술",
-        color: "#0ea5e9",
-        summary: "에너지 저장 전략",
-        subtopics: [
-          {
-            title: "배터리 관리",
-            context: "열화 메커니즘과 수명 연장 전략을 간단히 설명합니다.",
-            insights: ["충방전 관리가 핵심"]
-          },
-          {
-            title: "수소 저장",
-            context: "생산·저장·활용을 엮어 장주기 저장을 구현합니다.",
-            insights: ["P2G2P 효율 최적화"]
-          },
-          {
-            title: "계통 서비스",
-            context: "주파수 조정과 피크 저감 등 ESS 활용을 요약합니다.",
-            insights: ["수익원 다각화"]
-          }
-        ]
-      },
-      {
-        title: "정책과 시장",
-        color: "#f97316",
-        summary: "정책·시장 설계",
-        subtopics: [
-          {
-            title: "탄소 가격",
-            context: "세금과 배출권이 투자 결정을 바꾸는 방식을 다룹니다.",
-            insights: ["가격 신호가 투자 촉진"]
-          },
-          {
-            title: "시장 구조",
-            context: "도매·소매 개편과 수요자원 참여 확대 방안을 설명합니다.",
-            insights: ["실시간 정산 도입"]
-          },
-          {
-            title: "국제 협력",
-            context: "전력 거래와 기술 표준화의 영향을 요약합니다.",
-            insights: ["공통 기준이 확산 촉진"]
-          }
-        ]
-      },
-      {
-        title: "도시와 시민",
-        color: "#a855f7",
-        summary: "시민 참여와 생활 혁신",
-        subtopics: [
-          {
-            title: "스마트 그리드",
-            context: "디지털 계량으로 수요를 능동 조정하는 방법을 다룹니다.",
-            insights: ["실시간 요금제"]
-          },
-          {
-            title: "커뮤니티 에너지",
-            context: "지역 협동조합이 추진하는 분산형 프로젝트를 소개합니다.",
-            insights: ["수익을 지역과 공유"]
-          },
-          {
-            title: "에너지 복지",
-            context: "취약계층 지원과 문해력 향상 정책을 정리합니다.",
-            insights: ["교육이 행동 변화 촉진"]
+            title: "배포 준비",
+            context: "모델을 저장하고 모니터링을 설계합니다.",
+            insights: ["MLOps 연계"]
           }
         ]
       }
     ]
   }
 };
+
+const availableTopics = Object.keys(mockMindMaps);
 
 const Page = styled.main`
   min-height: 100vh;
@@ -405,12 +157,6 @@ const Select = styled.select`
   font-weight: 500;
   outline: none;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-`;
-
-const ErrorNote = styled.p`
-  margin-top: 8px;
-  font-size: 13px;
-  color: #dc2626;
 `;
 
 const SummaryCard = styled.section`
@@ -650,93 +396,6 @@ function createLinkPath(source, target) {
   const controlY = midY + normalY;
 
   return `M ${sourcePoint.x} ${sourcePoint.y} Q ${controlX} ${controlY} ${targetPoint.x} ${targetPoint.y}`;
-}
-
-function normalizeMindmapIndexResponse(payload) {
-  const result = { topics: [], maps: {} };
-
-  if (!payload) {
-    return result;
-  }
-
-  if (Array.isArray(payload)) {
-    payload.forEach((item) => {
-      if (!item) {
-        return;
-      }
-
-      const topic = item.topic || item.title || item.name;
-      const map =
-        item.map || item.mindmap || item.mindMap || item.data || item.payload || item.content;
-
-      if (topic) {
-        if (map && typeof map === "object") {
-          result.maps[topic] = map;
-        }
-        result.topics.push(topic);
-      }
-    });
-  } else if (typeof payload === "object") {
-    const mapsCandidate = payload.mindmaps || payload.mindMaps || payload.maps || payload.items;
-
-    if (mapsCandidate && typeof mapsCandidate === "object") {
-      Object.entries(mapsCandidate).forEach(([topic, map]) => {
-        if (map && typeof map === "object") {
-          result.maps[topic] = map;
-          result.topics.push(topic);
-        }
-      });
-    }
-
-    if (Array.isArray(payload.topics)) {
-      result.topics.push(...payload.topics);
-    } else if (!result.topics.length) {
-      Object.entries(payload).forEach(([key, value]) => {
-        if (
-          value &&
-          typeof value === "object" &&
-          key !== "mindmaps" &&
-          key !== "mindMaps" &&
-          key !== "maps" &&
-          key !== "items"
-        ) {
-          result.maps[key] = value;
-          result.topics.push(key);
-        }
-      });
-    }
-  }
-
-  result.topics = Array.from(new Set(result.topics));
-
-  if (!result.topics.length) {
-    result.topics = Object.keys(result.maps);
-  }
-
-  return result;
-}
-
-function normalizeMindmapPayload(payload, topic) {
-  if (!payload) {
-    return null;
-  }
-
-  if (payload.overview && payload.branches) {
-    return payload;
-  }
-
-  const nested =
-    payload.mindmap || payload.mindMap || payload.map || payload.data || payload.payload || null;
-
-  if (nested && nested.overview && nested.branches) {
-    return nested;
-  }
-
-  if (topic && payload[topic] && payload[topic].overview && payload[topic].branches) {
-    return payload[topic];
-  }
-
-  return null;
 }
 
 function useContainerSize() {
@@ -1373,139 +1032,12 @@ function MindmapCanvas({
 }
 
 function LearnPage() {
-  const [mindMapLibrary, setMindMapLibrary] = useState(() => ({ ...mockMindMaps }));
-  const [topics, setTopics] = useState(() => Object.keys(mockMindMaps));
-  const [selectedTopic, setSelectedTopic] = useState(() => Object.keys(mockMindMaps)[0] ?? "");
-  const [isTopicsLoading, setIsTopicsLoading] = useState(false);
-  const [isMindMapLoading, setIsMindMapLoading] = useState(false);
-  const [mindMapError, setMindMapError] = useState(null);
-  const loadedTopicsRef = useRef(new Set());
+  const topics = availableTopics;
+  const [selectedTopic, setSelectedTopic] = useState(() => topics[0] ?? "");
   const [graphRef, graphSize] = useContainerSize();
   const [activeNodeId, setActiveNodeId] = useState("root");
 
-  useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
-
-    const loadTopics = async () => {
-      setIsTopicsLoading(true);
-      try {
-        const response = await fetch("/api/mindmaps", { signal: controller.signal });
-        if (!response.ok) {
-          throw new Error(`Failed to load mind maps (${response.status})`);
-        }
-
-        const payload = await response.json();
-        if (cancelled) {
-          return;
-        }
-
-        const { topics: fetchedTopics, maps } = normalizeMindmapIndexResponse(payload);
-        const preparedMaps = {};
-
-        Object.entries(maps).forEach(([topic, value]) => {
-          const normalized = normalizeMindmapPayload(value, topic);
-          if (normalized && normalized.overview && normalized.branches) {
-            preparedMaps[topic] = normalized;
-            loadedTopicsRef.current.add(topic);
-          }
-        });
-
-        if (Object.keys(preparedMaps).length) {
-          setMindMapLibrary((prev) => ({ ...prev, ...preparedMaps }));
-        }
-
-        if (fetchedTopics.length) {
-          setTopics(fetchedTopics);
-        } else if (Object.keys(preparedMaps).length) {
-          setTopics(Object.keys(preparedMaps));
-        }
-
-        setMindMapError(null);
-      } catch (error) {
-        if (!cancelled && error.name !== "AbortError") {
-          setMindMapError(error.message || "마인드맵을 불러오지 못했습니다.");
-        }
-      } finally {
-        if (!cancelled) {
-          setIsTopicsLoading(false);
-        }
-      }
-    };
-
-    loadTopics();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!topics.length) {
-      if (selectedTopic) {
-        setSelectedTopic("");
-      }
-      return;
-    }
-
-    if (!selectedTopic || !topics.includes(selectedTopic)) {
-      setSelectedTopic(topics[0]);
-    }
-  }, [topics, selectedTopic]);
-
-  useEffect(() => {
-    if (!selectedTopic || loadedTopicsRef.current.has(selectedTopic)) {
-      return undefined;
-    }
-
-    let cancelled = false;
-    const controller = new AbortController();
-
-    const loadMindMap = async () => {
-      setIsMindMapLoading(true);
-      setMindMapError(null);
-
-      try {
-        const response = await fetch(`/api/mindmaps/${encodeURIComponent(selectedTopic)}`, {
-          signal: controller.signal
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to load mind map (${response.status})`);
-        }
-
-        const payload = await response.json();
-        if (cancelled) {
-          return;
-        }
-
-        const normalized = normalizeMindmapPayload(payload, selectedTopic);
-
-        if (normalized && normalized.overview && normalized.branches) {
-          setMindMapLibrary((prev) => ({ ...prev, [selectedTopic]: normalized }));
-          loadedTopicsRef.current.add(selectedTopic);
-        }
-      } catch (error) {
-        if (!cancelled && error.name !== "AbortError") {
-          setMindMapError(error.message || "마인드맵을 불러오지 못했습니다.");
-        }
-      } finally {
-        if (!cancelled) {
-          setIsMindMapLoading(false);
-        }
-      }
-    };
-
-    loadMindMap();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [selectedTopic]);
-
-  const selectedMindMap = selectedTopic ? mindMapLibrary[selectedTopic] : undefined;
+  const selectedMindMap = selectedTopic ? mockMindMaps[selectedTopic] : undefined;
 
   useEffect(() => {
     if (selectedMindMap) {
@@ -1723,8 +1255,6 @@ function LearnPage() {
   }, []);
 
   const graphNodes = interactiveNodes;
-  const showLoadingState = (isTopicsLoading || isMindMapLoading) && !graphNodes.length;
-  const showErrorState = mindMapError && !graphNodes.length;
 
   return (
     <Page>
@@ -1741,7 +1271,7 @@ function LearnPage() {
               id="topic-select"
               value={selectedTopic}
               onChange={(event) => setSelectedTopic(event.target.value)}
-              disabled={!topics.length && isTopicsLoading}
+              disabled={!topics.length}
             >
               {topics.length ? (
                 topics.map((topic) => (
@@ -1750,11 +1280,10 @@ function LearnPage() {
                   </option>
                 ))
               ) : (
-                <option value="">주제를 불러오는 중입니다…</option>
+                <option value="">준비된 주제가 없습니다.</option>
               )}
             </Select>
           </Controls>
-          {mindMapError ? <ErrorNote>{mindMapError}</ErrorNote> : null}
         </Header>
 
         {selectedMindMap ? (
@@ -1776,10 +1305,6 @@ function LearnPage() {
                       onNodeSelect={handleNodeClick}
                       onNodePositionChange={handleNodePositionChange}
                     />
-                  ) : showLoadingState ? (
-                    <EmptyState>마인드맵을 불러오는 중입니다…</EmptyState>
-                  ) : showErrorState ? (
-                    <EmptyState>마인드맵을 불러오지 못했습니다.</EmptyState>
                   ) : (
                     <EmptyState>선택한 주제의 마인드맵을 준비하고 있습니다.</EmptyState>
                   )}
@@ -1805,11 +1330,7 @@ function LearnPage() {
           </>
         ) : (
           <GraphShell>
-            {showLoadingState ? (
-              <EmptyState>마인드맵을 불러오는 중입니다…</EmptyState>
-            ) : (
-              <EmptyState>선택된 주제의 데이터를 불러올 수 없습니다.</EmptyState>
-            )}
+            <EmptyState>선택된 주제의 데이터를 불러올 수 없습니다.</EmptyState>
           </GraphShell>
         )}
       </Content>
