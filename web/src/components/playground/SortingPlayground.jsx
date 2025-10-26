@@ -13,6 +13,12 @@ const SORTING_ALGORITHMS = {
       "정렬된 부분에 새로운 값을 끼워 넣는 방식으로 동작합니다. 작은 입력에서 효율적입니다.",
     generator: insertionSortSteps,
   },
+  merge: {
+    name: "Merge Sort",
+    description:
+      "배열을 반으로 나누고 정렬된 부분 배열을 병합하는 분할 정복 정렬입니다. 시간 복잡도는 O(n log n)입니다.",
+    generator: mergeSortSteps,
+  },
   quick: {
     name: "Quick Sort",
     description:
@@ -51,6 +57,8 @@ const SortingPlayground = () => {
     comparing: [],
     swapped: false,
     pivotIndex: null,
+    leftPointer: null,
+    rightPointer: null,
   };
 
   const maxValue = Math.max(...frame.array, 1);
@@ -156,7 +164,27 @@ const SortingPlayground = () => {
             </button>
           </div>
 
-          <div className="relative mt-6 flex h-64 items-end gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 pb-4">
+          <div className="relative mt-6 flex h-64 items-end gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 pb-4 pt-14">
+            {typeof frame.leftPointer === "number" && (
+              <PointerIndicator
+                label="L"
+                color="sky"
+                positionPercent={((frame.leftPointer + 0.5) / frame.array.length) * 100}
+                verticalOffset={4}
+              />
+            )}
+            {typeof frame.rightPointer === "number" && (
+              <PointerIndicator
+                label="R"
+                color="rose"
+                positionPercent={((frame.rightPointer + 0.5) / frame.array.length) * 100}
+                verticalOffset={
+                  typeof frame.leftPointer === "number" && frame.rightPointer === frame.leftPointer
+                    ? 36
+                    : 4
+                }
+              />
+            )}
             {frame.array.map((value, index) => {
               const heightPercent = Math.max((value / maxValue) * 100, 8);
               const isComparing = frame.comparing?.includes(index);
@@ -172,7 +200,7 @@ const SortingPlayground = () => {
               return (
                 <div
                   key={index}
-                  className="flex h-full min-w-[24px] flex-1 flex-col items-center"
+                  className="relative flex h-full min-w-[24px] flex-1 flex-col items-center"
                 >
                   <div className="flex w-full flex-1 flex-col justify-end">
                     <div
@@ -327,21 +355,21 @@ function quickSortSteps(initialArray) {
   function partition(low, high) {
     const pivot = arr[high];
     let i = low;
-    steps.push(createSortingFrame(arr, [low, high], false, high));
+    steps.push(createSortingFrame(arr, [low, high], false, high, i, high));
 
     for (let j = low; j < high; j += 1) {
-      steps.push(createSortingFrame(arr, [j, high], false, high));
+      steps.push(createSortingFrame(arr, [j, high], false, high, i, j));
       if (arr[j] < pivot) {
         if (i !== j) {
           [arr[i], arr[j]] = [arr[j], arr[i]];
-          steps.push(createSortingFrame(arr, [i, j], true, high));
+          steps.push(createSortingFrame(arr, [i, j], true, high, i, j));
         }
         i += 1;
       }
     }
 
     [arr[i], arr[high]] = [arr[high], arr[i]];
-    steps.push(createSortingFrame(arr, [i, high], true, i));
+    steps.push(createSortingFrame(arr, [i, high], true, i, i, high));
     return i;
   }
 
@@ -360,12 +388,110 @@ function quickSortSteps(initialArray) {
   return steps;
 }
 
-function createSortingFrame(array, comparing = [], swapped = false, pivotIndex = null) {
+function mergeSortSteps(initialArray) {
+  const arr = [...initialArray];
+  const temp = Array(arr.length).fill(0);
+  const steps = [createSortingFrame(arr)];
+
+  function merge(left, mid, right) {
+    let i = left;
+    let j = mid + 1;
+    let k = left;
+
+    while (i <= mid && j <= right) {
+      steps.push(createSortingFrame(arr, [i, j], false, null, i, j));
+      if (arr[i] <= arr[j]) {
+        temp[k] = arr[i];
+        i += 1;
+      } else {
+        temp[k] = arr[j];
+        j += 1;
+      }
+      k += 1;
+    }
+
+    while (i <= mid) {
+      steps.push(createSortingFrame(arr, [i], false, null, i, null));
+      temp[k] = arr[i];
+      i += 1;
+      k += 1;
+    }
+
+    while (j <= right) {
+      steps.push(createSortingFrame(arr, [j], false, null, null, j));
+      temp[k] = arr[j];
+      j += 1;
+      k += 1;
+    }
+
+    for (let index = left; index <= right; index += 1) {
+      arr[index] = temp[index];
+      steps.push(createSortingFrame(arr, [index], true, null, left, right));
+    }
+  }
+
+  function mergeSort(left, right) {
+    if (left >= right) {
+      return;
+    }
+
+    const mid = Math.floor((left + right) / 2);
+    mergeSort(left, mid);
+    mergeSort(mid + 1, right);
+    merge(left, mid, right);
+  }
+
+  mergeSort(0, arr.length - 1);
+  steps.push(createSortingFrame(arr));
+  return steps;
+}
+
+function PointerIndicator({ label, color, positionPercent, verticalOffset }) {
+  const baseColorClasses =
+    color === "sky"
+      ? {
+          badge: "border-sky-300 bg-sky-50 text-sky-600",
+          arrow: "text-sky-500",
+        }
+      : {
+          badge: "border-rose-300 bg-rose-50 text-rose-600",
+          arrow: "text-rose-500",
+        };
+
+  return (
+    <div
+      className="pointer-events-none absolute z-10 flex -translate-x-1/2 flex-col items-center"
+      style={{
+        left: `${positionPercent}%`,
+        top: `${verticalOffset}px`,
+        transition: "left 0.3s ease, top 0.3s ease",
+      }}
+    >
+      <span
+        className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none ${baseColorClasses.badge}`}
+      >
+        {label}
+      </span>
+      <span className={`mt-1 text-lg leading-none ${baseColorClasses.arrow}`}>▼</span>
+    </div>
+  );
+}
+
+function createSortingFrame(
+  array,
+  comparing = [],
+  swapped = false,
+  pivotIndex = null,
+  leftPointer = null,
+  rightPointer = null,
+) {
   return {
     array: [...array],
     comparing,
     swapped,
     pivotIndex,
+    leftPointer,
+    rightPointer,
   };
 }
 
