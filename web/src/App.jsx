@@ -9,6 +9,7 @@ import SearchPage from "./pages/SearchPage.jsx";
 import ChatPage from "./pages/ChatPage.jsx";
 import PlaygroundPage from "./pages/PlaygroundPage.jsx";
 import RankingPage from "./pages/RankingPage.jsx";
+import AuthModal from "./components/AuthModal.jsx";
 import { auth } from "./firebase/firebase.js";
 import { useAppStore } from "./context/store.js";
 
@@ -34,6 +35,7 @@ function App() {
         <Route path="/ranking" element={<RankingPage />} />
         {/* Learn : 채팅 ui 상대: ai/ 배경 */}``
       </Routes>
+      <AuthModal />
     </BrowserRouter>
   );
 }
