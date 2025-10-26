@@ -209,7 +209,7 @@ const PointerPlayground = () => {
                 />
                 <button
                   type="button"
-                  className="rounded-lg bg-sky-500 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600"
+                  className="rounded-lg bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-600"
                   onClick={handleWriteThroughPointer}
                 >
                   저장
@@ -326,12 +326,12 @@ const PointerMemoryBoard = ({ cells, activeCellId }) => (
             key={cell.id}
             className={`relative rounded-2xl border p-4 transition ${
               isActive
-                ? "border-sky-400 bg-sky-50 shadow-lg ring-2 ring-sky-200"
+                ? "border-sky-400 bg-blue-50 shadow-lg ring-2 ring-sky-200"
                 : "border-slate-200 bg-white shadow-sm"
             }`}
           >
             {isActive && (
-              <span className="absolute -top-3 left-4 rounded-full bg-sky-500 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-md">
+              <span className="absolute -top-3 left-4 rounded-full bg-blue-500 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-md">
                 ptr
               </span>
             )}

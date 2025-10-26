@@ -166,7 +166,7 @@ const CryptoPlayground = () => {
             <button
               type="button"
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
-                mode === "hash" ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-700"
+                mode === "hash" ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-700"
               }`}
               onClick={() => setMode("hash")}
             >
@@ -175,7 +175,7 @@ const CryptoPlayground = () => {
             <button
               type="button"
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
-                mode === "encrypt" ? "bg-sky-500 text-white" : "bg-slate-200 text-slate-700"
+                mode === "encrypt" ? "bg-blue-500 text-white" : "bg-slate-200 text-slate-700"
               }`}
               onClick={() => setMode("encrypt")}
             >

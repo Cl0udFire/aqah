@@ -532,7 +532,7 @@ const GraphPlayground = () => {
           </div>
 
           {algorithm === "kruskal" && (
-            <p className="rounded-lg border border-dashed border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-700">
+            <p className="rounded-lg border border-dashed border-sky-200 bg-blue-50 px-3 py-2 text-xs text-sky-700">
               크루스칼 알고리즘은 전체 그래프에서 최소 신장 트리를 구성하므로 시작/목표 노드 선택은 사용되지 않습니다.
             </p>
           )}
@@ -543,7 +543,7 @@ const GraphPlayground = () => {
               <button
                 type="button"
                 className={`rounded-full px-3 py-1 text-xs font-semibold text-white transition ${
-                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-sky-500 hover:bg-sky-600"
+                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-blue-500 hover:bg-blue-600"
                 }`}
                 onClick={() => setIsPlaying((prev) => !prev)}
                 disabled={steps.length <= 1}

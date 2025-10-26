@@ -338,7 +338,7 @@ const StepCard = ({ step, index, active }) => {
     <article
       className={`rounded-xl border p-4 transition-colors ${
         active
-          ? "border-sky-400 bg-sky-50 shadow-sm"
+          ? "border-sky-400 bg-blue-50 shadow-sm"
           : "border-slate-200 bg-white"
       }`}
     >
@@ -391,7 +391,7 @@ const StepTimeline = ({ steps, activeIndex }) => (
         key={`${step.layer.id}-${step.action}-timeline`}
         className={`rounded-full border px-3 py-1 ${
           index === activeIndex
-            ? "border-sky-400 bg-sky-50 text-sky-600"
+            ? "border-sky-400 bg-blue-50 text-sky-600"
             : "border-slate-200 bg-white"
         }`}
       >
@@ -614,7 +614,7 @@ const OSIPlayground = () => {
               <button
                 className={`rounded-full px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
                   direction === "forward"
-                    ? "bg-sky-500 text-white"
+                    ? "bg-blue-500 text-white"
                     : "bg-white text-slate-700 hover:bg-slate-200"
                 }`}
                 onClick={() => handleToggleDirection("forward")}
@@ -624,7 +624,7 @@ const OSIPlayground = () => {
               <button
                 className={`rounded-full px-3 py-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
                   direction === "return"
-                    ? "bg-sky-500 text-white"
+                    ? "bg-blue-500 text-white"
                     : "bg-white text-slate-700 hover:bg-slate-200"
                 }`}
                 onClick={() => handleToggleDirection("return")}
@@ -636,7 +636,7 @@ const OSIPlayground = () => {
               <button
                 type="button"
                 className={`rounded-full px-3 py-1 text-xs font-semibold text-white transition ${
-                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-sky-500 hover:bg-sky-600"
+                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-blue-500 hover:bg-blue-600"
                 }`}
                 onClick={() => setIsPlaying((prev) => !prev)}
                 disabled={activeSteps.length <= 1}
@@ -685,7 +685,7 @@ const ToggleControl = ({ label, description, enabled, onToggle, disabled }) => (
   <button
     type="button"
     className={`flex w-full items-start justify-between rounded-xl border px-3 py-2 text-left text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
-      enabled ? "border-sky-300 bg-sky-50" : "border-slate-200 bg-white"
+      enabled ? "border-sky-300 bg-blue-50" : "border-slate-200 bg-white"
     } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
     onClick={onToggle}
     disabled={disabled}
@@ -696,7 +696,7 @@ const ToggleControl = ({ label, description, enabled, onToggle, disabled }) => (
     </span>
     <span
       className={`mt-1 inline-flex h-5 w-9 items-center rounded-full border ${
-        enabled ? "border-sky-400 bg-sky-500" : "border-slate-300 bg-slate-200"
+        enabled ? "border-sky-400 bg-blue-500" : "border-slate-300 bg-slate-200"
       }`}
     >
       <span

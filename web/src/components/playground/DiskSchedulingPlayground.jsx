@@ -100,7 +100,7 @@ const DiskSchedulingPlayground = () => {
               key={key}
               className={`rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
                 key === algorithmKey
-                  ? "bg-sky-500 text-white"
+                  ? "bg-blue-500 text-white"
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"
               }`}
               onClick={() => setAlgorithmKey(key)}
@@ -175,7 +175,7 @@ const DiskSchedulingPlayground = () => {
                     type="button"
                     className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
                       direction === option.value
-                        ? "border-sky-400 bg-sky-50 text-sky-700"
+                        ? "border-sky-400 bg-blue-50 text-sky-700"
                         : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-100"
                     }`}
                     onClick={() => setDirection(option.value)}
@@ -332,7 +332,7 @@ const DiskSchedulingPlayground = () => {
             <button
               type="button"
               className={`rounded-lg px-3 py-2 text-sm font-semibold text-white transition ${
-                isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-sky-500 hover:bg-sky-600"
+                isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-blue-500 hover:bg-blue-600"
               }`}
               onClick={() => setIsPlaying((prev) => !prev)}
               disabled={frames.length <= 1}

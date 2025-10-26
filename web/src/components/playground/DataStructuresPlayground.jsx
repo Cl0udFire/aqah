@@ -397,7 +397,7 @@ const DataStructuresPlayground = () => {
               <button
                 type="button"
                 className={`rounded-full px-3 py-1 text-xs font-semibold text-white transition ${
-                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-sky-500 hover:bg-sky-600"
+                  isPlaying ? "bg-rose-500 hover:bg-rose-600" : "bg-blue-500 hover:bg-blue-600"
                 }`}
                 onClick={() => setIsPlaying((prev) => !prev)}
                 disabled={steps.length <= 1}

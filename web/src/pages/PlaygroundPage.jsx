@@ -78,7 +78,7 @@ const PlaygroundPage = () => {
                 key={section.id}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 ${
                   activeSection === section.id
-                    ? "bg-sky-500 text-white"
+                    ? "bg-blue-500 text-white"
                     : "bg-white text-slate-700 hover:bg-slate-200"
                 }`}
                 onClick={() => setActiveSection(section.id)}
