@@ -441,6 +441,9 @@ const GraphViewport = styled.div`
 const MindmapSvg = styled.svg`
   width: 100%;
   height: 100%;
+  cursor: ${(props) => (props.$isPanning ? "grabbing" : "grab")};
+  touch-action: none;
+  user-select: none;
 `;
 
 const EmptyState = styled.div`
@@ -605,16 +608,94 @@ function useContainerSize() {
 }
 
 function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect }) {
+  const decoratedNodes = useMemo(() => {
+    return nodes.map((node) => {
+      const labelLines = wrapText(node.label, node.text.maxChars, 1);
+      const contextLines = wrapText(node.context, node.text.maxChars, node.text.maxLines);
+      const labelLineHeight = node.type === "root" ? 22 : node.type === "branch" ? 20 : 18;
+      const contextLineHeight = node.type === "root" ? 18.5 : 17.5;
+      const gap = labelLines.length && contextLines.length ? 10 : 0;
+      const totalLabelHeight = labelLines.length * labelLineHeight;
+      const totalContextHeight = contextLines.length * contextLineHeight;
+      const blockHeight = totalLabelHeight + totalContextHeight + gap;
+      const alignCenter = node.text.baseline === "middle";
+      const labelStartY = alignCenter ? -blockHeight / 2 : 0;
+      const contextStartY = labelStartY + totalLabelHeight + gap;
+      const labelPositions = labelLines.map((_, index) => labelStartY + index * labelLineHeight);
+      const contextPositions = contextLines.map(
+        (_, index) => contextStartY + index * contextLineHeight
+      );
+
+      const labelFontSize = node.fontSize;
+      const contextFontSize = node.type === "root" ? 13 : node.type === "branch" ? 12.5 : 12;
+      const estimatedLabelWidth = labelLines.reduce(
+        (max, line) => Math.max(max, line.length * labelFontSize * 0.64),
+        0
+      );
+      const estimatedContextWidth = contextLines.reduce(
+        (max, line) => Math.max(max, line.length * contextFontSize * 0.62),
+        0
+      );
+      const textWidth = Math.max(estimatedLabelWidth, estimatedContextWidth);
+
+      const anchorX = node.x + node.text.offsetX;
+      let textLeft = anchorX;
+      let textRight = anchorX;
+      if (node.text.anchor === "start") {
+        textRight += textWidth;
+      } else if (node.text.anchor === "end") {
+        textLeft -= textWidth;
+      } else {
+        textLeft -= textWidth / 2;
+        textRight += textWidth / 2;
+      }
+
+      const hasLabel = labelLines.length > 0;
+      const hasContext = contextLines.length > 0;
+      const textTopOffset = hasLabel ? labelStartY : hasContext ? contextStartY : 0;
+      const textBottomOffset = hasContext
+        ? contextStartY + totalContextHeight
+        : hasLabel
+        ? labelStartY + totalLabelHeight
+        : 0;
+
+      const textTop = node.y + node.text.offsetY + textTopOffset - 6;
+      const textBottom = node.y + node.text.offsetY + textBottomOffset + 10;
+
+      const bounds = {
+        left: Math.min(node.x - node.radius, textLeft - 12),
+        right: Math.max(node.x + node.radius, textRight + 12),
+        top: Math.min(node.y - node.radius, textTop),
+        bottom: Math.max(node.y + node.radius, textBottom)
+      };
+
+      return {
+        ...node,
+        labelLines,
+        contextLines,
+        textLayout: {
+          labelPositions,
+          contextPositions,
+          labelLineHeight,
+          contextLineHeight,
+          contextFontSize,
+          textWidth
+        },
+        bounds
+      };
+    });
+  }, [nodes]);
+
   const nodesById = useMemo(() => {
-    return nodes.reduce((acc, node) => {
+    return decoratedNodes.reduce((acc, node) => {
       acc[node.id] = node;
       return acc;
     }, {});
-  }, [nodes]);
+  }, [decoratedNodes]);
 
   const adjacency = useMemo(() => {
     const map = new Map();
-    nodes.forEach((node) => {
+    decoratedNodes.forEach((node) => {
       map.set(node.id, new Set());
     });
 
@@ -628,7 +709,7 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
     });
 
     return map;
-  }, [links, nodes]);
+  }, [links, decoratedNodes]);
 
   const relatedNodes = useMemo(() => {
     if (!activeNodeId || !adjacency.size) {
@@ -660,10 +741,214 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
     return visited;
   }, [activeNodeId, adjacency]);
 
-  const viewBox = `0 0 ${Math.max(width, 1)} ${Math.max(height, 1)}`;
+  const contentBounds = useMemo(() => {
+    if (!decoratedNodes.length) {
+      return {
+        minX: 0,
+        maxX: Math.max(width, 1),
+        minY: 0,
+        maxY: Math.max(height, 1)
+      };
+    }
+
+    return decoratedNodes.reduce(
+      (acc, node) => ({
+        minX: Math.min(acc.minX, node.bounds.left),
+        maxX: Math.max(acc.maxX, node.bounds.right),
+        minY: Math.min(acc.minY, node.bounds.top),
+        maxY: Math.max(acc.maxY, node.bounds.bottom)
+      }),
+      {
+        minX: Infinity,
+        maxX: -Infinity,
+        minY: Infinity,
+        maxY: -Infinity
+      }
+    );
+  }, [decoratedNodes, height, width]);
+
+  const baseViewBox = useMemo(() => {
+    const paddingX = 56;
+    const paddingY = 56;
+    const minX = Number.isFinite(contentBounds.minX) ? contentBounds.minX : 0;
+    const maxX = Number.isFinite(contentBounds.maxX) ? contentBounds.maxX : Math.max(width, 1);
+    const minY = Number.isFinite(contentBounds.minY) ? contentBounds.minY : 0;
+    const maxY = Number.isFinite(contentBounds.maxY) ? contentBounds.maxY : Math.max(height, 1);
+    const baseWidth = Math.max(maxX - minX, 1);
+    const baseHeight = Math.max(maxY - minY, 1);
+
+    return {
+      x: minX - paddingX,
+      y: minY - paddingY,
+      width: baseWidth + paddingX * 2,
+      height: baseHeight + paddingY * 2
+    };
+  }, [contentBounds, height, width]);
+
+  const baseViewBoxRef = useRef(baseViewBox);
+  const [viewBox, setViewBox] = useState(baseViewBox);
+  const svgRef = useRef(null);
+  const pointerRef = useRef(null);
+  const [isPanning, setIsPanning] = useState(false);
+
+  useEffect(() => {
+    baseViewBoxRef.current = baseViewBox;
+    setViewBox(baseViewBox);
+  }, [baseViewBox]);
+
+  const getSvgPoint = useCallback((event, vb) => {
+    const svg = svgRef.current;
+    if (!svg) {
+      return null;
+    }
+
+    const rect = svg.getBoundingClientRect();
+    if (!rect.width || !rect.height) {
+      return null;
+    }
+
+    const xRatio = (event.clientX - rect.left) / rect.width;
+    const yRatio = (event.clientY - rect.top) / rect.height;
+
+    return {
+      x: vb.x + vb.width * xRatio,
+      y: vb.y + vb.height * yRatio
+    };
+  }, []);
+
+  const handlePointerDown = useCallback(
+    (event) => {
+      if (decoratedNodes.length === 0) {
+        return;
+      }
+
+      if (event.button !== 0 && event.pointerType !== "touch" && event.pointerType !== "pen") {
+        return;
+      }
+
+      if (event.target.closest('[data-node="true"]')) {
+        return;
+      }
+
+      const point = getSvgPoint(event, viewBox);
+      if (!point) {
+        return;
+      }
+
+      const svg = svgRef.current;
+      svg?.setPointerCapture(event.pointerId);
+      pointerRef.current = {
+        pointerId: event.pointerId,
+        lastPoint: point
+      };
+      setIsPanning(true);
+    },
+    [decoratedNodes.length, getSvgPoint, viewBox]
+  );
+
+  const handlePointerMove = useCallback(
+    (event) => {
+      const pointerState = pointerRef.current;
+      if (!pointerState || pointerState.pointerId !== event.pointerId) {
+        return;
+      }
+
+      event.preventDefault();
+
+      setViewBox((prev) => {
+        const point = getSvgPoint(event, prev);
+        if (!point) {
+          return prev;
+        }
+
+        const deltaX = point.x - pointerState.lastPoint.x;
+        const deltaY = point.y - pointerState.lastPoint.y;
+
+        pointerState.lastPoint = point;
+
+        return {
+          ...prev,
+          x: prev.x - deltaX,
+          y: prev.y - deltaY
+        };
+      });
+    },
+    [getSvgPoint]
+  );
+
+  const endPan = useCallback((event) => {
+    const pointerState = pointerRef.current;
+    if (!pointerState) {
+      return;
+    }
+
+    if (!event || pointerState.pointerId === event.pointerId) {
+      const svg = svgRef.current;
+      if (svg && event) {
+        svg.releasePointerCapture(event.pointerId);
+      }
+      pointerRef.current = null;
+      setIsPanning(false);
+    }
+  }, []);
+
+  const handleWheel = useCallback(
+    (event) => {
+      if (decoratedNodes.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const base = baseViewBoxRef.current;
+      if (!base) {
+        return;
+      }
+
+      setViewBox((prev) => {
+        const point = getSvgPoint(event, prev);
+        if (!point) {
+          return prev;
+        }
+
+        const baseWidth = base.width;
+        const baseHeight = base.height;
+        const minScale = 0.7;
+        const maxScale = 2.5;
+        const currentScale = baseWidth / prev.width;
+        const scaleDelta = event.deltaY < 0 ? 1.12 : 0.88;
+        const nextScale = Math.min(Math.max(currentScale * scaleDelta, minScale), maxScale);
+        const newWidth = baseWidth / nextScale;
+        const newHeight = baseHeight / nextScale;
+        const ratio = newWidth / prev.width;
+
+        return {
+          width: newWidth,
+          height: newHeight,
+          x: point.x - (point.x - prev.x) * ratio,
+          y: point.y - (point.y - prev.y) * ratio
+        };
+      });
+    },
+    [decoratedNodes.length, getSvgPoint]
+  );
+
+  const currentViewBox = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`;
+  const backgroundBox = baseViewBoxRef.current ?? viewBox;
 
   return (
-    <MindmapSvg viewBox={viewBox} preserveAspectRatio="xMidYMid meet">
+    <MindmapSvg
+      ref={svgRef}
+      viewBox={currentViewBox}
+      preserveAspectRatio="xMidYMid meet"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={endPan}
+      onPointerLeave={endPan}
+      onPointerCancel={endPan}
+      onWheel={handleWheel}
+      $isPanning={isPanning}
+    >
       <defs>
         <radialGradient id="mindmap-glow" cx="50%" cy="45%" r="65%">
           <stop offset="0%" stopColor="rgba(59, 130, 246, 0.18)" />
@@ -671,7 +956,15 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
         </radialGradient>
       </defs>
 
-      <rect width={width} height={height} fill="url(#mindmap-glow)" opacity={0.45} />
+      <rect
+        x={backgroundBox.x}
+        y={backgroundBox.y}
+        width={backgroundBox.width}
+        height={backgroundBox.height}
+        fill="url(#mindmap-glow)"
+        opacity={0.45}
+        data-pan-surface
+      />
 
       {links.map((link) => {
         const source = nodesById[link.source];
@@ -700,24 +993,20 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
         );
       })}
 
-      {nodes.map((node) => {
+      {decoratedNodes.map((node) => {
         const isActive = node.id === activeNodeId;
         const isDimmed = relatedNodes.size > 0 && !relatedNodes.has(node.id);
         const circleOpacity = isDimmed ? (node.opacity ?? 0.5) : node.opacity ?? 0.92;
         const radius = isActive ? node.radius + 4 : node.radius;
-        const textAnchor = node.text.anchor;
-        const labelLines = wrapText(node.label, node.text.maxChars, 1);
-        const contextLines = wrapText(
-          node.context,
-          node.text.maxChars,
-          node.text.maxLines
-        );
         const labelColor = isActive ? node.color : "#0f172a";
-        const contextColor = isActive ? hexToRgba(node.color, 0.9) : "rgba(71, 85, 105, 0.88)";
+        const contextColor = isActive
+          ? hexToRgba(node.color, 0.9)
+          : "rgba(71, 85, 105, 0.88)";
 
         return (
           <g
             key={node.id}
+            data-node="true"
             onClick={() => onNodeSelect(node.id)}
             role="button"
             tabIndex={0}
@@ -748,11 +1037,13 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
               transform={`translate(${node.x + node.text.offsetX}, ${node.y + node.text.offsetY})`}
               style={{ pointerEvents: "none" }}
             >
-              {labelLines.map((line, index) => (
+              {node.labelLines.map((line, index) => (
                 <text
                   key={`${node.id}-label-${index}`}
-                  textAnchor={textAnchor}
-                  dominantBaseline={node.text.baseline}
+                  x={0}
+                  y={node.textLayout.labelPositions[index]}
+                  textAnchor={node.text.anchor}
+                  dominantBaseline="hanging"
                   fontSize={node.fontSize}
                   fontWeight={node.type === "subtopic" ? 600 : 700}
                   fill={labelColor}
@@ -762,14 +1053,14 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
                 </text>
               ))}
 
-              {contextLines.map((line, index) => (
+              {node.contextLines.map((line, index) => (
                 <text
                   key={`${node.id}-context-${index}`}
                   x={0}
-                  y={(index + 1) * 18}
-                  textAnchor={textAnchor}
+                  y={node.textLayout.contextPositions[index]}
+                  textAnchor={node.text.anchor}
                   dominantBaseline="hanging"
-                  fontSize={node.type === "root" ? 13 : node.type === "branch" ? 12.5 : 12}
+                  fontSize={node.textLayout.contextFontSize}
                   fontWeight={400}
                   fill={contextColor}
                   style={{ transition: "fill 0.3s ease", letterSpacing: "0.01em" }}
