@@ -538,6 +538,37 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function hexToRgb(hex) {
+  const sanitized = hex.replace("#", "");
+  if (sanitized.length !== 6) {
+    return { r: 59, g: 130, b: 246 };
+  }
+
+  const bigint = parseInt(sanitized, 16);
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255
+  };
+}
+
+function getReadableTextColors(background) {
+  const { r, g, b } = hexToRgb(background);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  if (luminance > 0.62) {
+    return {
+      primary: "#0f172a",
+      secondary: "rgba(15, 23, 42, 0.72)"
+    };
+  }
+
+  return {
+    primary: "#f8fafc",
+    secondary: "rgba(241, 245, 249, 0.82)"
+  };
+}
+
 function wrapText(text, maxChars, maxLines) {
   if (!text) {
     return [];
@@ -573,17 +604,38 @@ function wrapText(text, maxChars, maxLines) {
   return lines;
 }
 
+function getNodeEdgePoint(node, angle) {
+  if (node.shape === "rounded-rect") {
+    const halfWidth = node.shapeWidth / 2;
+    const halfHeight = node.shapeHeight / 2;
+    const dx = Math.cos(angle);
+    const dy = Math.sin(angle);
+    const tx = dx === 0 ? Infinity : halfWidth / Math.abs(dx);
+    const ty = dy === 0 ? Infinity : halfHeight / Math.abs(dy);
+    const t = Math.min(tx, ty);
+
+    return {
+      x: node.x + dx * t,
+      y: node.y + dy * t
+    };
+  }
+
+  const radius = node.visualRadius ?? node.radius;
+  return {
+    x: node.x + Math.cos(angle) * radius,
+    y: node.y + Math.sin(angle) * radius
+  };
+}
+
 function createLinkPath(source, target) {
   const angle = Math.atan2(target.y - source.y, target.x - source.x);
-  const sourceX = source.x + Math.cos(angle) * source.radius;
-  const sourceY = source.y + Math.sin(angle) * source.radius;
-  const targetX = target.x - Math.cos(angle) * target.radius;
-  const targetY = target.y - Math.sin(angle) * target.radius;
+  const sourcePoint = getNodeEdgePoint(source, angle);
+  const targetPoint = getNodeEdgePoint(target, angle + Math.PI);
 
-  const midX = (sourceX + targetX) / 2;
-  const midY = (sourceY + targetY) / 2;
-  const dx = targetX - sourceX;
-  const dy = targetY - sourceY;
+  const midX = (sourcePoint.x + targetPoint.x) / 2;
+  const midY = (sourcePoint.y + targetPoint.y) / 2;
+  const dx = targetPoint.x - sourcePoint.x;
+  const dy = targetPoint.y - sourcePoint.y;
   const distance = Math.sqrt(dx * dx + dy * dy) || 1;
   const curveStrength = Math.min(0.35, 60 / distance);
   const normalX = -dy * curveStrength;
@@ -591,7 +643,7 @@ function createLinkPath(source, target) {
   const controlX = midX + normalX;
   const controlY = midY + normalY;
 
-  return `M ${sourceX} ${sourceY} Q ${controlX} ${controlY} ${targetX} ${targetY}`;
+  return `M ${sourcePoint.x} ${sourcePoint.y} Q ${controlX} ${controlY} ${targetPoint.x} ${targetPoint.y}`;
 }
 
 function useContainerSize() {
@@ -636,10 +688,12 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       const alignCenter = node.text.baseline === "middle";
       const labelStartY = alignCenter ? -blockHeight / 2 : 0;
       const contextStartY = labelStartY + totalLabelHeight + gap;
-      const labelPositions = labelLines.map((_, index) => labelStartY + index * labelLineHeight);
-      const contextPositions = contextLines.map(
-        (_, index) => contextStartY + index * contextLineHeight
-      );
+      const createPositions = (lines, start, lineHeight) =>
+        alignCenter
+          ? lines.map((_, index) => start + lineHeight * (index + 0.5))
+          : lines.map((_, index) => start + index * lineHeight);
+      const labelPositions = createPositions(labelLines, labelStartY, labelLineHeight);
+      const contextPositions = createPositions(contextLines, contextStartY, contextLineHeight);
 
       const labelFontSize = node.fontSize;
       const contextFontSize = node.type === "root" ? 13 : node.type === "branch" ? 12.5 : 12;
@@ -653,36 +707,51 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       );
       const textWidth = Math.max(estimatedLabelWidth, estimatedContextWidth);
 
-      const anchorX = node.x + node.text.offsetX;
-      let textLeft = anchorX;
-      let textRight = anchorX;
-      if (node.text.anchor === "start") {
-        textRight += textWidth;
-      } else if (node.text.anchor === "end") {
-        textLeft -= textWidth;
-      } else {
-        textLeft -= textWidth / 2;
-        textRight += textWidth / 2;
-      }
-
       const hasLabel = labelLines.length > 0;
       const hasContext = contextLines.length > 0;
-      const textTopOffset = hasLabel ? labelStartY : hasContext ? contextStartY : 0;
-      const textBottomOffset = hasContext
-        ? contextStartY + totalContextHeight
+      const blockTop = alignCenter
+        ? labelStartY
         : hasLabel
-        ? labelStartY + totalLabelHeight
+        ? labelStartY
+        : hasContext
+        ? contextStartY
         : 0;
+      const blockBottom = blockTop + blockHeight;
 
-      const textTop = node.y + node.text.offsetY + textTopOffset - 6;
-      const textBottom = node.y + node.text.offsetY + textBottomOffset + 10;
+      const paddingX = node.type === "root" ? 28 : node.type === "branch" ? 24 : 20;
+      const paddingY = node.type === "root" ? 24 : node.type === "branch" ? 18 : 16;
+      const baseWidth = Math.max(textWidth + paddingX * 2, node.radius * 2);
+      const baseHeight = Math.max(blockHeight + paddingY * 2, node.radius * 2);
+      const aspectRatio = baseHeight === 0 ? 1 : baseWidth / baseHeight;
 
-      const bounds = {
-        left: Math.min(node.x - node.radius, textLeft - 12),
-        right: Math.max(node.x + node.radius, textRight + 12),
-        top: Math.min(node.y - node.radius, textTop),
-        bottom: Math.max(node.y + node.radius, textBottom)
-      };
+      let shapeType;
+      if (node.shape === "circle") {
+        shapeType = "circle";
+      } else if (node.shape === "rounded-rect") {
+        shapeType = "rounded-rect";
+      } else {
+        shapeType = aspectRatio > 1.2 ? "rounded-rect" : "circle";
+      }
+
+      let shapeWidth = shapeType === "circle" ? Math.max(baseWidth, baseHeight) : baseWidth;
+      let shapeHeight = shapeType === "circle" ? Math.max(baseWidth, baseHeight) : baseHeight;
+      const visualRadius = shapeType === "circle" ? shapeWidth / 2 : Math.max(shapeWidth, shapeHeight) / 2;
+      const cornerRadius = shapeType === "rounded-rect" ? Math.min(26, shapeHeight / 2.2) : 0;
+
+      const bounds =
+        shapeType === "circle"
+          ? {
+              left: node.x - visualRadius,
+              right: node.x + visualRadius,
+              top: node.y - visualRadius,
+              bottom: node.y + visualRadius
+            }
+          : {
+              left: node.x - shapeWidth / 2,
+              right: node.x + shapeWidth / 2,
+              top: node.y - shapeHeight / 2,
+              bottom: node.y + shapeHeight / 2
+            };
 
       return {
         ...node,
@@ -694,8 +763,16 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
           labelLineHeight,
           contextLineHeight,
           contextFontSize,
-          textWidth
+          textWidth,
+          blockTop,
+          blockBottom
         },
+        shape: shapeType,
+        shapeWidth,
+        shapeHeight,
+        visualRadius,
+        cornerRadius,
+        padding: { x: paddingX, y: paddingY },
         bounds
       };
     });
@@ -1011,12 +1088,12 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       {decoratedNodes.map((node) => {
         const isActive = node.id === activeNodeId;
         const isDimmed = relatedNodes.size > 0 && !relatedNodes.has(node.id);
-        const circleOpacity = isDimmed ? (node.opacity ?? 0.5) : node.opacity ?? 0.92;
-        const radius = isActive ? node.radius + 4 : node.radius;
-        const labelColor = isActive ? node.color : "#0f172a";
-        const contextColor = isActive
-          ? hexToRgba(node.color, 0.9)
-          : "rgba(71, 85, 105, 0.88)";
+        const shapeOpacity = isDimmed ? (node.opacity ?? 0.5) : node.opacity ?? 0.92;
+        const { primary: labelColor, secondary: contextColor } = getReadableTextColors(
+          node.color
+        );
+        const isCircle = node.shape === "circle";
+        const activeInset = isActive ? 4 : 0;
 
         return (
           <g
@@ -1032,21 +1109,42 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
               }
             }}
           >
-            <circle
-              cx={node.x}
-              cy={node.y}
-              r={radius}
-              fill={node.color}
-              stroke="#ffffff"
-              strokeWidth={isActive ? 3.5 : 2.4}
-              opacity={circleOpacity}
-              style={{
-                transition: "all 0.3s ease",
-                filter: isActive
-                  ? `drop-shadow(0 18px 38px ${hexToRgba(node.color, 0.45)})`
-                  : "drop-shadow(0 6px 16px rgba(15, 23, 42, 0.12))"
-              }}
-            />
+            {isCircle ? (
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.visualRadius + activeInset}
+                fill={node.color}
+                stroke="#ffffff"
+                strokeWidth={isActive ? 3.2 : 2.4}
+                opacity={shapeOpacity}
+                style={{
+                  transition: "all 0.3s ease",
+                  filter: isActive
+                    ? `drop-shadow(0 18px 38px ${hexToRgba(node.color, 0.45)})`
+                    : "drop-shadow(0 8px 18px rgba(15, 23, 42, 0.18))"
+                }}
+              />
+            ) : (
+              <rect
+                x={node.x - node.shapeWidth / 2 - activeInset}
+                y={node.y - node.shapeHeight / 2 - activeInset}
+                width={node.shapeWidth + activeInset * 2}
+                height={node.shapeHeight + activeInset * 2}
+                rx={Math.min(node.cornerRadius + activeInset, (node.shapeHeight + activeInset * 2) / 2)}
+                ry={Math.min(node.cornerRadius + activeInset, (node.shapeHeight + activeInset * 2) / 2)}
+                fill={node.color}
+                stroke="#ffffff"
+                strokeWidth={isActive ? 3 : 2.2}
+                opacity={shapeOpacity}
+                style={{
+                  transition: "all 0.3s ease",
+                  filter: isActive
+                    ? `drop-shadow(0 20px 44px ${hexToRgba(node.color, 0.38)})`
+                    : "drop-shadow(0 10px 24px rgba(15, 23, 42, 0.16))"
+                }}
+              />
+            )}
 
             <g
               transform={`translate(${node.x + node.text.offsetX}, ${node.y + node.text.offsetY})`}
@@ -1058,7 +1156,7 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
                   x={0}
                   y={node.textLayout.labelPositions[index]}
                   textAnchor={node.text.anchor}
-                  dominantBaseline="hanging"
+                  dominantBaseline="middle"
                   fontSize={node.fontSize}
                   fontWeight={node.type === "subtopic" ? 600 : 700}
                   fill={labelColor}
@@ -1074,7 +1172,7 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
                   x={0}
                   y={node.textLayout.contextPositions[index]}
                   textAnchor={node.text.anchor}
-                  dominantBaseline="hanging"
+                  dominantBaseline="middle"
                   fontSize={node.textLayout.contextFontSize}
                   fontWeight={400}
                   fill={contextColor}
@@ -1150,12 +1248,13 @@ function LearnPage() {
       type: "root",
       x: centerX,
       y: centerY,
+      shape: "circle",
       text: {
         anchor: "middle",
         offsetX: 0,
-        offsetY: rootRadius + 24,
-        baseline: "hanging",
-        maxChars: 30,
+        offsetY: 0,
+        baseline: "middle",
+        maxChars: 16,
         maxLines: 4
       }
     };
@@ -1182,12 +1281,13 @@ function LearnPage() {
         type: "branch",
         x: branchX,
         y: branchY,
+        shape: "auto",
         text: {
-          anchor: isLeft ? "end" : "start",
-          offsetX: (isLeft ? -1 : 1) * (branchRadiusPx + Math.max(78, minDimension * 0.12)),
-          offsetY: -4,
+          anchor: "middle",
+          offsetX: 0,
+          offsetY: 0,
           baseline: "middle",
-          maxChars: 24,
+          maxChars: 16,
           maxLines: 3
         }
       };
@@ -1234,13 +1334,14 @@ function LearnPage() {
           type: "subtopic",
           x: subtopicX,
           y: subtopicY,
+          shape: "auto",
           text: {
-            anchor: isSubLeft ? "end" : "start",
-            offsetX: (isSubLeft ? -1 : 1) * (subtopicRadiusPx + Math.max(54, minDimension * 0.085)),
-            offsetY: -2,
+            anchor: "middle",
+            offsetX: 0,
+            offsetY: 0,
             baseline: "middle",
-            maxChars: 28,
-            maxLines: 2
+            maxChars: 18,
+            maxLines: 3
           }
         };
 
