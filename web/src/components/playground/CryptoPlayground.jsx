@@ -290,12 +290,12 @@ const HashStepsTable = ({ steps }) => (
     <table className="min-w-full divide-y divide-slate-200 text-xs text-slate-600">
       <thead className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
         <tr>
-          <th className="px-3 py-2 text-left">Index</th>
-          <th className="px-3 py-2 text-left">문자</th>
-          <th className="px-3 py-2 text-left">코드</th>
-          <th className="px-3 py-2 text-left">이전 해시</th>
-          <th className="px-3 py-2 text-left">공식</th>
-          <th className="px-3 py-2 text-left">새 해시</th>
+          <th className="px-3 py-2 text-start">Index</th>
+          <th className="px-3 py-2 text-start">문자</th>
+          <th className="px-3 py-2 text-start">코드</th>
+          <th className="px-3 py-2 text-start">이전 해시</th>
+          <th className="px-3 py-2 text-start">공식</th>
+          <th className="px-3 py-2 text-start">새 해시</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-100 bg-white">
@@ -327,8 +327,8 @@ const EncryptionStepsTable = ({ steps }) => (
     <table className="min-w-full divide-y divide-slate-200 text-xs text-slate-600">
       <thead className="bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
         <tr>
-          <th className="px-3 py-2 text-left">Index</th>
-          <th className="px-3 py-2 text-left">변환</th>
+          <th className="px-3 py-2 text-start">Index</th>
+          <th className="px-3 py-2 text-start">변환</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-100 bg-white">

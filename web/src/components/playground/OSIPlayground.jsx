@@ -684,7 +684,7 @@ const OSIPlayground = () => {
 const ToggleControl = ({ label, description, enabled, onToggle, disabled }) => (
   <button
     type="button"
-    className={`flex w-full items-start justify-between rounded-xl border px-3 py-2 text-left text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+    className={`flex w-full items-start justify-between rounded-xl border px-3 py-2 text-start text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
       enabled ? "border-sky-300 bg-blue-50" : "border-slate-200 bg-white"
     } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
     onClick={onToggle}

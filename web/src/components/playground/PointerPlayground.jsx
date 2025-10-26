@@ -273,7 +273,7 @@ const PointerPlayground = () => {
               </div>
               <div className="flex items-center justify-between">
                 <dt>설명</dt>
-                <dd className="text-right text-xs text-slate-500">
+                <dd className="text-end text-xs text-slate-500">
                   {pointerDetails.pointerSummary}
                 </dd>
               </div>
