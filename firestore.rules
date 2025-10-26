@@ -90,7 +90,7 @@ service cloud.firestore {
                              request.resource.data.declinedBy.size() == resource.data.get('declinedBy', []).size() + 1 &&
                              request.resource.data.declinedBy.hasAll(resource.data.get('declinedBy', [])) &&
                              request.resource.data.declinedBy.hasAll([request.auth.uid]) &&
-                             !request.resource.data.keys().hasAny(['assignee']) &&
+                             request.resource.data.get('assignee', null) == null &&
                              resource.data.get('answers', []).size() == 0)
                           ))
                        );
