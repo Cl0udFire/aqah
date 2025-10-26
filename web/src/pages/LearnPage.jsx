@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { Graph } from "react-d3-graph";
 import Topbar from "../components/Topbar";
@@ -257,6 +257,66 @@ const EmptyState = styled.div`
   font-size: 15px;
 `;
 
+const MindmapSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+const DetailPanel = styled.section`
+  padding: 24px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.92));
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #e2e8f0;
+`;
+
+const DetailHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const DetailBadge = styled.span`
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: ${({ accent }) => accent || "#1d4ed8"};
+  color: rgba(15, 23, 42, 0.9);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+`;
+
+const DetailTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 700;
+  color: #f8fafc;
+`;
+
+const DetailDescription = styled.p`
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(226, 232, 240, 0.88);
+`;
+
+const DetailList = styled.ul`
+  margin: 4px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+`;
+
+const DetailItem = styled.li`
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(203, 213, 225, 0.9);
+`;
+
 function useContainerSize() {
   const ref = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -290,66 +350,188 @@ function LearnPage() {
   const [selectedTopic, setSelectedTopic] = useState(topics[0] ?? "");
   const selectedMindMap = mockMindMaps[selectedTopic];
   const [graphRef, graphSize] = useContainerSize();
+  const [activeNodeId, setActiveNodeId] = useState("root");
 
-  const graphData = useMemo(() => {
-    if (!selectedMindMap) {
-      return { nodes: [], links: [] };
+  useEffect(() => {
+    if (selectedMindMap) {
+      setActiveNodeId("root");
+    } else {
+      setActiveNodeId("");
     }
+  }, [selectedMindMap, selectedTopic]);
+
+  const layoutWidth = Math.max(720, graphSize.width || 0);
+  const layoutHeight = Math.max(640, graphSize.height || 0);
+
+  const { data: baseGraphData, detailMap } = useMemo(() => {
+    if (!selectedMindMap) {
+      return {
+        data: { nodes: [], links: [] },
+        detailMap: {}
+      };
+    }
+
+    const centerX = layoutWidth / 2;
+    const centerY = layoutHeight / 2;
+    const minDimension = Math.min(layoutWidth, layoutHeight);
+    const branchRadius = Math.max(220, minDimension * 0.28);
+    const subtopicRadius = branchRadius + Math.max(120, minDimension * 0.18);
+
+    const branchCount = Math.max(selectedMindMap.branches.length, 1);
 
     const nodes = [
       {
         id: "root",
         label: selectedTopic,
         color: "#1d4ed8",
-        size: 900,
-        fontColor: "#0f172a"
+        size: Math.max(950, minDimension * 0.55),
+        fontColor: "#0f172a",
+        fontSize: 18,
+        strokeColor: "#ffffff",
+        strokeWidth: 3,
+        highlightStrokeColor: "#1e3a8a",
+        fx: centerX,
+        fy: centerY
       }
     ];
     const links = [];
+    const details = {
+      root: {
+        badge: "핵심 주제",
+        title: selectedTopic,
+        description: selectedMindMap.overview,
+        bullets: selectedMindMap.branches.map((branch) => branch.title),
+        accent: "#1d4ed8"
+      }
+    };
 
     selectedMindMap.branches.forEach((branch, branchIndex) => {
       const branchId = `branch-${branchIndex}`;
+      const angle = (2 * Math.PI * branchIndex) / branchCount;
+      const branchX = centerX + branchRadius * Math.cos(angle);
+      const branchY = centerY + branchRadius * Math.sin(angle);
       nodes.push({
         id: branchId,
         label: branch.title,
         color: branch.color,
-        size: 650,
-        fontColor: "#0f172a"
+        size: 620,
+        fontColor: "#0f172a",
+        fontSize: 15,
+        strokeColor: "#ffffff",
+        strokeWidth: 2.5,
+        highlightStrokeColor: branch.color,
+        fx: branchX,
+        fy: branchY
       });
-      links.push({ source: "root", target: branchId });
+      links.push({ source: "root", target: branchId, color: branch.color, opacity: 0.85, strokeWidth: 2.3 });
+
+      details[branchId] = {
+        badge: "핵심 가지",
+        title: branch.title,
+        description: `${branch.title} 영역에서 집중해야 할 핵심 개념과 방향입니다.`,
+        bullets: branch.subtopics,
+        accent: branch.color
+      };
 
       branch.subtopics.forEach((subtopic, subIndex) => {
         const subtopicId = `sub-${branchIndex}-${subIndex}`;
+        const subtopicCount = branch.subtopics.length;
+        const spread = Math.min(Math.PI / 2.2, Math.PI / 6 * Math.max(subtopicCount - 1, 1));
+        const offset =
+          subtopicCount <= 1
+            ? 0
+            : -spread / 2 + (spread * subIndex) / (subtopicCount - 1);
+        const subAngle = angle + offset;
+        const subtopicX = centerX + subtopicRadius * Math.cos(subAngle);
+        const subtopicY = centerY + subtopicRadius * Math.sin(subAngle);
         nodes.push({
           id: subtopicId,
           label: subtopic,
           color: branch.color,
-          size: 400,
+          size: 360,
           fontColor: "#0f172a",
-          opacity: 0.85
+          fontSize: 12,
+          opacity: 0.88,
+          strokeColor: "#ffffff",
+          strokeWidth: 1.5,
+          highlightStrokeColor: branch.color,
+          fx: subtopicX,
+          fy: subtopicY
         });
-        links.push({ source: branchId, target: subtopicId });
+        links.push({ source: branchId, target: subtopicId, color: branch.color, opacity: 0.72 });
+
+        details[subtopicId] = {
+          badge: "세부 키워드",
+          title: subtopic,
+          description: `${branch.title} 범주에서 더 깊이 탐구할만한 주제입니다.`,
+          bullets: [],
+          accent: branch.color
+        };
       });
     });
 
-    return { nodes, links };
-  }, [selectedMindMap, selectedTopic]);
+    return {
+      data: { nodes, links },
+      detailMap: details
+    };
+  }, [layoutHeight, layoutWidth, selectedMindMap, selectedTopic]);
+
+  const activeDetailId = useMemo(() => {
+    if (detailMap[activeNodeId]) {
+      return activeNodeId;
+    }
+
+    if (detailMap.root) {
+      return "root";
+    }
+
+    const fallback = Object.keys(detailMap)[0];
+
+    return fallback ?? "";
+  }, [activeNodeId, detailMap]);
+
+  const graphData = useMemo(() => {
+    if (!baseGraphData.nodes.length) {
+      return baseGraphData;
+    }
+
+    const nodes = baseGraphData.nodes.map((node) => {
+      const isActive = node.id === activeDetailId;
+      return {
+        ...node,
+        opacity: isActive ? 1 : node.opacity ?? 0.82,
+        strokeWidth: isActive ? (node.strokeWidth ?? 2) + 1 : node.strokeWidth ?? 2
+      };
+    });
+
+    return {
+      ...baseGraphData,
+      nodes,
+      focusedNodeId: activeDetailId
+    };
+  }, [activeDetailId, baseGraphData]);
+
+  const activeDetail = detailMap[activeDetailId];
+
+  const handleNodeClick = useCallback((nodeId) => {
+    setActiveNodeId(nodeId);
+  }, []);
 
   const graphConfig = useMemo(
     () => ({
-      width: Math.max(480, graphSize.width || 0),
-      height: Math.max(480, graphSize.height || 0),
+      width: layoutWidth,
+      height: layoutHeight,
       directed: false,
-      focusAnimationDuration: 0.7,
+      focusAnimationDuration: 0.6,
+      focusZoom: 1.08,
       nodeHighlightBehavior: true,
       labelProperty: "label",
       panAndZoom: true,
-      staticGraph: false,
+      staticGraph: true,
+      maxZoom: 2.4,
+      minZoom: 0.45,
       d3: {
-        alphaTarget: 0.05,
-        gravity: -120,
-        linkLength: 200,
-        linkStrength: 1
+        disableLinkForce: true
       },
       node: {
         color: "#2563eb",
@@ -358,18 +540,21 @@ function LearnPage() {
         highlightStrokeColor: "#1d4ed8",
         highlightColor: "#1d4ed8",
         highlightFontSize: 14,
-        size: 600,
-        strokeColor: "#ffffff",
+        highlightFontWeight: "600",
+        size: 480,
+        renderLabel: true,
+        strokeColor: "#e2e8f0",
         strokeWidth: 2
       },
       link: {
         highlightColor: "#1d4ed8",
         color: "#cbd5f5",
         opacity: 0.75,
-        strokeWidth: 2
+        strokeWidth: 1.8,
+        type: "CURVE_SMOOTH"
       }
     }),
-    [graphSize.height, graphSize.width]
+    [layoutHeight, layoutWidth]
   );
 
   return (
@@ -403,15 +588,38 @@ function LearnPage() {
               <SummaryTitle>학습 개요</SummaryTitle>
               <SummaryText>{selectedMindMap.overview}</SummaryText>
             </SummaryCard>
-            <GraphShell>
-              <GraphViewport ref={graphRef}>
-                {graphData.nodes.length ? (
-                  <Graph id="learn-mindmap" data={graphData} config={graphConfig} />
-                ) : (
-                  <EmptyState>선택한 주제에 대한 마인드맵이 준비 중입니다.</EmptyState>
-                )}
-              </GraphViewport>
-            </GraphShell>
+            <MindmapSection>
+              <GraphShell>
+                <GraphViewport ref={graphRef}>
+                  {graphData.nodes.length ? (
+                    <Graph
+                      id="learn-mindmap"
+                      data={graphData}
+                      config={graphConfig}
+                      onClickNode={handleNodeClick}
+                    />
+                  ) : (
+                    <EmptyState>선택한 주제에 대한 마인드맵이 준비 중입니다.</EmptyState>
+                  )}
+                </GraphViewport>
+              </GraphShell>
+              {activeDetail ? (
+                <DetailPanel>
+                  <DetailHeader>
+                    <DetailBadge accent={activeDetail.accent}>{activeDetail.badge}</DetailBadge>
+                    <DetailTitle>{activeDetail.title}</DetailTitle>
+                  </DetailHeader>
+                  <DetailDescription>{activeDetail.description}</DetailDescription>
+                  {activeDetail.bullets?.length ? (
+                    <DetailList>
+                      {activeDetail.bullets.map((item) => (
+                        <DetailItem key={item}>{item}</DetailItem>
+                      ))}
+                    </DetailList>
+                  ) : null}
+                </DetailPanel>
+              ) : null}
+            </MindmapSection>
           </>
         ) : (
           <GraphShell>
