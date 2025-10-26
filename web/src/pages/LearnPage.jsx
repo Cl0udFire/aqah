@@ -3,336 +3,103 @@ import styled from "styled-components";
 import Topbar from "../components/Topbar";
 
 const mockMindMaps = {
-  "인공지능 개론": {
-    overview:
-      "인공지능(AI)은 인간의 학습·추론 능력을 컴퓨터 시스템으로 구현하려는 연구 분야로, 문제 정의와 데이터 수집, 모델링, 검증에 대한 체계적인 이해가 필요합니다.",
-    spotlight: "데이터, 알고리즘, 컴퓨팅 파워의 균형이 성공적인 AI 시스템을 좌우합니다.",
+  "인공지능 일반": {
+    overview: "데이터 준비부터 모델 학습까지의 핵심 흐름을 한 장에서 정리합니다.",
+    spotlight: "전처리-분석-설계-학습 순환을 이해하면 실무 전반을 연결할 수 있습니다.",
     branches: [
       {
-        title: "핵심 개념",
+        title: "데이터 전처리",
         color: "#2563eb",
-        summary: "AI의 개념적 정의와 철학적 배경을 정리합니다.",
+        summary: "데이터 품질을 정비하는 단계",
         subtopics: [
           {
-            title: "튜링 테스트와 지능적 행위 정의",
-            context: "앨런 튜링이 제안한 대화 실험을 통해 기계가 인간과 구별되지 않는 언어 능력을 갖추었는지 판단합니다.",
-            insights: ["판별자는 텍스트 기반 대화만으로 상대가 기계인지 구분", "행위 중심으로 지능을 정의하려는 접근"]
+            title: "원천 수집",
+            context: "파일·API에서 데이터를 모읍니다.",
+            insights: ["형식과 인코딩 점검"]
           },
           {
-            title: "약한 AI와 강한 AI의 목표 차이",
-            context: "문제 해결에 초점을 맞춘 약한 AI와 자각을 추구하는 강한 AI가 지향하는 목표를 비교합니다.",
-            insights: ["약한 AI는 특정 과제 정확도를 최대화", "강한 AI는 인간과 동등한 이해와 의식을 목표"]
+            title: "Pandas 기본",
+            context: "행·열 구조의 DataFrame을 다룹니다.",
+            insights: ["row/column 개념"]
           },
           {
-            title: "데이터·알고리즘·컴퓨팅 파워의 3요소",
-            context: "AI 성능을 결정짓는 데이터 품질, 알고리즘 설계, 연산 자원의 균형을 점검합니다.",
-            insights: ["데이터 품질이 모델 일반화의 기반", "연산 자원은 실험 속도와 모델 규모를 제약"]
+            title: "정제 기법",
+            context: "결측치·이상치를 처리하고 스케일링합니다.",
+            insights: ["전처리 파이프라인"]
           }
         ]
       },
       {
-        title: "주요 기법",
-        color: "#4338ca",
-        summary: "다양한 학습 패러다임과 대표 모델의 작동 방식을 훑습니다.",
-        subtopics: [
-          {
-            title: "지도/비지도/강화 학습 프레임워크",
-            context: "레이블 여부와 보상 구조에 따라 모델 학습 방식이 어떻게 달라지는지 비교합니다.",
-            insights: ["지도 학습은 정답 데이터를 통해 패턴을 학습", "강화 학습은 보상을 통한 정책 최적화를 수행"]
-          },
-          {
-            title: "딥러닝: CNN, RNN, Transformer",
-            context: "주요 아키텍처가 특징적인 입력 구조와 표현 학습 전략을 어떻게 활용하는지 살펴봅니다.",
-            insights: ["CNN은 지역적 패턴을 포착하는 합성곱 필터를 사용", "Transformer는 어텐션을 통해 전역 문맥을 학습"]
-          },
-          {
-            title: "지식 기반 추론과 탐색 알고리즘",
-            context: "전통적 AI의 규칙 기반 추론과 탐색 기법이 문제 해결을 구조화하는 방법을 이해합니다.",
-            insights: ["검색 공간을 줄이기 위한 휴리스틱 설계", "규칙 기반 시스템은 설명 가능한 추론 경로 제공"]
-          }
-        ]
-      },
-      {
-        title: "응용 분야",
-        color: "#0ea5e9",
-        summary: "AI가 산업과 일상에서 활용되는 대표 응용 사례를 살펴봅니다.",
-        subtopics: [
-          {
-            title: "컴퓨터 비전, 자연어 처리, 음성 인식",
-            context: "감각 데이터를 이해하기 위한 CV, NLP, 음성 기술의 주요 활용 장면을 정리합니다.",
-            insights: ["이미지 분류와 객체 탐지가 자동화의 핵심", "언어 모델은 요약·질의응답·번역을 지원"]
-          },
-          {
-            title: "추천 시스템과 개인화 서비스",
-            context: "사용자 행동 데이터를 바탕으로 맞춤형 콘텐츠를 제시하는 추천 엔진의 핵심 아이디어를 확인합니다.",
-            insights: ["협업 필터링과 콘텐츠 기반 필터링의 결합", "실시간 피드백으로 모델을 지속 개선"]
-          },
-          {
-            title: "자율주행, 로보틱스, 스마트 팩토리",
-            context: "물리 세계와 상호작용하는 시스템이 AI를 통해 의사결정을 자동화하는 방식을 살펴봅니다.",
-            insights: ["센서 융합이 환경 인식의 정확도를 좌우", "경로 계획과 제어 알고리즘의 안전성 확보"]
-          }
-        ]
-      },
-      {
-        title: "학습 전략",
+        title: "데이터 분석",
         color: "#14b8a6",
-        summary: "실무 역량을 기르기 위한 학습 로드맵과 툴 활용법을 소개합니다.",
+        summary: "패턴과 인사이트를 찾는 단계",
         subtopics: [
           {
-            title: "수학 기초: 선형대수, 확률, 최적화",
-            context: "모델 이해를 위한 선형대수, 확률론, 최적화 이론이 실제 알고리즘에서 어떻게 쓰이는지 연결합니다.",
-            insights: ["행렬 연산이 신경망 계산의 토대", "확률분포 이해가 모델 불확실성 해석을 돕는다"]
+            title: "EDA 절차",
+            context: "질문을 세우고 분포를 시각화합니다.",
+            insights: ["질문-그래프-해석"]
           },
           {
-            title: "데이터 전처리와 모델 실험 반복",
-            context: "데이터 정제에서 실험 관리까지 반복 가능한 워크플로를 구축하는 방법을 설명합니다.",
-            insights: ["피처 엔지니어링이 모델 성능의 변화를 좌우", "실험 추적 도구가 협업과 재현성을 높임"]
+            title: "통계 기초",
+            context: "평균·분산과 검정 논리를 이해합니다.",
+            insights: ["샘플 vs 모집단"]
           },
           {
-            title: "클라우드/오픈소스 도구 활용",
-            context: "클라우드 서비스와 오픈소스 프레임워크를 활용해 학습·배포 환경을 구성하는 팁을 제시합니다.",
-            insights: ["MLOps 플랫폼이 모델 배포를 자동화", "GPU 리소스를 효율적으로 할당하는 전략 필요"]
+            title: "시각화 도구",
+            context: "Matplotlib·Seaborn으로 패턴을 드러냅니다.",
+            insights: ["그래프 선택 기준"]
           }
         ]
       },
       {
-        title: "윤리와 거버넌스",
+        title: "인공지능 모델 설계",
         color: "#f97316",
-        summary: "책임 있는 AI 개발을 위한 윤리·규제 이슈를 검토합니다.",
+        summary: "문제를 구조화하고 모델을 고르는 단계",
         subtopics: [
           {
-            title: "편향, 공정성, 설명 가능성",
-            context: "데이터 편향과 불투명한 모델이 야기하는 불공정을 점검하고 완화 전략을 찾습니다.",
-            insights: ["데이터 수집 단계에서 대표성 확보", "설명 가능한 모델이 규제 준수를 돕는다"]
+            title: "문제 정의",
+            context: "업무 목표와 평가 지표를 확정합니다.",
+            insights: ["분류·회귀 구분"]
           },
           {
-            title: "프라이버시 보장과 책임 있는 AI",
-            context: "차등 프라이버시, 연합 학습 등 개인정보 보호 기술을 활용한 책임 있는 개발 방법을 다룹니다.",
-            insights: ["민감 정보 최소화를 위한 데이터 거버넌스", "프라이버시 강화 기술과 성능 간 균형"]
+            title: "피처 설계",
+            context: "도메인 지식을 반영한 변수를 만듭니다.",
+            insights: ["파생 피처 기획"]
           },
           {
-            title: "국제적 규제 및 표준 동향",
-            context: "EU AI Act 등 글로벌 규제 흐름과 산업별 가이드라인을 비교합니다.",
-            insights: ["위험 기반 등급 분류가 감독 수준을 결정", "표준화가 공급망 전반의 신뢰를 높임"]
-          }
-        ]
-      }
-    ]
-  },
-  "양자 컴퓨팅": {
-    overview:
-      "양자 컴퓨팅은 큐비트와 중첩·얽힘 같은 양자 현상을 계산 자원으로 사용합니다. 알고리즘 복잡도, 오류 정정, 하드웨어 기술을 아우르는 다학제적 접근이 필요합니다.",
-    spotlight: "양자 알고리즘은 고전적 계산이 어려운 문제를 지수적으로 단축할 잠재력을 지닙니다.",
-    branches: [
-      {
-        title: "기초 물리",
-        color: "#8b5cf6",
-        summary: "큐비트의 물리적 특성과 양자현상을 직관적으로 이해합니다.",
-        subtopics: [
-          {
-            title: "큐비트와 블로흐 구면",
-            context: "블로흐 구면 표현을 통해 큐비트 상태를 시각화하고 회전 연산의 의미를 파악합니다.",
-            insights: ["단일 큐비트 상태는 구면 좌표로 표현", "게이트는 구면에서의 회전으로 해석 가능"]
-          },
-          {
-            title: "중첩(superposition)과 간섭",
-            context: "여러 상태를 동시에 표현하는 중첩과 간섭 현상이 계산에서 어떻게 활용되는지 살펴봅니다.",
-            insights: ["하나의 큐비트로 0과 1을 동시에 표현", "간섭을 조절해 원하는 해에 확률 집중"]
-          },
-          {
-            title: "얽힘(entanglement)의 계산적 의미",
-            context: "얽힘이 다중 큐비트 간 상관관계를 만들어 고전 계산으로는 얻기 어려운 패턴을 생성함을 설명합니다.",
-            insights: ["얽힘은 전역적인 상태 공간을 확장", "얽힘 유지가 양자 회로의 핵심 과제"]
+            title: "모델 선택",
+            context: "여러 기법을 비교해 구조를 정합니다.",
+            insights: ["베이스라인 확보"]
           }
         ]
       },
       {
-        title: "대표 알고리즘",
-        color: "#22d3ee",
-        summary: "양자 알고리즘이 복잡도를 어떻게 개선하는지 사례로 확인합니다.",
+        title: "인공지능 학습",
+        color: "#6366f1",
+        summary: "훈련과 검증을 반복하는 단계",
         subtopics: [
           {
-            title: "쇼어 알고리즘: 소인수분해",
-            context: "양자 푸리에 변환을 활용해 주기성을 찾고 소인수분해 문제를 다항 시간에 해결하는 원리를 설명합니다.",
-            insights: ["정수 인수분해가 지수 시간에서 다항 시간으로", "양자 푸리에 변환이 주기 검출을 가속"]
+            title: "학습 파이프라인",
+            context: "데이터 분할과 배치를 구성합니다.",
+            insights: ["재현성 관리"]
           },
           {
-            title: "그로버 탐색 알고리즘",
-            context: "비정렬 데이터베이스 탐색을 제곱근 시간으로 단축하는 앰플리튜드 증폭 기법을 살펴봅니다.",
-            insights: ["반복적 위상 반전으로 해의 확률을 키움", "N개의 상태를 √N 단계로 탐색"]
+            title: "성능 검증",
+            context: "검증·테스트로 과적합을 점검합니다.",
+            insights: ["교차검증 활용"]
           },
           {
-            title: "변분 양자 알고리즘(VQA)",
-            context: "NISQ 환경에서 양자·고전 하이브리드 루프로 최적화를 수행하는 변분 회로 구조를 다룹니다.",
-            insights: ["매개변수화된 회로와 고전 최적화 결합", "문제별 코스트 함수를 정의해 최소화"]
-          }
-        ]
-      },
-      {
-        title: "하드웨어",
-        color: "#34d399",
-        summary: "다양한 물리적 구현 방식의 장단점을 비교합니다.",
-        subtopics: [
-          {
-            title: "초전도, 이온트랩, 광자 기반 접근",
-            context: "주요 하드웨어 플랫폼별 큐비트 구현 방식과 제어 기술의 차이를 정리합니다.",
-            insights: ["초전도 큐비트는 빠른 게이트와 짧은 코히어런스", "이온트랩은 높은 충실도와 확장성 과제"]
-          },
-          {
-            title: "큐비트 수와 게이트 충실도",
-            context: "양자 우위를 확보하기 위해 필요한 큐비트 규모와 게이트 정확도 지표를 해석합니다.",
-            insights: ["게이트 에러가 회로 깊이를 제한", "논리 큐비트 확보를 위해 피델리티 향상 필요"]
-          },
-          {
-            title: "NISQ 시대의 제약과 로드맵",
-            context: "노이즈가 큰 중간 규모 장치의 한계를 극복하기 위한 연구 로드맵과 산업 전략을 살펴봅니다.",
-            insights: ["오류 완화 기법으로 짧은 회로 활용", "하이브리드 알고리즘이 실용적 출발점"]
-          }
-        ]
-      },
-      {
-        title: "오류 정정",
-        color: "#facc15",
-        summary: "오류 정정 코드와 피드백 제어 전략을 이해합니다.",
-        subtopics: [
-          {
-            title: "표면 코드와 토폴로지 코드",
-            context: "2차원 격자에 큐비트를 배치해 국소 오류를 감지하고 보정하는 표면 코드 원리를 살펴봅니다.",
-            insights: ["논리 큐비트 구성을 위한 스태빌라이저 측정", "문턱값을 넘는 피델리티가 필수"]
-          },
-          {
-            title: "피델리티 향상 기법",
-            context: "다중 게이트에서 누적되는 오차를 줄이기 위한 다이나믹 디커플링, 리셋 기술 등을 소개합니다.",
-            insights: ["파형 제어로 위상 노이즈를 억제", "오류 완화로 회로 길이를 확장"]
-          },
-          {
-            title: "에러 억제를 위한 하드웨어-소프트웨어 협력",
-            context: "하드웨어 제어와 소프트웨어 레이어가 연동해 전체 시스템의 에러율을 낮추는 방법을 설명합니다.",
-            insights: ["제어 전자와 컴파일러 최적화가 함께 필요", "피드백 루프가 안정적인 동작을 보장"]
-          }
-        ]
-      },
-      {
-        title: "응용 가능성",
-        color: "#fb7185",
-        summary: "양자 컴퓨팅이 기대되는 응용 영역을 탐색합니다.",
-        subtopics: [
-          {
-            title: "암호 해독과 보안",
-            context: "양자 공격에 대비한 암호 전환 전략과 양자 안전 암호 기술을 비교합니다.",
-            insights: ["현재 공인된 공개키 암호는 양자 취약", "양자 안전 암호 표준화가 진행 중"]
-          },
-          {
-            title: "신소재 탐색, 화학 시뮬레이션",
-            context: "분자 에너지 계산 등 고전적으로 어려운 양자 화학 문제를 효율적으로 풀 가능성을 살펴봅니다.",
-            insights: ["전자 구조 계산이 양자 장점 분야", "양자-고전 하이브리드가 초기 활용 모델"]
-          },
-          {
-            title: "금융 최적화와 머신러닝",
-            context: "포트폴리오 최적화, 샘플링 가속 등 금융·ML에서 기대되는 양자 가속 시나리오를 소개합니다.",
-            insights: ["QAOA가 조합 최적화에 적용", "양자 볼츠만 머신 등 새로운 모델 연구"]
-          }
-        ]
-      }
-    ]
-  },
-  "지속가능한 에너지 전환": {
-    overview:
-      "지속가능한 에너지 전환은 재생에너지 확대, 효율 향상, 제도·시장 설계가 결합된 복합 과제입니다. 기술 발전과 정책, 시민 참여가 맞물려야 실질적 효과를 낼 수 있습니다.",
-    spotlight: "재생에너지와 효율 혁신, 제도 설계가 함께 작동해야 지속가능한 전환이 가능합니다.",
-    branches: [
-      {
-        title: "재생에너지",
-        color: "#22c55e",
-        summary: "다양한 재생에너지 자원의 특성과 확산 전략을 정리합니다.",
-        subtopics: [
-          {
-            title: "태양광·풍력의 발전 특성",
-            context: "간헐성과 출력 변동을 고려한 설계·운영 전략을 소개합니다.",
-            insights: ["출력 예측 정확도가 계통 안정성에 직결", "ESS 연계가 변동성을 완화"]
-          },
-          {
-            title: "수소, 해양, 지열 등 대체 자원",
-            context: "다양한 재생 열원과 연료를 활용한 장기 에너지 믹스 가능성을 살펴봅니다.",
-            insights: ["수소는 저장과 운송의 유연성 제공", "해양·지열 자원은 지역 맞춤형 전략 필요"]
-          },
-          {
-            title: "분산형 발전과 마이크로그리드",
-            context: "지역 단위 에너지 자립을 위한 분산형 인프라 설계 요소를 설명합니다.",
-            insights: ["양방향 전력 흐름을 고려한 계통 설계", "에너지 관리 시스템이 수요를 최적화"]
-          }
-        ]
-      },
-      {
-        title: "저장 기술",
-        color: "#0ea5e9",
-        summary: "에너지 저장 시스템의 기술 동향과 경제성을 분석합니다.",
-        subtopics: [
-          {
-            title: "배터리 효율과 수명 관리",
-            context: "리튬이온 등 배터리의 열화 메커니즘과 수명 연장을 위한 운영 전략을 다룹니다.",
-            insights: ["충방전 프로파일 관리가 수명 좌우", "BMS 데이터 분석으로 잔존 가치를 평가"]
-          },
-          {
-            title: "수소 저장 및 전환",
-            context: "그린수소 생산과 저장·활용 체계를 통해 장주기 저장을 구현하는 방법을 소개합니다.",
-            insights: ["전력-수소-전력(P2G2P) 변환 효율 최적화", "수소 인프라 안전성이 확산의 관건"]
-          },
-          {
-            title: "전력망 안정화를 위한 ESS",
-            context: "주파수 조정, 피크 저감 등 계통 서비스를 제공하는 ESS 비즈니스 모델을 설명합니다.",
-            insights: ["운영 수익원 다각화가 투자 회수에 중요", "정책 지원과 시장 제도가 사업성에 영향"]
-          }
-        ]
-      },
-      {
-        title: "정책과 시장",
-        color: "#f97316",
-        summary: "전환을 가속하는 정책 수단과 시장 설계 이슈를 다룹니다.",
-        subtopics: [
-          {
-            title: "탄소 가격제와 인센티브",
-            context: "탄소세·배출권거래제 도입이 기업 의사결정과 투자에 미치는 영향을 분석합니다.",
-            insights: ["가격 시그널이 저탄소 투자를 촉진", "수익 재분배가 사회적 수용성 확보"]
-          },
-          {
-            title: "전력 시장 구조 혁신",
-            context: "도매·소매 시장 개편과 수요자원 참여 확대 방안을 살펴봅니다.",
-            insights: ["분산 자원이 계통 서비스에 참여", "실시간 정산 체계가 효율적 가격 신호 제공"]
-          },
-          {
-            title: "국제 협력과 표준화",
-            context: "국경을 넘는 전력 거래와 기술 표준화가 전환 속도에 미치는 영향을 살펴봅니다.",
-            insights: ["그린수소 인증 등 공통 기준 수립", "국제 전력망 연계가 공급 안정성을 높임"]
-          }
-        ]
-      },
-      {
-        title: "도시와 시민",
-        color: "#a855f7",
-        summary: "생활권에서의 에너지 소비 혁신과 시민 참여 모델을 다룹니다.",
-        subtopics: [
-          {
-            title: "스마트 그리드와 수요 관리",
-            context: "디지털 계량 인프라를 활용해 수요를 능동적으로 조정하는 방식을 소개합니다.",
-            insights: ["실시간 요금제가 참여 유인을 제공", "자동화된 수요 반응 장치가 편의성을 높임"]
-          },
-          {
-            title: "커뮤니티 에너지 프로젝트",
-            context: "지역 기반 협동조합과 시민 전력사가 추진하는 분산형 프로젝트 사례를 공유합니다.",
-            insights: ["지역 자본이 재생에너지 수익을 공유", "거버넌스 구조가 장기 지속성을 좌우"]
-          },
-          {
-            title: "에너지 복지와 교육",
-            context: "취약계층 지원과 에너지 문해력 향상을 위한 정책을 정리합니다.",
-            insights: ["에너지 바우처로 필수 사용량 보장", "교육 프로그램이 행동 변화를 촉진"]
+            title: "배포 준비",
+            context: "모델을 저장하고 모니터링을 설계합니다.",
+            insights: ["MLOps 연계"]
           }
         ]
       }
     ]
   }
 };
+
+const availableTopics = Object.keys(mockMindMaps);
 
 const Page = styled.main`
   min-height: 100vh;
@@ -523,6 +290,37 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function hexToRgb(hex) {
+  const sanitized = hex.replace("#", "");
+  if (sanitized.length !== 6) {
+    return { r: 59, g: 130, b: 246 };
+  }
+
+  const bigint = parseInt(sanitized, 16);
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255
+  };
+}
+
+function getReadableTextColors(background) {
+  const { r, g, b } = hexToRgb(background);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  if (luminance > 0.62) {
+    return {
+      primary: "#0f172a",
+      secondary: "rgba(15, 23, 42, 0.72)"
+    };
+  }
+
+  return {
+    primary: "#f8fafc",
+    secondary: "rgba(241, 245, 249, 0.82)"
+  };
+}
+
 function wrapText(text, maxChars, maxLines) {
   if (!text) {
     return [];
@@ -558,17 +356,38 @@ function wrapText(text, maxChars, maxLines) {
   return lines;
 }
 
+function getNodeEdgePoint(node, angle) {
+  if (node.shape === "rounded-rect") {
+    const halfWidth = node.shapeWidth / 2;
+    const halfHeight = node.shapeHeight / 2;
+    const dx = Math.cos(angle);
+    const dy = Math.sin(angle);
+    const tx = dx === 0 ? Infinity : halfWidth / Math.abs(dx);
+    const ty = dy === 0 ? Infinity : halfHeight / Math.abs(dy);
+    const t = Math.min(tx, ty);
+
+    return {
+      x: node.x + dx * t,
+      y: node.y + dy * t
+    };
+  }
+
+  const radius = node.visualRadius ?? node.radius;
+  return {
+    x: node.x + Math.cos(angle) * radius,
+    y: node.y + Math.sin(angle) * radius
+  };
+}
+
 function createLinkPath(source, target) {
   const angle = Math.atan2(target.y - source.y, target.x - source.x);
-  const sourceX = source.x + Math.cos(angle) * source.radius;
-  const sourceY = source.y + Math.sin(angle) * source.radius;
-  const targetX = target.x - Math.cos(angle) * target.radius;
-  const targetY = target.y - Math.sin(angle) * target.radius;
+  const sourcePoint = getNodeEdgePoint(source, angle);
+  const targetPoint = getNodeEdgePoint(target, angle + Math.PI);
 
-  const midX = (sourceX + targetX) / 2;
-  const midY = (sourceY + targetY) / 2;
-  const dx = targetX - sourceX;
-  const dy = targetY - sourceY;
+  const midX = (sourcePoint.x + targetPoint.x) / 2;
+  const midY = (sourcePoint.y + targetPoint.y) / 2;
+  const dx = targetPoint.x - sourcePoint.x;
+  const dy = targetPoint.y - sourcePoint.y;
   const distance = Math.sqrt(dx * dx + dy * dy) || 1;
   const curveStrength = Math.min(0.35, 60 / distance);
   const normalX = -dy * curveStrength;
@@ -576,7 +395,7 @@ function createLinkPath(source, target) {
   const controlX = midX + normalX;
   const controlY = midY + normalY;
 
-  return `M ${sourceX} ${sourceY} Q ${controlX} ${controlY} ${targetX} ${targetY}`;
+  return `M ${sourcePoint.x} ${sourcePoint.y} Q ${controlX} ${controlY} ${targetPoint.x} ${targetPoint.y}`;
 }
 
 function useContainerSize() {
@@ -607,7 +426,15 @@ function useContainerSize() {
   return [ref, dimensions];
 }
 
-function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect }) {
+function MindmapCanvas({
+  width,
+  height,
+  nodes,
+  links,
+  activeNodeId,
+  onNodeSelect,
+  onNodePositionChange
+}) {
   const decoratedNodes = useMemo(() => {
     return nodes.map((node) => {
       const labelLines = wrapText(node.label, node.text.maxChars, 1);
@@ -621,10 +448,12 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       const alignCenter = node.text.baseline === "middle";
       const labelStartY = alignCenter ? -blockHeight / 2 : 0;
       const contextStartY = labelStartY + totalLabelHeight + gap;
-      const labelPositions = labelLines.map((_, index) => labelStartY + index * labelLineHeight);
-      const contextPositions = contextLines.map(
-        (_, index) => contextStartY + index * contextLineHeight
-      );
+      const createPositions = (lines, start, lineHeight) =>
+        alignCenter
+          ? lines.map((_, index) => start + lineHeight * (index + 0.5))
+          : lines.map((_, index) => start + index * lineHeight);
+      const labelPositions = createPositions(labelLines, labelStartY, labelLineHeight);
+      const contextPositions = createPositions(contextLines, contextStartY, contextLineHeight);
 
       const labelFontSize = node.fontSize;
       const contextFontSize = node.type === "root" ? 13 : node.type === "branch" ? 12.5 : 12;
@@ -638,36 +467,51 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       );
       const textWidth = Math.max(estimatedLabelWidth, estimatedContextWidth);
 
-      const anchorX = node.x + node.text.offsetX;
-      let textLeft = anchorX;
-      let textRight = anchorX;
-      if (node.text.anchor === "start") {
-        textRight += textWidth;
-      } else if (node.text.anchor === "end") {
-        textLeft -= textWidth;
-      } else {
-        textLeft -= textWidth / 2;
-        textRight += textWidth / 2;
-      }
-
       const hasLabel = labelLines.length > 0;
       const hasContext = contextLines.length > 0;
-      const textTopOffset = hasLabel ? labelStartY : hasContext ? contextStartY : 0;
-      const textBottomOffset = hasContext
-        ? contextStartY + totalContextHeight
+      const blockTop = alignCenter
+        ? labelStartY
         : hasLabel
-        ? labelStartY + totalLabelHeight
+        ? labelStartY
+        : hasContext
+        ? contextStartY
         : 0;
+      const blockBottom = blockTop + blockHeight;
 
-      const textTop = node.y + node.text.offsetY + textTopOffset - 6;
-      const textBottom = node.y + node.text.offsetY + textBottomOffset + 10;
+      const paddingX = node.type === "root" ? 28 : node.type === "branch" ? 24 : 20;
+      const paddingY = node.type === "root" ? 24 : node.type === "branch" ? 18 : 16;
+      const baseWidth = Math.max(textWidth + paddingX * 2, node.radius * 2);
+      const baseHeight = Math.max(blockHeight + paddingY * 2, node.radius * 2);
+      const aspectRatio = baseHeight === 0 ? 1 : baseWidth / baseHeight;
 
-      const bounds = {
-        left: Math.min(node.x - node.radius, textLeft - 12),
-        right: Math.max(node.x + node.radius, textRight + 12),
-        top: Math.min(node.y - node.radius, textTop),
-        bottom: Math.max(node.y + node.radius, textBottom)
-      };
+      let shapeType;
+      if (node.shape === "circle") {
+        shapeType = "circle";
+      } else if (node.shape === "rounded-rect") {
+        shapeType = "rounded-rect";
+      } else {
+        shapeType = aspectRatio > 1.2 ? "rounded-rect" : "circle";
+      }
+
+      let shapeWidth = shapeType === "circle" ? Math.max(baseWidth, baseHeight) : baseWidth;
+      let shapeHeight = shapeType === "circle" ? Math.max(baseWidth, baseHeight) : baseHeight;
+      const visualRadius = shapeType === "circle" ? shapeWidth / 2 : Math.max(shapeWidth, shapeHeight) / 2;
+      const cornerRadius = shapeType === "rounded-rect" ? Math.min(26, shapeHeight / 2.2) : 0;
+
+      const bounds =
+        shapeType === "circle"
+          ? {
+              left: node.x - visualRadius,
+              right: node.x + visualRadius,
+              top: node.y - visualRadius,
+              bottom: node.y + visualRadius
+            }
+          : {
+              left: node.x - shapeWidth / 2,
+              right: node.x + shapeWidth / 2,
+              top: node.y - shapeHeight / 2,
+              bottom: node.y + shapeHeight / 2
+            };
 
       return {
         ...node,
@@ -679,8 +523,16 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
           labelLineHeight,
           contextLineHeight,
           contextFontSize,
-          textWidth
+          textWidth,
+          blockTop,
+          blockBottom
         },
+        shape: shapeType,
+        shapeWidth,
+        shapeHeight,
+        visualRadius,
+        cornerRadius,
+        padding: { x: paddingX, y: paddingY },
         bounds
       };
     });
@@ -789,10 +641,15 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
   const [viewBox, setViewBox] = useState(baseViewBox);
   const svgRef = useRef(null);
   const pointerRef = useRef(null);
+  const suppressedClickRef = useRef(false);
   const [isPanning, setIsPanning] = useState(false);
+  const [draggingNodeId, setDraggingNodeId] = useState(null);
 
   useEffect(() => {
     baseViewBoxRef.current = baseViewBox;
+    if (pointerRef.current?.mode === "drag" || pointerRef.current?.mode === "pan") {
+      return;
+    }
     setViewBox(baseViewBox);
   }, [baseViewBox]);
 
@@ -826,9 +683,32 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
         return;
       }
 
-      if (event.target.closest('[data-node="true"]')) {
+      const point = getSvgPoint(event, viewBox);
+      if (!point) {
         return;
       }
+
+      const svg = svgRef.current;
+      svg?.setPointerCapture(event.pointerId);
+      pointerRef.current = {
+        mode: "pan",
+        pointerId: event.pointerId,
+        lastPoint: point
+      };
+      setIsPanning(true);
+    },
+    [decoratedNodes.length, getSvgPoint, viewBox]
+  );
+
+  const handleNodePointerDown = useCallback(
+    (node, event) => {
+      if (event.button !== 0 && event.pointerType !== "touch" && event.pointerType !== "pen") {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      suppressedClickRef.current = false;
 
       const point = getSvgPoint(event, viewBox);
       if (!point) {
@@ -838,12 +718,18 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       const svg = svgRef.current;
       svg?.setPointerCapture(event.pointerId);
       pointerRef.current = {
+        mode: "drag",
         pointerId: event.pointerId,
-        lastPoint: point
+        startPoint: point,
+        lastPoint: point,
+        nodeStart: { x: node.x, y: node.y },
+        nodeId: node.id,
+        hasMoved: false
       };
-      setIsPanning(true);
+      setDraggingNodeId(node.id);
+      setIsPanning(false);
     },
-    [decoratedNodes.length, getSvgPoint, viewBox]
+    [getSvgPoint, viewBox]
   );
 
   const handlePointerMove = useCallback(
@@ -855,28 +741,58 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
 
       event.preventDefault();
 
-      setViewBox((prev) => {
-        const point = getSvgPoint(event, prev);
+      if (pointerState.mode === "pan") {
+        setViewBox((prev) => {
+          const point = getSvgPoint(event, prev);
+          if (!point) {
+            return prev;
+          }
+
+          const deltaX = point.x - pointerState.lastPoint.x;
+          const deltaY = point.y - pointerState.lastPoint.y;
+
+          pointerState.lastPoint = point;
+
+          return {
+            ...prev,
+            x: prev.x - deltaX,
+            y: prev.y - deltaY
+          };
+        });
+        return;
+      }
+
+      if (pointerState.mode === "drag") {
+        const point = getSvgPoint(event, viewBox);
         if (!point) {
-          return prev;
+          return;
         }
 
-        const deltaX = point.x - pointerState.lastPoint.x;
-        const deltaY = point.y - pointerState.lastPoint.y;
+        const totalDeltaX = point.x - pointerState.startPoint.x;
+        const totalDeltaY = point.y - pointerState.startPoint.y;
 
         pointerState.lastPoint = point;
 
-        return {
-          ...prev,
-          x: prev.x - deltaX,
-          y: prev.y - deltaY
-        };
-      });
+        if (!pointerState.hasMoved) {
+          const distanceSq = totalDeltaX * totalDeltaX + totalDeltaY * totalDeltaY;
+          if (distanceSq > 16) {
+            pointerState.hasMoved = true;
+            suppressedClickRef.current = true;
+          }
+        }
+
+        if (onNodePositionChange) {
+          onNodePositionChange(pointerState.nodeId, {
+            x: pointerState.nodeStart.x + totalDeltaX,
+            y: pointerState.nodeStart.y + totalDeltaY
+          });
+        }
+      }
     },
-    [getSvgPoint]
+    [getSvgPoint, onNodePositionChange, viewBox]
   );
 
-  const endPan = useCallback((event) => {
+  const endInteraction = useCallback((event) => {
     const pointerState = pointerRef.current;
     if (!pointerState) {
       return;
@@ -889,6 +805,17 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       }
       pointerRef.current = null;
       setIsPanning(false);
+      if (pointerState.mode === "drag") {
+        const nodeId = pointerState.nodeId;
+        setDraggingNodeId((current) => (current === nodeId ? null : current));
+        if (pointerState.hasMoved) {
+          setTimeout(() => {
+            suppressedClickRef.current = false;
+          }, 0);
+        } else {
+          suppressedClickRef.current = false;
+        }
+      }
     }
   }, []);
 
@@ -943,9 +870,9 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       preserveAspectRatio="xMidYMid meet"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
-      onPointerUp={endPan}
-      onPointerLeave={endPan}
-      onPointerCancel={endPan}
+      onPointerUp={endInteraction}
+      onPointerLeave={endInteraction}
+      onPointerCancel={endInteraction}
       onWheel={handleWheel}
       $isPanning={isPanning}
     >
@@ -996,42 +923,70 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       {decoratedNodes.map((node) => {
         const isActive = node.id === activeNodeId;
         const isDimmed = relatedNodes.size > 0 && !relatedNodes.has(node.id);
-        const circleOpacity = isDimmed ? (node.opacity ?? 0.5) : node.opacity ?? 0.92;
-        const radius = isActive ? node.radius + 4 : node.radius;
-        const labelColor = isActive ? node.color : "#0f172a";
-        const contextColor = isActive
-          ? hexToRgba(node.color, 0.9)
-          : "rgba(71, 85, 105, 0.88)";
+        const shapeOpacity = isDimmed ? (node.opacity ?? 0.5) : node.opacity ?? 0.92;
+        const { primary: labelColor, secondary: contextColor } = getReadableTextColors(
+          node.color
+        );
+        const isCircle = node.shape === "circle";
+        const activeInset = isActive ? 4 : 0;
 
         return (
           <g
             key={node.id}
             data-node="true"
-            onClick={() => onNodeSelect(node.id)}
+            onClick={() => {
+              if (suppressedClickRef.current) {
+                suppressedClickRef.current = false;
+                return;
+              }
+              onNodeSelect(node.id);
+            }}
             role="button"
             tabIndex={0}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: draggingNodeId === node.id ? "grabbing" : "grab" }}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") {
                 onNodeSelect(node.id);
               }
             }}
+            onPointerDown={(event) => handleNodePointerDown(node, event)}
           >
-            <circle
-              cx={node.x}
-              cy={node.y}
-              r={radius}
-              fill={node.color}
-              stroke="#ffffff"
-              strokeWidth={isActive ? 3.5 : 2.4}
-              opacity={circleOpacity}
-              style={{
-                transition: "all 0.3s ease",
-                filter: isActive
-                  ? `drop-shadow(0 18px 38px ${hexToRgba(node.color, 0.45)})`
-                  : "drop-shadow(0 6px 16px rgba(15, 23, 42, 0.12))"
-              }}
-            />
+            {isCircle ? (
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.visualRadius + activeInset}
+                fill={node.color}
+                stroke="#ffffff"
+                strokeWidth={isActive ? 3.2 : 2.4}
+                opacity={shapeOpacity}
+                style={{
+                  transition: "all 0.3s ease",
+                  filter: isActive
+                    ? `drop-shadow(0 18px 38px ${hexToRgba(node.color, 0.45)})`
+                    : "drop-shadow(0 8px 18px rgba(15, 23, 42, 0.18))"
+                }}
+              />
+            ) : (
+              <rect
+                x={node.x - node.shapeWidth / 2 - activeInset}
+                y={node.y - node.shapeHeight / 2 - activeInset}
+                width={node.shapeWidth + activeInset * 2}
+                height={node.shapeHeight + activeInset * 2}
+                rx={Math.min(node.cornerRadius + activeInset, (node.shapeHeight + activeInset * 2) / 2)}
+                ry={Math.min(node.cornerRadius + activeInset, (node.shapeHeight + activeInset * 2) / 2)}
+                fill={node.color}
+                stroke="#ffffff"
+                strokeWidth={isActive ? 3 : 2.2}
+                opacity={shapeOpacity}
+                style={{
+                  transition: "all 0.3s ease",
+                  filter: isActive
+                    ? `drop-shadow(0 20px 44px ${hexToRgba(node.color, 0.38)})`
+                    : "drop-shadow(0 10px 24px rgba(15, 23, 42, 0.16))"
+                }}
+              />
+            )}
 
             <g
               transform={`translate(${node.x + node.text.offsetX}, ${node.y + node.text.offsetY})`}
@@ -1043,7 +998,7 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
                   x={0}
                   y={node.textLayout.labelPositions[index]}
                   textAnchor={node.text.anchor}
-                  dominantBaseline="hanging"
+                  dominantBaseline="middle"
                   fontSize={node.fontSize}
                   fontWeight={node.type === "subtopic" ? 600 : 700}
                   fill={labelColor}
@@ -1059,7 +1014,7 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
                   x={0}
                   y={node.textLayout.contextPositions[index]}
                   textAnchor={node.text.anchor}
-                  dominantBaseline="hanging"
+                  dominantBaseline="middle"
                   fontSize={node.textLayout.contextFontSize}
                   fontWeight={400}
                   fill={contextColor}
@@ -1077,11 +1032,12 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
 }
 
 function LearnPage() {
-  const topics = Object.keys(mockMindMaps);
-  const [selectedTopic, setSelectedTopic] = useState(topics[0] ?? "");
-  const selectedMindMap = mockMindMaps[selectedTopic];
+  const topics = availableTopics;
+  const [selectedTopic, setSelectedTopic] = useState(() => topics[0] ?? "");
   const [graphRef, graphSize] = useContainerSize();
   const [activeNodeId, setActiveNodeId] = useState("root");
+
+  const selectedMindMap = selectedTopic ? mockMindMaps[selectedTopic] : undefined;
 
   useEffect(() => {
     if (selectedMindMap) {
@@ -1094,7 +1050,7 @@ function LearnPage() {
   const layoutWidth = Math.max(720, graphSize.width || 0);
   const layoutHeight = Math.max(640, graphSize.height || 0);
 
-  const { nodes, links, detailMap } = useMemo(() => {
+  const baseGraph = useMemo(() => {
     if (!selectedMindMap) {
       return {
         nodes: [],
@@ -1135,12 +1091,13 @@ function LearnPage() {
       type: "root",
       x: centerX,
       y: centerY,
+      shape: "circle",
       text: {
         anchor: "middle",
         offsetX: 0,
-        offsetY: rootRadius + 24,
-        baseline: "hanging",
-        maxChars: 30,
+        offsetY: 0,
+        baseline: "middle",
+        maxChars: 16,
         maxLines: 4
       }
     };
@@ -1152,7 +1109,6 @@ function LearnPage() {
       const angle = (2 * Math.PI * branchIndex) / branchCount;
       const branchX = centerX + branchRadius * Math.cos(angle);
       const branchY = centerY + branchRadius * Math.sin(angle);
-      const isLeft = angle > Math.PI / 2 && angle < (3 * Math.PI) / 2;
       const branchRadiusPx = Math.max(36, minDimension * 0.06);
 
       const branchNode = {
@@ -1167,12 +1123,13 @@ function LearnPage() {
         type: "branch",
         x: branchX,
         y: branchY,
+        shape: "auto",
         text: {
-          anchor: isLeft ? "end" : "start",
-          offsetX: (isLeft ? -1 : 1) * (branchRadiusPx + Math.max(78, minDimension * 0.12)),
-          offsetY: -4,
+          anchor: "middle",
+          offsetX: 0,
+          offsetY: 0,
           baseline: "middle",
-          maxChars: 24,
+          maxChars: 16,
           maxLines: 3
         }
       };
@@ -1204,7 +1161,6 @@ function LearnPage() {
         const subAngle = angle + offset;
         const subtopicX = centerX + subtopicRadius * Math.cos(subAngle);
         const subtopicY = centerY + subtopicRadius * Math.sin(subAngle);
-        const isSubLeft = subAngle > Math.PI / 2 && subAngle < (3 * Math.PI) / 2;
         const subtopicRadiusPx = Math.max(26, minDimension * 0.045);
 
         const subtopicNode = {
@@ -1219,13 +1175,14 @@ function LearnPage() {
           type: "subtopic",
           x: subtopicX,
           y: subtopicY,
+          shape: "auto",
           text: {
-            anchor: isSubLeft ? "end" : "start",
-            offsetX: (isSubLeft ? -1 : 1) * (subtopicRadiusPx + Math.max(54, minDimension * 0.085)),
-            offsetY: -2,
+            anchor: "middle",
+            offsetX: 0,
+            offsetY: 0,
             baseline: "middle",
-            maxChars: 28,
-            maxLines: 2
+            maxChars: 18,
+            maxLines: 3
           }
         };
 
@@ -1255,6 +1212,13 @@ function LearnPage() {
     };
   }, [layoutHeight, layoutWidth, selectedMindMap, selectedTopic]);
 
+  const { nodes: computedNodes, links, detailMap } = baseGraph;
+  const [interactiveNodes, setInteractiveNodes] = useState(computedNodes);
+
+  useEffect(() => {
+    setInteractiveNodes(computedNodes);
+  }, [computedNodes]);
+
   const activeDetailId = useMemo(() => {
     if (detailMap[activeNodeId]) {
       return activeNodeId;
@@ -1275,6 +1239,23 @@ function LearnPage() {
     setActiveNodeId(nodeId);
   }, []);
 
+  const handleNodePositionChange = useCallback((nodeId, position) => {
+    setInteractiveNodes((prev) => {
+      let didUpdate = false;
+      const next = prev.map((node) => {
+        if (node.id === nodeId) {
+          didUpdate = true;
+          return { ...node, ...position };
+        }
+        return node;
+      });
+
+      return didUpdate ? next : prev;
+    });
+  }, []);
+
+  const graphNodes = interactiveNodes;
+
   return (
     <Page>
       <Topbar />
@@ -1290,12 +1271,17 @@ function LearnPage() {
               id="topic-select"
               value={selectedTopic}
               onChange={(event) => setSelectedTopic(event.target.value)}
+              disabled={!topics.length}
             >
-              {topics.map((topic) => (
-                <option key={topic} value={topic}>
-                  {topic}
-                </option>
-              ))}
+              {topics.length ? (
+                topics.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))
+              ) : (
+                <option value="">준비된 주제가 없습니다.</option>
+              )}
             </Select>
           </Controls>
         </Header>
@@ -1309,14 +1295,15 @@ function LearnPage() {
             <MindmapSection>
               <GraphShell>
                 <GraphViewport ref={graphRef}>
-                  {nodes.length ? (
+                  {graphNodes.length ? (
                     <MindmapCanvas
                       width={layoutWidth}
                       height={layoutHeight}
-                      nodes={nodes}
+                      nodes={graphNodes}
                       links={links}
                       activeNodeId={activeDetailId}
                       onNodeSelect={handleNodeClick}
+                      onNodePositionChange={handleNodePositionChange}
                     />
                   ) : (
                     <EmptyState>선택한 주제의 마인드맵을 준비하고 있습니다.</EmptyState>
