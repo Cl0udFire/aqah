@@ -19,6 +19,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
   final TextEditingController _messageController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
+  bool _isQuestionAccepted = false;
 
   @override
   void dispose() {
@@ -615,9 +616,7 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     // Show accept/decline UI if assignee hasn't accepted yet and no answers
-    if (isAssignee &&
-        question.acceptedByAssignee != true &&
-        question.answers.isEmpty) {
+    if (isAssignee && question.answers.isEmpty && !_isQuestionAccepted) {
       return _buildAcceptDeclineView(question);
     }
 
@@ -906,7 +905,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
 
   Future<void> _handleAcceptQuestion(String questionId) async {
     try {
-      await _firestoreService.acceptQuestion(questionId);
+      setState(() {
+        _isQuestionAccepted = true;
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -917,6 +919,10 @@ class _QuestionDetailScreenState extends State<QuestionDetailScreen> {
         );
       }
     } catch (e) {
+      setState(() {
+        _isQuestionAccepted = false;
+      });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

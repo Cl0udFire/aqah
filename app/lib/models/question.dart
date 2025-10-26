@@ -39,7 +39,6 @@ class Question {
   final DateTime updatedAt;
   final bool completed;
   final List<String> declinedBy;
-  final bool? acceptedByAssignee;
 
   Question({
     required this.id,
@@ -52,7 +51,6 @@ class Question {
     required this.updatedAt,
     this.completed = false,
     List<String>? declinedBy,
-    this.acceptedByAssignee,
   }) : answers = answers ?? [],
        declinedBy = declinedBy ?? [];
 
@@ -82,7 +80,6 @@ class Question {
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
       completed: data['completed'] ?? false,
       declinedBy: declinedByList,
-      acceptedByAssignee: data['acceptedByAssignee'],
     );
   }
 
@@ -97,7 +94,6 @@ class Question {
       'updatedAt': Timestamp.fromDate(updatedAt),
       'completed': completed,
       'declinedBy': declinedBy,
-      if (acceptedByAssignee != null) 'acceptedByAssignee': acceptedByAssignee,
     };
   }
 
@@ -125,7 +121,6 @@ class Question {
       updatedAt: updatedAt ?? this.updatedAt,
       completed: completed ?? this.completed,
       declinedBy: declinedBy ?? this.declinedBy,
-      acceptedByAssignee: acceptedByAssignee ?? this.acceptedByAssignee,
     );
   }
 }

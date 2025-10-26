@@ -47,6 +47,7 @@ class _AddQuestionScreenState extends State<AddQuestionScreen> {
         _titleController.clear();
         _contentController.clear();
         _formKey.currentState!.reset();
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
