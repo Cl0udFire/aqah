@@ -303,7 +303,7 @@ const DiskSchedulingPlayground = () => {
             <dl className="mt-2 space-y-2">
               <div className="flex items-center justify-between">
                 <dt>요청 순서</dt>
-                <dd className="text-right font-medium text-slate-700">
+                <dd className="text-end font-medium text-slate-700">
                   {servedOrder.length > 0
                     ? servedOrder.join(" → ")
                     : "요청 없음"}
