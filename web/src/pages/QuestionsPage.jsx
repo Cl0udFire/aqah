@@ -2,7 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Topbar from "../components/Topbar";
 import QuestionSelector from "../components/QuestionSelector";
 import QuestionList from "../components/QuestionList";
-import { subscribeToReceivedQuestions, subscribeToSentQuestions, issueQuestion } from "../firebase/db";
+import {
+  subscribeToReceivedQuestions,
+  subscribeToSentQuestions,
+  issueQuestion,
+} from "../firebase/db";
 import { useAppStore } from "../context/store";
 import Loading from "../components/Loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -99,8 +103,6 @@ const QuestionsPage = () => {
     return <Loading />;
   }
 
-  
-
   const closeComposer = () => {
     setIsComposerOpen(false);
     setTitle("");
@@ -129,7 +131,9 @@ const QuestionsPage = () => {
       closeComposer();
     } catch (error) {
       console.error("Failed to submit question", error);
-      setSubmitError("질문을 등록하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.");
+      setSubmitError(
+        "질문을 등록하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -139,19 +143,20 @@ const QuestionsPage = () => {
     <div className="min-h-screen bg-slate-50">
       <Topbar />
 
-      <main className="ml-[100px] flex-1 p-8">
+      <main className="flex-1 p-8">
         <div className="mx-auto max-w-4xl space-y-8">
           <header className="space-y-2">
-            <h1 className="text-[2rem] font-bold text-gray-900">
-              1:1 질문함
-            </h1>
+            <h1 className="text-[2rem] font-bold text-gray-900">1:1 질문함</h1>
             <p className="text-sm text-gray-500">
               궁금한 점을 질문하고 답변을 받아보세요!
             </p>
           </header>
 
           <div className="flex justify-between items-center">
-            <QuestionSelector value={currentFilter} onChange={setCurrentFilter} />
+            <QuestionSelector
+              value={currentFilter}
+              onChange={setCurrentFilter}
+            />
             <button
               className="w-[7rem] h-[2.5rem] bg-blue-500 text-white flex justify-center items-center rounded-xl gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => {
@@ -190,14 +195,21 @@ const QuestionsPage = () => {
           >
             <form className="flex flex-col gap-6 p-6" onSubmit={handleSubmit}>
               <header className="space-y-2">
-                <h2 id="question-composer-title" className="text-xl font-semibold text-slate-900">
+                <h2
+                  id="question-composer-title"
+                  className="text-xl font-semibold text-slate-900"
+                >
                   새 질문 등록
                 </h2>
-                <p className="text-sm text-slate-500">궁금한 내용을 자세히 작성해주시면 답변에 도움이 됩니다.</p>
+                <p className="text-sm text-slate-500">
+                  궁금한 내용을 자세히 작성해주시면 답변에 도움이 됩니다.
+                </p>
               </header>
 
               <label className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-slate-700">질문 제목</span>
+                <span className="text-sm font-medium text-slate-700">
+                  질문 제목
+                </span>
                 <input
                   ref={firstFieldRef}
                   type="text"
@@ -211,7 +223,9 @@ const QuestionsPage = () => {
               </label>
 
               <label className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-slate-700">질문 상세</span>
+                <span className="text-sm font-medium text-slate-700">
+                  질문 상세
+                </span>
                 <textarea
                   className="h-40 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
                   placeholder="상황을 설명하고 필요한 답변을 적어주세요."
@@ -223,7 +237,10 @@ const QuestionsPage = () => {
               </label>
 
               {submitError ? (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600" role="alert">
+                <div
+                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600"
+                  role="alert"
+                >
                   {submitError}
                 </div>
               ) : null}
