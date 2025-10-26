@@ -407,6 +407,12 @@ const Select = styled.select`
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
 `;
 
+const ErrorNote = styled.p`
+  margin-top: 8px;
+  font-size: 13px;
+  color: #dc2626;
+`;
+
 const SummaryCard = styled.section`
   padding: 24px;
   border-radius: 20px;
@@ -646,6 +652,93 @@ function createLinkPath(source, target) {
   return `M ${sourcePoint.x} ${sourcePoint.y} Q ${controlX} ${controlY} ${targetPoint.x} ${targetPoint.y}`;
 }
 
+function normalizeMindmapIndexResponse(payload) {
+  const result = { topics: [], maps: {} };
+
+  if (!payload) {
+    return result;
+  }
+
+  if (Array.isArray(payload)) {
+    payload.forEach((item) => {
+      if (!item) {
+        return;
+      }
+
+      const topic = item.topic || item.title || item.name;
+      const map =
+        item.map || item.mindmap || item.mindMap || item.data || item.payload || item.content;
+
+      if (topic) {
+        if (map && typeof map === "object") {
+          result.maps[topic] = map;
+        }
+        result.topics.push(topic);
+      }
+    });
+  } else if (typeof payload === "object") {
+    const mapsCandidate = payload.mindmaps || payload.mindMaps || payload.maps || payload.items;
+
+    if (mapsCandidate && typeof mapsCandidate === "object") {
+      Object.entries(mapsCandidate).forEach(([topic, map]) => {
+        if (map && typeof map === "object") {
+          result.maps[topic] = map;
+          result.topics.push(topic);
+        }
+      });
+    }
+
+    if (Array.isArray(payload.topics)) {
+      result.topics.push(...payload.topics);
+    } else if (!result.topics.length) {
+      Object.entries(payload).forEach(([key, value]) => {
+        if (
+          value &&
+          typeof value === "object" &&
+          key !== "mindmaps" &&
+          key !== "mindMaps" &&
+          key !== "maps" &&
+          key !== "items"
+        ) {
+          result.maps[key] = value;
+          result.topics.push(key);
+        }
+      });
+    }
+  }
+
+  result.topics = Array.from(new Set(result.topics));
+
+  if (!result.topics.length) {
+    result.topics = Object.keys(result.maps);
+  }
+
+  return result;
+}
+
+function normalizeMindmapPayload(payload, topic) {
+  if (!payload) {
+    return null;
+  }
+
+  if (payload.overview && payload.branches) {
+    return payload;
+  }
+
+  const nested =
+    payload.mindmap || payload.mindMap || payload.map || payload.data || payload.payload || null;
+
+  if (nested && nested.overview && nested.branches) {
+    return nested;
+  }
+
+  if (topic && payload[topic] && payload[topic].overview && payload[topic].branches) {
+    return payload[topic];
+  }
+
+  return null;
+}
+
 function useContainerSize() {
   const ref = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -674,7 +767,15 @@ function useContainerSize() {
   return [ref, dimensions];
 }
 
-function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect }) {
+function MindmapCanvas({
+  width,
+  height,
+  nodes,
+  links,
+  activeNodeId,
+  onNodeSelect,
+  onNodePositionChange
+}) {
   const decoratedNodes = useMemo(() => {
     return nodes.map((node) => {
       const labelLines = wrapText(node.label, node.text.maxChars, 1);
@@ -881,10 +982,15 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
   const [viewBox, setViewBox] = useState(baseViewBox);
   const svgRef = useRef(null);
   const pointerRef = useRef(null);
+  const suppressedClickRef = useRef(false);
   const [isPanning, setIsPanning] = useState(false);
+  const [draggingNodeId, setDraggingNodeId] = useState(null);
 
   useEffect(() => {
     baseViewBoxRef.current = baseViewBox;
+    if (pointerRef.current?.mode === "drag" || pointerRef.current?.mode === "pan") {
+      return;
+    }
     setViewBox(baseViewBox);
   }, [baseViewBox]);
 
@@ -918,9 +1024,32 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
         return;
       }
 
-      if (event.target.closest('[data-node="true"]')) {
+      const point = getSvgPoint(event, viewBox);
+      if (!point) {
         return;
       }
+
+      const svg = svgRef.current;
+      svg?.setPointerCapture(event.pointerId);
+      pointerRef.current = {
+        mode: "pan",
+        pointerId: event.pointerId,
+        lastPoint: point
+      };
+      setIsPanning(true);
+    },
+    [decoratedNodes.length, getSvgPoint, viewBox]
+  );
+
+  const handleNodePointerDown = useCallback(
+    (node, event) => {
+      if (event.button !== 0 && event.pointerType !== "touch" && event.pointerType !== "pen") {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      suppressedClickRef.current = false;
 
       const point = getSvgPoint(event, viewBox);
       if (!point) {
@@ -930,12 +1059,18 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       const svg = svgRef.current;
       svg?.setPointerCapture(event.pointerId);
       pointerRef.current = {
+        mode: "drag",
         pointerId: event.pointerId,
-        lastPoint: point
+        startPoint: point,
+        lastPoint: point,
+        nodeStart: { x: node.x, y: node.y },
+        nodeId: node.id,
+        hasMoved: false
       };
-      setIsPanning(true);
+      setDraggingNodeId(node.id);
+      setIsPanning(false);
     },
-    [decoratedNodes.length, getSvgPoint, viewBox]
+    [getSvgPoint, viewBox]
   );
 
   const handlePointerMove = useCallback(
@@ -947,28 +1082,58 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
 
       event.preventDefault();
 
-      setViewBox((prev) => {
-        const point = getSvgPoint(event, prev);
+      if (pointerState.mode === "pan") {
+        setViewBox((prev) => {
+          const point = getSvgPoint(event, prev);
+          if (!point) {
+            return prev;
+          }
+
+          const deltaX = point.x - pointerState.lastPoint.x;
+          const deltaY = point.y - pointerState.lastPoint.y;
+
+          pointerState.lastPoint = point;
+
+          return {
+            ...prev,
+            x: prev.x - deltaX,
+            y: prev.y - deltaY
+          };
+        });
+        return;
+      }
+
+      if (pointerState.mode === "drag") {
+        const point = getSvgPoint(event, viewBox);
         if (!point) {
-          return prev;
+          return;
         }
 
-        const deltaX = point.x - pointerState.lastPoint.x;
-        const deltaY = point.y - pointerState.lastPoint.y;
+        const totalDeltaX = point.x - pointerState.startPoint.x;
+        const totalDeltaY = point.y - pointerState.startPoint.y;
 
         pointerState.lastPoint = point;
 
-        return {
-          ...prev,
-          x: prev.x - deltaX,
-          y: prev.y - deltaY
-        };
-      });
+        if (!pointerState.hasMoved) {
+          const distanceSq = totalDeltaX * totalDeltaX + totalDeltaY * totalDeltaY;
+          if (distanceSq > 16) {
+            pointerState.hasMoved = true;
+            suppressedClickRef.current = true;
+          }
+        }
+
+        if (onNodePositionChange) {
+          onNodePositionChange(pointerState.nodeId, {
+            x: pointerState.nodeStart.x + totalDeltaX,
+            y: pointerState.nodeStart.y + totalDeltaY
+          });
+        }
+      }
     },
-    [getSvgPoint]
+    [getSvgPoint, onNodePositionChange, viewBox]
   );
 
-  const endPan = useCallback((event) => {
+  const endInteraction = useCallback((event) => {
     const pointerState = pointerRef.current;
     if (!pointerState) {
       return;
@@ -981,6 +1146,17 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       }
       pointerRef.current = null;
       setIsPanning(false);
+      if (pointerState.mode === "drag") {
+        const nodeId = pointerState.nodeId;
+        setDraggingNodeId((current) => (current === nodeId ? null : current));
+        if (pointerState.hasMoved) {
+          setTimeout(() => {
+            suppressedClickRef.current = false;
+          }, 0);
+        } else {
+          suppressedClickRef.current = false;
+        }
+      }
     }
   }, []);
 
@@ -1035,9 +1211,9 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
       preserveAspectRatio="xMidYMid meet"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
-      onPointerUp={endPan}
-      onPointerLeave={endPan}
-      onPointerCancel={endPan}
+      onPointerUp={endInteraction}
+      onPointerLeave={endInteraction}
+      onPointerCancel={endInteraction}
       onWheel={handleWheel}
       $isPanning={isPanning}
     >
@@ -1099,15 +1275,22 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
           <g
             key={node.id}
             data-node="true"
-            onClick={() => onNodeSelect(node.id)}
+            onClick={() => {
+              if (suppressedClickRef.current) {
+                suppressedClickRef.current = false;
+                return;
+              }
+              onNodeSelect(node.id);
+            }}
             role="button"
             tabIndex={0}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: draggingNodeId === node.id ? "grabbing" : "grab" }}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") {
                 onNodeSelect(node.id);
               }
             }}
+            onPointerDown={(event) => handleNodePointerDown(node, event)}
           >
             {isCircle ? (
               <circle
@@ -1190,11 +1373,139 @@ function MindmapCanvas({ width, height, nodes, links, activeNodeId, onNodeSelect
 }
 
 function LearnPage() {
-  const topics = Object.keys(mockMindMaps);
-  const [selectedTopic, setSelectedTopic] = useState(topics[0] ?? "");
-  const selectedMindMap = mockMindMaps[selectedTopic];
+  const [mindMapLibrary, setMindMapLibrary] = useState(() => ({ ...mockMindMaps }));
+  const [topics, setTopics] = useState(() => Object.keys(mockMindMaps));
+  const [selectedTopic, setSelectedTopic] = useState(() => Object.keys(mockMindMaps)[0] ?? "");
+  const [isTopicsLoading, setIsTopicsLoading] = useState(false);
+  const [isMindMapLoading, setIsMindMapLoading] = useState(false);
+  const [mindMapError, setMindMapError] = useState(null);
+  const loadedTopicsRef = useRef(new Set());
   const [graphRef, graphSize] = useContainerSize();
   const [activeNodeId, setActiveNodeId] = useState("root");
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+
+    const loadTopics = async () => {
+      setIsTopicsLoading(true);
+      try {
+        const response = await fetch("/api/mindmaps", { signal: controller.signal });
+        if (!response.ok) {
+          throw new Error(`Failed to load mind maps (${response.status})`);
+        }
+
+        const payload = await response.json();
+        if (cancelled) {
+          return;
+        }
+
+        const { topics: fetchedTopics, maps } = normalizeMindmapIndexResponse(payload);
+        const preparedMaps = {};
+
+        Object.entries(maps).forEach(([topic, value]) => {
+          const normalized = normalizeMindmapPayload(value, topic);
+          if (normalized && normalized.overview && normalized.branches) {
+            preparedMaps[topic] = normalized;
+            loadedTopicsRef.current.add(topic);
+          }
+        });
+
+        if (Object.keys(preparedMaps).length) {
+          setMindMapLibrary((prev) => ({ ...prev, ...preparedMaps }));
+        }
+
+        if (fetchedTopics.length) {
+          setTopics(fetchedTopics);
+        } else if (Object.keys(preparedMaps).length) {
+          setTopics(Object.keys(preparedMaps));
+        }
+
+        setMindMapError(null);
+      } catch (error) {
+        if (!cancelled && error.name !== "AbortError") {
+          setMindMapError(error.message || "마인드맵을 불러오지 못했습니다.");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsTopicsLoading(false);
+        }
+      }
+    };
+
+    loadTopics();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!topics.length) {
+      if (selectedTopic) {
+        setSelectedTopic("");
+      }
+      return;
+    }
+
+    if (!selectedTopic || !topics.includes(selectedTopic)) {
+      setSelectedTopic(topics[0]);
+    }
+  }, [topics, selectedTopic]);
+
+  useEffect(() => {
+    if (!selectedTopic || loadedTopicsRef.current.has(selectedTopic)) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    const controller = new AbortController();
+
+    const loadMindMap = async () => {
+      setIsMindMapLoading(true);
+      setMindMapError(null);
+
+      try {
+        const response = await fetch(`/api/mindmaps/${encodeURIComponent(selectedTopic)}`, {
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to load mind map (${response.status})`);
+        }
+
+        const payload = await response.json();
+        if (cancelled) {
+          return;
+        }
+
+        const normalized = normalizeMindmapPayload(payload, selectedTopic);
+
+        if (normalized && normalized.overview && normalized.branches) {
+          setMindMapLibrary((prev) => ({ ...prev, [selectedTopic]: normalized }));
+          loadedTopicsRef.current.add(selectedTopic);
+        }
+      } catch (error) {
+        if (!cancelled && error.name !== "AbortError") {
+          setMindMapError(error.message || "마인드맵을 불러오지 못했습니다.");
+        }
+      } finally {
+        if (!cancelled) {
+          setIsMindMapLoading(false);
+        }
+      }
+    };
+
+    loadMindMap();
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [selectedTopic]);
+
+  const selectedMindMap = selectedTopic ? mindMapLibrary[selectedTopic] : undefined;
 
   useEffect(() => {
     if (selectedMindMap) {
@@ -1207,7 +1518,7 @@ function LearnPage() {
   const layoutWidth = Math.max(720, graphSize.width || 0);
   const layoutHeight = Math.max(640, graphSize.height || 0);
 
-  const { nodes, links, detailMap } = useMemo(() => {
+  const baseGraph = useMemo(() => {
     if (!selectedMindMap) {
       return {
         nodes: [],
@@ -1266,7 +1577,6 @@ function LearnPage() {
       const angle = (2 * Math.PI * branchIndex) / branchCount;
       const branchX = centerX + branchRadius * Math.cos(angle);
       const branchY = centerY + branchRadius * Math.sin(angle);
-      const isLeft = angle > Math.PI / 2 && angle < (3 * Math.PI) / 2;
       const branchRadiusPx = Math.max(36, minDimension * 0.06);
 
       const branchNode = {
@@ -1319,7 +1629,6 @@ function LearnPage() {
         const subAngle = angle + offset;
         const subtopicX = centerX + subtopicRadius * Math.cos(subAngle);
         const subtopicY = centerY + subtopicRadius * Math.sin(subAngle);
-        const isSubLeft = subAngle > Math.PI / 2 && subAngle < (3 * Math.PI) / 2;
         const subtopicRadiusPx = Math.max(26, minDimension * 0.045);
 
         const subtopicNode = {
@@ -1371,6 +1680,13 @@ function LearnPage() {
     };
   }, [layoutHeight, layoutWidth, selectedMindMap, selectedTopic]);
 
+  const { nodes: computedNodes, links, detailMap } = baseGraph;
+  const [interactiveNodes, setInteractiveNodes] = useState(computedNodes);
+
+  useEffect(() => {
+    setInteractiveNodes(computedNodes);
+  }, [computedNodes]);
+
   const activeDetailId = useMemo(() => {
     if (detailMap[activeNodeId]) {
       return activeNodeId;
@@ -1391,6 +1707,25 @@ function LearnPage() {
     setActiveNodeId(nodeId);
   }, []);
 
+  const handleNodePositionChange = useCallback((nodeId, position) => {
+    setInteractiveNodes((prev) => {
+      let didUpdate = false;
+      const next = prev.map((node) => {
+        if (node.id === nodeId) {
+          didUpdate = true;
+          return { ...node, ...position };
+        }
+        return node;
+      });
+
+      return didUpdate ? next : prev;
+    });
+  }, []);
+
+  const graphNodes = interactiveNodes;
+  const showLoadingState = (isTopicsLoading || isMindMapLoading) && !graphNodes.length;
+  const showErrorState = mindMapError && !graphNodes.length;
+
   return (
     <Page>
       <Topbar />
@@ -1406,14 +1741,20 @@ function LearnPage() {
               id="topic-select"
               value={selectedTopic}
               onChange={(event) => setSelectedTopic(event.target.value)}
+              disabled={!topics.length && isTopicsLoading}
             >
-              {topics.map((topic) => (
-                <option key={topic} value={topic}>
-                  {topic}
-                </option>
-              ))}
+              {topics.length ? (
+                topics.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))
+              ) : (
+                <option value="">주제를 불러오는 중입니다…</option>
+              )}
             </Select>
           </Controls>
+          {mindMapError ? <ErrorNote>{mindMapError}</ErrorNote> : null}
         </Header>
 
         {selectedMindMap ? (
@@ -1425,15 +1766,20 @@ function LearnPage() {
             <MindmapSection>
               <GraphShell>
                 <GraphViewport ref={graphRef}>
-                  {nodes.length ? (
+                  {graphNodes.length ? (
                     <MindmapCanvas
                       width={layoutWidth}
                       height={layoutHeight}
-                      nodes={nodes}
+                      nodes={graphNodes}
                       links={links}
                       activeNodeId={activeDetailId}
                       onNodeSelect={handleNodeClick}
+                      onNodePositionChange={handleNodePositionChange}
                     />
+                  ) : showLoadingState ? (
+                    <EmptyState>마인드맵을 불러오는 중입니다…</EmptyState>
+                  ) : showErrorState ? (
+                    <EmptyState>마인드맵을 불러오지 못했습니다.</EmptyState>
                   ) : (
                     <EmptyState>선택한 주제의 마인드맵을 준비하고 있습니다.</EmptyState>
                   )}
@@ -1459,7 +1805,11 @@ function LearnPage() {
           </>
         ) : (
           <GraphShell>
-            <EmptyState>선택된 주제의 데이터를 불러올 수 없습니다.</EmptyState>
+            {showLoadingState ? (
+              <EmptyState>마인드맵을 불러오는 중입니다…</EmptyState>
+            ) : (
+              <EmptyState>선택된 주제의 데이터를 불러올 수 없습니다.</EmptyState>
+            )}
           </GraphShell>
         )}
       </Content>
