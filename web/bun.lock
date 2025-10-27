@@ -14,7 +14,7 @@
         "@mui/joy": "^5.0.0-beta.52",
         "@tailwindcss/postcss": "^4.1.16",
         "@tailwindcss/vite": "^4.1.16",
-        "@vavt/cm-extension": "^1.11.1",
+        "@vavt/cm-extension": "^1.11.2",
         "firebase": "^12.4.0",
         "md-editor-rt": "^6.1.0",
         "prop-types": "^15.8.1",
@@ -507,7 +507,7 @@
 
     "@types/stylis": ["@types/stylis@4.2.5", "", {}, "sha512-1Xve+NMN7FWjY14vLoY5tL3BVEQ/n42YLwaqJIPYhotZ9uBHt87VceMwWQpzmdEt2TNXIorIFG+YeCUUW7RInw=="],
 
-    "@vavt/cm-extension": ["@vavt/cm-extension@1.11.1", "", {}, "sha512-UGWMhaMbk05aUH2duhTjDMD2SKPsh5D5LNnfYzDXHAVusmpcBT3Z/0gyyZIc1O4ZyKVaNRZ04dwkTzDpFEZD0g=="],
+    "@vavt/cm-extension": ["@vavt/cm-extension@1.11.2", "", {}, "sha512-fgjXxZ+HvJz/mBXd1Cpo8PWd/a1kMD3RysM/4O16uyXG+pleBUdUoYcuM5hl4GfFt8CZu5QJMji+Gbl9wL0bmw=="],
 
     "@vavt/copy2clipboard": ["@vavt/copy2clipboard@1.0.3", "", {}, "sha512-HtG48r2FBYp9eRvGB3QGmtRBH1zzRRAVvFbGgFstOwz4/DDaNiX0uZc3YVKPydqgOav26pibr9MtoCaWxn7aeA=="],
 
