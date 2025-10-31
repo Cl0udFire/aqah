@@ -21,7 +21,7 @@
     "@tailwindcss/postcss": "^4.1.16",
     "@tailwindcss/vite": "^4.1.16",
     "@vavt/cm-extension": "^1.11.2",
-    "firebase": "^12.4.0",
+    "firebase": "^12.5.0",
     "md-editor-rt": "^6.1.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.1",
